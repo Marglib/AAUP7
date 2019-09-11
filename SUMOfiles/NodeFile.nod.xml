@@ -1,0 +1,7 @@
+<nodes>
+    <node id="n1" x="0" y="500" type="unregulated"/>
+    <node id="n2" x="0" y="-500" type="unregulated"/>
+    <node id="n3" x="500" y="0" type="unregulated"/>
+    <node id="n4" x="-500" y="0" type="unregulated"/>
+    <node id="n5" x="0" y="0" type="unregulated"/> <!-- Middle -->
+</nodes>

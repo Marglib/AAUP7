@@ -1,0 +1,10 @@
+<edges>
+    <edge from="n1" to="n5" id="Road1" numLanes="1" type="3L50"/>
+    <edge from="n5" to="n1" id="Road1_out" numLanes="1" type="out"/>
+    <edge from="n2" to="n5" id="Road2" numLanes="1" type="3L50"/>
+    <edge from="n5" to="n2" id="Road2_out" numLanes="1" type="out"/>
+    <edge from="n5" to="n3" id="Road3_out" numLanes="1" type="out"/>
+    <edge from="n3" to="n5" id="Road3" numLanes="1" type="3L50"/>
+    <edge from="n4" to="n5" id="Road4" numLanes="1" type="3L50"/>
+    <edge from="n5" to="n4" id="Road4_out" numLanes="1" type="out"/>
+</edges>

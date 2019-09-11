@@ -1,0 +1,602 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
+<nta>
+	<declaration>// Place global declarations here.
+//HOLDER_NUMBER_OF_CARS
+const int C = 4;
+typedef int[0, N-1] carID;
+
+
+chan SyncWithCrashDetector;
+chan ChooseSpeed[N], SpeedSet;
+chan go;
+
+int global_newSpeed = 0, global_currentSpeed = 0;
+int global_uid = 0;
+
+int currentCar = 0;
+int cur = 0;
+
+int SoftCrashDetected = 0;
+
+int ClockScaler = 10;
+
+int y;
+</declaration>
+	<template>
+		<name>Timer</name>
+		<declaration>clock x;
+
+
+</declaration>
+		<location id="id0" x="-216" y="16">
+			<name x="-192" y="8">Timer</name>
+			<label kind="invariant" x="-229" y="42">x &lt;= 1</label>
+		</location>
+		<init ref="id0"/>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id0"/>
+			<label kind="guard" x="-224" y="-112">x == 1</label>
+			<label kind="synchronisation" x="-224" y="-97">go!</label>
+			<label kind="assignment" x="-224" y="-128">x = 0, y++</label>
+			<nail x="-128" y="-64"/>
+			<nail x="-296" y="-64"/>
+		</transition>
+	</template>
+	<template>
+		<name>Car</name>
+		<parameter>const carID uid, int id, int speed, int desiredSpeed, int maxSpeed, int setSpeed</parameter>
+		<declaration>// Place local declarations here.
+int newSpeed = 0;
+
+
+</declaration>
+		<location id="id1" x="-3180" y="-3017">
+			<name x="-3188" y="-3059">SetNewSpeed</name>
+			<urgent/>
+		</location>
+		<location id="id2" x="-3817" y="-3017">
+			<name x="-3876" y="-3068">Updating</name>
+			<urgent/>
+		</location>
+		<location id="id3" x="-4097" y="-3017">
+			<name x="-4120" y="-3068">InitState</name>
+		</location>
+		<location id="id4" x="-4021" y="-3017">
+			<name x="-4061" y="-3068">ChoosingPath</name>
+			<urgent/>
+		</location>
+		<location id="id5" x="-2967" y="-3017">
+			<name x="-3002" y="-3059">DoneSetting</name>
+		</location>
+		<init ref="id3"/>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id1"/>
+			<label kind="select" x="-3613" y="-3068">i : int[1,16]</label>
+			<label kind="assignment" x="-3613" y="-3042">newSpeed = (i * ClockScaler)</label>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id5"/>
+			<label kind="synchronisation" x="-3069" y="-3008">SpeedSet!</label>
+			<label kind="assignment" x="-3069" y="-2991">global_newSpeed = newSpeed,
+global_currentSpeed = speed,
+global_uid = uid,
+currentCar = currentCar + 1</label>
+		</transition>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id1"/>
+			<label kind="guard" x="-3698" y="-2787">setSpeed == 0 &amp;&amp;
+cur == uid</label>
+			<label kind="assignment" x="-3553" y="-2787">newSpeed = desiredSpeed,
+cur = cur + 1</label>
+			<nail x="-3774" y="-2745"/>
+			<nail x="-3298" y="-2745"/>
+		</transition>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id2"/>
+			<label kind="guard" x="-3961" y="-3017">setSpeed == 1 &amp;&amp;
+cur == uid</label>
+			<label kind="assignment" x="-3961" y="-2983">cur = cur + 1</label>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id4"/>
+			<label kind="synchronisation" x="-3961" y="-3042">ChooseSpeed[uid]?</label>
+		</transition>
+	</template>
+	<template>
+		<name>Updater</name>
+		<declaration>//Indexes in the three arrays represents a car. So posx[0], posy[0] and route[0] is car 0. 
+
+const int AmountOfRoutes = //HOLDER_AMOUNT_OF_ROUTES
+
+typedef struct {
+    int x;
+    int y;
+} point;
+
+//HOLDER_ROUTES
+
+
+
+const double CenterOfIntersectionX = //HOLDER_CENTER_INTERSECTION_X
+const double CenterOfIntersectionY = //HOLDER_CENTER_INTERSECTION_Y
+const int MaxListLenght = //MAX_LIST_LENGHT
+const int XParalelVector[2] = {0,1};
+const int AmountOfNonIntersectingRoutes = //AMOUNT_HOLDER_NON_INTERSECTING_ROUTES
+
+int NonIntersectingRoutes[AmountOfNonIntersectingRoutes][2] = //HOLDER_NON_INTERSECTING_ROUTES
+
+int length[N] = //HOLDER_CAR_LENGTH
+int width[N] = //HOLDER_CAR_WIDTH
+int startposx[N] = //HOLDER_CAR_POSX
+int startposy[N] = //HOLDER_CAR_POSY
+int posx[N];
+int posy[N];
+int prevPosX[N];
+int prevPosY[N];
+double distance[N] ;
+point route[N][MaxListLenght] = //HOLDER_CAR_ROUTE
+int routeIds[N] = //HOLDER_CAR_ROUTE_ID
+int amountOfLinesTraversed[N];
+int lineIndex[MaxListLenght];
+int decel[N] = //HOLDER_CAR_DECEL
+int accel[N] = //HOLDER_CAR_ACCEL
+int amountOfAlreadySet = //HOLDER_CAR_ALREADYSET ;
+int stopDistance[N];
+int newSpeed[N];
+int currentSpeed[N];
+int done[N];
+int CarCounter = 0;
+int AllBeenThrough = 0;
+int index = 0;
+int AllDone = 0;
+int gapDistance = 3;
+int minorGap = 0;
+int CarOneCrash = 0;
+int CarTwoCrash = 0;
+
+int CrashDetected = 0;
+
+
+typedef struct {
+    int CarOne;
+    int CarTwo;
+} CrashingCars;
+
+point CPs[4];
+
+void Constructor(){
+    int i = 0, index = 0;
+
+    for(i = 0; i &lt; N; i++){
+        posx[i] = startposx[i];
+        posy[i] = startposy[i];
+        prevPosX[i] = posx[i];
+        prevPosY[i] = posy[i];
+        done[i] = 0;
+
+        distance[i] = sqrt(pow(posx[i] - CenterOfIntersectionX,2) + pow(posy[i] - CenterOfIntersectionY,2)); 
+
+        /*
+        if(route[i] == 12){
+            distance[i] = posy[i] - (500 * ClockScaler);
+        }
+        else if(route[i]  == 21){
+            distance[i] = (500 * ClockScaler) - posy[i];
+        }
+        else if(route[i]  == 34){
+            distance[i]  = posx[i] - (500 * ClockScaler);
+        }
+        else if(route[i]  == 43){
+            distance[i]  = (500 * ClockScaler) - posx[i];
+        }
+        */
+
+    }
+}
+
+
+
+void UpdatePos(){
+    int i = 0, j = 0, k = 0, carVectorX = 0, carVectorY = 0;
+    int checker = 1;
+	double a = 0.0, b = 0.0, dotProduct = 0.0, determinant = 0.0, angleInRadians = 0.0, 
+	TimeToNextLine = 0.0, nextPosx = 0.0, nextPosy = 0.0, distanceToLineStart = 0.0, distanceToLineEnd = 0.0, totalLineDistance = 0.0;
+    for(i = 0; i &lt; amountOfAlreadySet; i++){
+		int amountOfLines = 0;
+		double remainingTime = 1.0;
+        if(done[i] == 0){
+			prevPosX[i] = posx[i];
+			prevPosY[i] = posy[i];
+			for(j = 0; j &lt; MaxListLenght; j++){
+                while(remainingTime &gt; 0){
+					//Checks that the current j is not a filler (int_max)
+					if(route[i][j].x &lt; 32767){
+						//Checks if the line is moving vertically to aviod zero division
+						if(route[i][j+1].x == route[i][j].x){
+							a = 0;
+							b = route[i][j].y; 
+						} 
+						else{
+							a = (route[i][j+1].y - route[i][j].y) / (route[i][j+1].x - route[i][j].x);
+							b = route[i][j].y - (a * route[i][j].x);
+						}
+						//Checks if the current position is on the current line j
+						if(posy[i] == ((a * posx[i]) + b)) {
+							//Create the vector to be compare to the standard vector (0,1)
+							carVectorX = route[i][j+1].x - route[i][j].x;
+							carVectorY = route[i][j+1].y - route[i][j].y;
+
+							dotProduct = (carVectorX * XParalelVector[0]) + (carVectorY * XParalelVector[1]);
+							determinant = (carVectorX * XParalelVector[1]) - (carVectorY * XParalelVector[0]);
+							angleInRadians = atan2(determinant, dotProduct);
+
+							//Finds the new position according to the angle of updating
+							nextPosx = posx[i] + cos(angleInRadians * currentSpeed[i]);
+							nextPosy = posy[i] + sin(angleInRadians * currentSpeed[i]);
+
+							distanceToLineStart = sqrt((pow(nextPosx - route[i][j].x,2)) + (pow(nextPosy - route[i][j].y,2)));
+							distanceToLineEnd = sqrt((pow(nextPosx - route[i][j+1].x,2)) + (pow(nextPosy - route[i][j+1].y,2)));
+							totalLineDistance = sqrt((pow(route[i][j].x - route[i][j+1].x,2)) + (pow(route[i][j].y - route[i][j+1].y,2)));
+
+							if(((distanceToLineStart + distanceToLineEnd) == totalLineDistance) == false){
+								TimeToNextLine = sqrt(pow(posx[i] - route[i][j+1].x,2) + pow(posy[i] - route[i][j+1].y,2));
+								remainingTime = remainingTime - TimeToNextLine;
+
+								posx[i] = route[i][j+1].x;
+								posy[i] = route[i][j+1].y;
+								j = j + 1;
+
+								amountOfLines = amountOfLines + 1;
+								//Save information for rectangle creation later - Bliver en anden god gang
+							}
+							else{
+                            	remainingTime = 0;
+								posx[i] = fint(nextPosx);
+								posy[i] = fint(nextPosy);	
+
+								amountOfLines = amountOfLines + 1;
+								lineIndex[i] = j - amountOfLines;
+								amountOfLinesTraversed[i] = amountOfLines;
+                         	}
+						}
+					}
+                }
+            }
+            
+            distance[i] = sqrt(pow(posx[i] - CenterOfIntersectionX,2) + pow(posy[i] - CenterOfIntersectionY,2)); 
+            if(distance[i] &gt; (150 * ClockScaler)){
+                done[i] = 1;
+            }
+        }
+    }
+    for(k = 0; k &lt; amountOfAlreadySet; k++){
+        if(done[k] == 0){
+            checker = 0;
+        }
+    }
+    
+    if(checker){
+        if(amountOfAlreadySet == N){
+            AllBeenThrough = 1;
+        }
+    }
+    AllDone = checker;
+}
+
+void CheckSpeedUpdate(){
+    int i = 0;
+    if(y % 10 == 0){
+        for(i = 0; i &lt; amountOfAlreadySet; i++){
+            if(currentSpeed[i] &lt; newSpeed[i]){
+                if((currentSpeed[i] + accel[i]) &lt; newSpeed[i]){
+                    currentSpeed[i] = currentSpeed[i] + accel[i];
+                }
+                else{
+                    currentSpeed[i] = newSpeed[i];
+                }
+            }
+            if(currentSpeed[i] &gt;= newSpeed[i]){
+                if((currentSpeed[i] - decel[i]) &gt; newSpeed[i]){
+                    currentSpeed[i] = currentSpeed[i] - decel[i];
+                }
+                else{
+                    currentSpeed[i] = newSpeed[i];
+                }    
+            }
+        }
+    y = 0;
+    }
+}
+
+void CheckForCrashesNew(){
+	int i = 0, j = 0, k = 0;
+	double delta = 3.0, carOneCenterPointX = 0.0, carOneCenterPointY = 0.0, carTwoCenterPointX = 0.0, 
+	carTwoCenterPointY = 0.0, radiusCarOne = 0.0, radiusCarTwo = 0.0, distanceRatio = 0.0, carOneEndPointX = 0.0, 
+	carOneEndPointY = 0.0, carTwoEndPointX = 0.0, carTwoEndPointY = 0.0, distanceBetwenCenterPoints = 0.0;
+	bool CrashAlreadyDetected = false;
+	bool intersecting = true;
+
+	for(i = 0; i &lt; amountOfAlreadySet; i++){
+		//Finding the backend of the first car. Needed to ensure the circle is large enough. Link: https://math.stackexchange.com/questions/175896/finding-a-point-along-a-line-a-certain-distance-away-from-another-point
+		
+		distanceRatio = length[i] / sqrt((pow(route[i][lineIndex[i]].x - prevPosX[i],2)) + (pow(route[i][lineIndex[i]].y - prevPosY[i],2))); 
+		carOneEndPointX = ((1-distanceRatio)*prevPosX[i] + (distanceRatio * route[i][lineIndex[i]].x));
+		carOneEndPointY = ((1-distanceRatio)*prevPosY[i] + (distanceRatio * route[i][lineIndex[i]].y));
+
+		//From that point we find the middle point between the backend of the cars previous position and the frontend of the cars current position
+		carOneCenterPointX = (carOneEndPointX + posx[i]) / 2;
+		carOneCenterPointY = (carOneEndPointY + posy[i]) / 2;
+
+		//We then calculate the radius as the distance between one of the points and the center plus an additional delta distance
+		radiusCarOne = (sqrt((pow(carOneEndPointX - carOneCenterPointX,2)) + (pow(carOneEndPointY - carOneCenterPointY,2)))) + delta;
+		
+		for(j = 0; j &lt; amountOfAlreadySet; j++){
+			//Skips the same car and duplicates
+            if(i &lt; j &amp;&amp; done[i] == 0 &amp;&amp; done[j] == 0){
+                CrashAlreadyDetected = false;
+				intersecting = true;	
+				for(k = 0; k &lt; AmountOfNonIntersectingRoutes; k++){
+					if((routeIds[i] == NonIntersectingRoutes[k][0]) &amp;&amp; (routeIds[j] == NonIntersectingRoutes[k][1])){
+						intersecting = false;
+					}
+				}
+				if(intersecting == true){
+					distanceRatio = length[j] / sqrt((pow(route[j][lineIndex[j]].x - prevPosX[j],2)) + (pow(route[j][lineIndex[j]].y - prevPosY[j],2))); 
+					carTwoEndPointX = ((1-distanceRatio)*prevPosX[j] + (distanceRatio * route[j][lineIndex[j]].x));
+					carTwoEndPointY = ((1-distanceRatio)*prevPosY[j] + (distanceRatio * route[j][lineIndex[j]].y));
+
+					//From that point we find the middle point between the backend of the cars previous position and the frontend of the cars current position
+					carTwoCenterPointX = (carTwoEndPointX + posx[j]) / 2;
+					carTwoCenterPointY = (carTwoEndPointY + posy[j]) / 2;
+
+					//We then calculate the radius as the distance between one of the points and the center plus an additional delta distance
+					radiusCarTwo = (sqrt((pow(carTwoEndPointX - carTwoCenterPointX,2)) + (pow(carTwoEndPointY - carTwoCenterPointY,2)))) + delta;
+
+					distanceBetwenCenterPoints = sqrt((pow(carOneCenterPointX - carTwoCenterPointX,2)) + (pow(carOneCenterPointY - carTwoCenterPointY,2))); 
+					if((radiusCarOne + radiusCarTwo) &lt; distanceBetwenCenterPoints){
+						if(CrashAlreadyDetected == false){
+							CarOneCrash = i;
+							CarTwoCrash = j;
+							CrashDetected += 1;
+						}
+						CrashAlreadyDetected = true;
+					}
+				}
+			}
+		}
+	}		
+}
+
+/*
+void CheckForCrashes(){
+    int i = 0, j = 0, k = 0, positive = 0;
+    int highestSpeedID = 0, highestSpeed = 0;
+    double delta = 0.1;
+    double i_bottom_right_caronly_x, i_bottom_right_caronly_y, i_top_left_caronly_x, i_top_left_caronly_y;
+    double j_bottom_right_caronly_x, j_bottom_right_caronly_y, j_top_left_caronly_x, j_top_left_caronly_y;
+    bool CrashAlreadyDetected = false;
+
+
+	
+    for(i = 0; i &lt; amountOfAlreadySet; i++){
+		if(route[i] == 12){
+			i_bottom_right_caronly_y = posy[i] - gapDistance - delta;
+			i_bottom_right_caronly_x =  posx[i] + delta + (width[i] / 2); 
+			i_top_left_caronly_y = prevPosY[i] + length[i] + delta + minorGap;
+			i_top_left_caronly_x =  prevPosX[i] - delta - (width[i] / 2); 
+		}
+		else if(route[i] == 21){
+			i_bottom_right_caronly_y = prevPosY[i] - length[i] - delta - gapDistance;
+			i_bottom_right_caronly_x =  prevPosX[i] + (width[i] / 2) + delta; 
+			i_top_left_caronly_y = posy[i] + minorGap + delta;
+			i_top_left_caronly_x =  posx[i] - (width[i] / 2) - delta; 
+		}
+		else if(route[i] == 34){
+			i_bottom_right_caronly_y =  prevPosY[i] - (width[i] / 2) - delta; 
+			i_bottom_right_caronly_x = prevPosX[i] + length[i] + delta + gapDistance;
+			i_top_left_caronly_y =  posy[i] + (width[i] / 2) + delta; 
+			i_top_left_caronly_x = posx[i] - minorGap - delta;
+		}
+		else if(route[i] == 43){
+			i_bottom_right_caronly_y =  posy[i] - (width[i] / 2) - delta; 
+			i_bottom_right_caronly_x = posx[i] + gapDistance + delta;
+			i_top_left_caronly_y =  prevPosY[i] + (width[i] / 2) + delta; 
+			i_top_left_caronly_x = prevPosX[i] - length[i] - delta - minorGap;
+		}
+
+        for(j = 0; j &lt; amountOfAlreadySet; j++){
+             //Skips the same car and duplicates
+            if(i &lt; j &amp;&amp; done[i] == 0 &amp;&amp; done[j] == 0){
+                CrashAlreadyDetected = false;
+
+				if(route[j] == 12){
+					j_bottom_right_caronly_y = posy[j] - gapDistance - delta;
+					j_bottom_right_caronly_x =  posx[j] + delta + (width[j] / 2); 
+					j_top_left_caronly_y = prevPosY[j] + length[j] + delta + minorGap;
+					j_top_left_caronly_x =  prevPosX[j] - (width[j] / 2) - delta; 
+				}
+				else if(route[j] == 21){
+					j_bottom_right_caronly_y = prevPosY[j] - length[i] - delta - gapDistance;
+					j_bottom_right_caronly_x =  prevPosX[j] + (width[j] / 2) + delta; 
+					j_top_left_caronly_y = posy[j] + minorGap + delta;
+					j_top_left_caronly_x =  posx[j] - (width[j] / 2) - delta; 
+				}
+				else if(route[j] == 34){
+					j_bottom_right_caronly_y =  prevPosY[j] - (width[j] / 2) - delta; 
+					j_bottom_right_caronly_x = prevPosX[j] + length[j] + delta + gapDistance;
+					j_top_left_caronly_y =  posy[j] + (width[j] / 2) + delta; 
+					j_top_left_caronly_x = posx[j] - minorGap - delta;
+				}  
+				else if(route[j] == 43){
+					j_bottom_right_caronly_y =  posy[j] - (width[j] / 2) - delta; 
+					j_bottom_right_caronly_x = posx[j] + gapDistance + delta;
+					j_top_left_caronly_y =  prevPosY[j] + (width[j] / 2) + delta; 
+					j_top_left_caronly_x = prevPosX[j] - length[j] - delta - minorGap;
+				}
+
+				if((i_top_left_caronly_x &gt; j_bottom_right_caronly_x) || (j_top_left_caronly_x &gt; i_bottom_right_caronly_x)){
+					CrashDetected += 0;
+				}
+				else if((i_top_left_caronly_y &lt; j_bottom_right_caronly_y) || (j_top_left_caronly_y &lt; i_bottom_right_caronly_y)){
+					CrashDetected += 0;
+				}
+				else {
+					if(CrashAlreadyDetected == false){
+						CarOneCrash = i;
+						CarTwoCrash = j;
+						CrashDetected += 1;
+					}
+					CrashAlreadyDetected = true;
+				}
+            }            
+        }
+    }
+}
+*/
+
+void SyncCarSpeed(){
+    newSpeed[global_uid] = global_newSpeed;
+    currentSpeed[global_uid] = global_currentSpeed;
+}
+</declaration>
+		<location id="id6" x="-484" y="-8">
+			<name x="-450" y="9">WaitingForSpeeds</name>
+			<urgent/>
+		</location>
+		<location id="id7" x="-484" y="-110">
+			<name x="-535" y="-153">CarSettingSpeed</name>
+		</location>
+		<location id="id8" x="-484" y="178">
+			<name x="-476" y="119">CheckCrash</name>
+			<urgent/>
+		</location>
+		<location id="id9" x="-204" y="178">
+			<name x="-238" y="136">UpdateSpeed</name>
+			<urgent/>
+		</location>
+		<location id="id10" x="25" y="178">
+			<name x="-34" y="136">UpdatePosition</name>
+			<urgent/>
+		</location>
+		<location id="id11" x="246" y="374">
+			<name x="280" y="366">End</name>
+		</location>
+		<location id="id12" x="246" y="178">
+			<name x="161" y="136">CheckDone</name>
+		</location>
+		<location id="id13" x="-654" y="-8">
+			<name x="-680" y="9">InitState</name>
+			<committed/>
+		</location>
+		<location id="id14" x="246" y="17">
+			<name x="272" y="8">ReadyForNextCar</name>
+			<urgent/>
+		</location>
+		<location id="id15" x="8" y="17">
+			<name x="-59" y="-25">NextCarSettingSpeed</name>
+		</location>
+		<init ref="id13"/>
+		<transition>
+			<source ref="id15"/>
+			<target ref="id8"/>
+			<label kind="synchronisation" x="-93" y="59">SpeedSet?</label>
+			<label kind="assignment" x="-93" y="76">SyncCarSpeed(),
+amountOfAlreadySet++,
+y = 0</label>
+		</transition>
+		<transition>
+			<source ref="id14"/>
+			<target ref="id15"/>
+			<label kind="synchronisation" x="34" y="-8">ChooseSpeed[currentCar]!</label>
+		</transition>
+		<transition>
+			<source ref="id12"/>
+			<target ref="id14"/>
+			<label kind="guard" x="263" y="51">AllDone == 1 &amp;&amp; AllBeenThrough == 0</label>
+			<label kind="synchronisation" x="263" y="68">go?</label>
+			<label kind="assignment" x="263" y="93">Constructor()</label>
+		</transition>
+		<transition>
+			<source ref="id13"/>
+			<target ref="id6"/>
+			<label kind="assignment" x="-595" y="0">Constructor()</label>
+		</transition>
+		<transition>
+			<source ref="id12"/>
+			<target ref="id8"/>
+			<label kind="guard" x="-187" y="382">AllDone == 0</label>
+			<label kind="synchronisation" x="-128" y="357">go?</label>
+			<nail x="0" y="340"/>
+			<nail x="-280" y="340"/>
+		</transition>
+		<transition>
+			<source ref="id10"/>
+			<target ref="id12"/>
+			<label kind="assignment" x="59" y="187">UpdatePos()</label>
+		</transition>
+		<transition>
+			<source ref="id12"/>
+			<target ref="id11"/>
+			<label kind="guard" x="263" y="246">AllDone == 1  &amp;&amp; AllBeenThrough == 1</label>
+			<label kind="synchronisation" x="263" y="272">go?</label>
+		</transition>
+		<transition>
+			<source ref="id9"/>
+			<target ref="id10"/>
+			<label kind="assignment" x="-170" y="187">CheckSpeedUpdate()</label>
+		</transition>
+		<transition>
+			<source ref="id8"/>
+			<target ref="id9"/>
+			<label kind="assignment" x="-382" y="187">CheckForCrashesNew()</label>
+		</transition>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id8"/>
+			<label kind="guard" x="-450" y="34">currentCar == (amountOfAlreadySet + 1)</label>
+			<label kind="assignment" x="-450" y="51">amountOfAlreadySet++</label>
+		</transition>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id6"/>
+			<label kind="synchronisation" x="-671" y="-102">SpeedSet?</label>
+			<label kind="assignment" x="-671" y="-85">SyncCarSpeed()</label>
+			<nail x="-484" y="-59"/>
+		</transition>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id7"/>
+			<label kind="guard" x="-357" y="-51">currentCar &lt; (amountOfAlreadySet + 1)</label>
+			<label kind="synchronisation" x="-357" y="-76">ChooseSpeed[currentCar]!</label>
+			<nail x="-382" y="-68"/>
+		</transition>
+	</template>
+	<system>// Place template instantiations here.
+
+const int pid[N] = //HOLDER_CAR_PID 
+const int speed[N] = //HOLDER_CAR_SPEED
+const int desiredSpeed[N] = //HOLDER_CAR_DESIREDSPEED
+const int maxSpeed[N] = //HOLDER_CAR_MAXSPEED
+const int setSpeed[N] = //HOLDER_CAR_SETSPEED
+
+
+
+Cars(const int[0,N-1] id) = Car(id, pid[id], speed[id], desiredSpeed[id], maxSpeed[id], setSpeed[id]);
+
+system Cars, Timer, Updater;
+
+</system>
+	<queries>
+		<query>
+			<formula></formula>
+			<comment></comment>
+		</query>
+	</queries>
+</nta>
