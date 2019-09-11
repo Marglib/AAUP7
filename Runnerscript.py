@@ -39,6 +39,7 @@ def run(options):
     traci.init(options.port)
     step = 0
 
+
     print("Starting simulation expid=" + str(options.expid))
     
     while traci.simulation.getMinExpectedNumber() > 0:
