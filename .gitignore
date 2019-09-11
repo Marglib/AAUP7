@@ -1,0 +1,7 @@
+#detector files
+*.out
+
+# mypy
+.mypy_cache/
+
+VerifierPath.py
