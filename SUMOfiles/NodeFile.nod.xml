@@ -1,7 +1,36 @@
 <nodes>
-    <node id="n1" x="0" y="500" type="unregulated"/>
-    <node id="n2" x="0" y="-500" type="unregulated"/>
-    <node id="n3" x="500" y="0" type="unregulated"/>
-    <node id="n4" x="-500" y="0" type="unregulated"/>
-    <node id="n5" x="0" y="0" type="unregulated"/> <!-- Middle -->
+    <!--Intersection nodes-->
+    <node id="n1" x="500" y="500" type="unregulated"/>
+    <node id="n2" x="500" y="1000" type="unregulated"/>
+    <node id="n3" x="500" y="1500" type="unregulated"/>
+    <node id="n4" x="500" y="2000" type="unregulated"/>
+    <node id="n5" x="1000" y="500" type="unregulated"/> 
+    <node id="n6" x="1000" y="1000" type="unregulated"/>
+    <node id="n7" x="1000" y="1500" type="unregulated"/>
+    <node id="n8" x="1000" y="2000" type="unregulated"/>
+    <node id="n9" x="1500" y="500" type="unregulated"/>
+    <node id="n10" x="1500" y="1000" type="unregulated"/>
+    <node id="n11" x="1500" y="1500" type="unregulated"/>
+    <node id="n12" x="1500" y="2000" type="unregulated"/>
+    <node id="n13" x="2000" y="500" type="unregulated"/>
+    <node id="n14" x="2000" y="1000" type="unregulated"/>
+    <node id="n15" x="2000" y="1500" type="unregulated"/>
+    <node id="n16" x="2000" y="2000" type="unregulated"/>
+    <!--Entry nodes-->
+    <node id="n17" x="0" y="500" type="unregulated"/>
+    <node id="n18" x="0" y="1000" type="unregulated"/>
+    <node id="n19" x="0" y="1500" type="unregulated"/>
+    <node id="n20" x="0" y="2000" type="unregulated"/>
+    <node id="n21" x="500" y="0" type="unregulated"/> 
+    <node id="n22" x="500" y="2500" type="unregulated"/>
+    <node id="n23" x="1000" y="0" type="unregulated"/>
+    <node id="n24" x="1000" y="2500" type="unregulated"/>
+    <node id="n25" x="1500" y="0" type="unregulated"/>
+    <node id="n26" x="1500" y="2500" type="unregulated"/>
+    <node id="n27" x="2000" y="0" type="unregulated"/>
+    <node id="n28" x="2000" y="2500" type="unregulated"/>
+    <node id="n29" x="2500" y="500" type="unregulated"/>
+    <node id="n30" x="2500" y="1000" type="unregulated"/>
+    <node id="n31" x="2500" y="1500" type="unregulated"/>
+    <node id="n32" x="2500" y="2000" type="unregulated"/>
 </nodes>

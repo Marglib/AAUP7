@@ -1,10 +1,90 @@
 <edges>
-    <edge from="n1" to="n5" id="Road1" numLanes="1" type="3L50"/>
-    <edge from="n5" to="n1" id="Road1_out" numLanes="1" type="out"/>
-    <edge from="n2" to="n5" id="Road2" numLanes="1" type="3L50"/>
-    <edge from="n5" to="n2" id="Road2_out" numLanes="1" type="out"/>
-    <edge from="n5" to="n3" id="Road3_out" numLanes="1" type="out"/>
-    <edge from="n3" to="n5" id="Road3" numLanes="1" type="3L50"/>
-    <edge from="n4" to="n5" id="Road4" numLanes="1" type="3L50"/>
-    <edge from="n5" to="n4" id="Road4_out" numLanes="1" type="out"/>
+    <!--vertical x500-->
+    <edge from="n21" to="n1" id="v-x500-1-n" numLanes="2" type="standardroad"/>
+    <edge from="n1" to="n21" id="v-x500-1-s" numLanes="2" type="standardroad"/>
+    <edge from="n1" to="n2" id="v-x500-2-n" numLanes="2" type="standardroad"/>
+    <edge from="n2" to="n1" id="v-x500-2-s" numLanes="2" type="standardroad"/>
+    <edge from="n2" to="n3" id="v-x500-3-n" numLanes="2" type="standardroad"/>
+    <edge from="n3" to="n2" id="v-x500-3-s" numLanes="2" type="standardroad"/>
+    <edge from="n3" to="n4" id="v-x500-4-n" numLanes="2" type="standardroad"/>
+    <edge from="n4" to="n3" id="v-x500-4-s" numLanes="2" type="standardroad"/>
+    <edge from="n4" to="n22" id="v-x500-5-n" numLanes="2" type="standardroad"/>
+    <edge from="n22" to="n4" id="v-x500-5-s" numLanes="2" type="standardroad"/>
+    <!--vertical x1000-->
+    <edge from="n23" to="n5" id="v-x1000-1-n" numLanes="2" type="standardroad"/>
+    <edge from="n5" to="n23" id="v-x1000-1-s" numLanes="2" type="standardroad"/>
+    <edge from="n5" to="n6" id="v-x1000-2-n" numLanes="2" type="standardroad"/>
+    <edge from="n6" to="n5" id="v-x1000-2-s" numLanes="2" type="standardroad"/>
+    <edge from="n6" to="n7" id="v-x1000-3-n" numLanes="2" type="standardroad"/>
+    <edge from="n7" to="n6" id="v-x1000-3-s" numLanes="2" type="standardroad"/>
+    <edge from="n7" to="n8" id="v-x1000-4-n" numLanes="2" type="standardroad"/>
+    <edge from="n8" to="n7" id="v-x1000-4-s" numLanes="2" type="standardroad"/>
+    <edge from="n8" to="n24" id="v-x1000-5-n" numLanes="2" type="standardroad"/>
+    <edge from="n24" to="n8" id="v-x1000-5-s" numLanes="2" type="standardroad"/>
+    <!--vertical x1500-->
+    <edge from="n25" to="n9" id="v-x1500-1-n" numLanes="2" type="standardroad"/>
+    <edge from="n9" to="n25" id="v-x1500-1-s" numLanes="2" type="standardroad"/>
+    <edge from="n9" to="n10" id="v-x1500-2-n" numLanes="2" type="standardroad"/>
+    <edge from="n10" to="n9" id="v-x1500-2-s" numLanes="2" type="standardroad"/>
+    <edge from="n10" to="n11" id="v-x1500-3-n" numLanes="2" type="standardroad"/>
+    <edge from="n11" to="n10" id="v-x1500-3-s" numLanes="2" type="standardroad"/>
+    <edge from="n11" to="n12" id="v-x1500-4-n" numLanes="2" type="standardroad"/>
+    <edge from="n12" to="n11" id="v-x1500-4-s" numLanes="2" type="standardroad"/>
+    <edge from="n12" to="n26" id="v-x1500-5-n" numLanes="2" type="standardroad"/>
+    <edge from="n26" to="n12" id="v-x1500-5-s" numLanes="2" type="standardroad"/>
+    <!--vertical x2000-->
+    <edge from="n27" to="n13" id="v-x2000-1-n" numLanes="2" type="standardroad"/>
+    <edge from="n13" to="n27" id="v-x2000-1-s" numLanes="2" type="standardroad"/>
+    <edge from="n13" to="n14" id="v-x2000-2-n" numLanes="2" type="standardroad"/>
+    <edge from="n14" to="n13" id="v-x2000-2-s" numLanes="2" type="standardroad"/>
+    <edge from="n14" to="n15" id="v-x2000-3-n" numLanes="2" type="standardroad"/>
+    <edge from="n15" to="n14" id="v-x2000-3-s" numLanes="2" type="standardroad"/>
+    <edge from="n15" to="n16" id="v-x2000-4-n" numLanes="2" type="standardroad"/>
+    <edge from="n16" to="n15" id="v-x2000-4-s" numLanes="2" type="standardroad"/>
+    <edge from="n16" to="n28" id="v-x2000-5-n" numLanes="2" type="standardroad"/>
+    <edge from="n28" to="n16" id="v-x2000-5-s" numLanes="2" type="standardroad"/>
+    <!--horizontal y500-->
+    <edge from="n17" to="n1" id="h-y500-1-e" numLanes="2" type="standardroad"/>
+    <edge from="n1" to="n17" id="h-y500-1-w" numLanes="2" type="standardroad"/>
+    <edge from="n1" to="n5" id="h-y500-2-e" numLanes="2" type="standardroad"/>
+    <edge from="n5" to="n1" id="h-y500-2-w" numLanes="2" type="standardroad"/>
+    <edge from="n5" to="n9" id="h-y500-3-e" numLanes="2" type="standardroad"/>
+    <edge from="n9" to="n5" id="h-y500-3-w" numLanes="2" type="standardroad"/>
+    <edge from="n9" to="n13" id="h-y500-4-e" numLanes="2" type="standardroad"/>
+    <edge from="n13" to="n9" id="h-y500-4-w" numLanes="2" type="standardroad"/>
+    <edge from="n13" to="n29" id="h-y500-5-e" numLanes="2" type="standardroad"/>
+    <edge from="n29" to="n13" id="h-y500-5-w" numLanes="2" type="standardroad"/>
+    <!--horizontal y1000-->
+    <edge from="n18" to="n2" id="h-y1000-1-e" numLanes="2" type="standardroad"/>
+    <edge from="n2" to="n18" id="h-y1000-1-w" numLanes="2" type="standardroad"/>
+    <edge from="n2" to="n6" id="h-y1000-2-e" numLanes="2" type="standardroad"/>
+    <edge from="n6" to="n2" id="h-y1000-2-w" numLanes="2" type="standardroad"/>
+    <edge from="n6" to="n10" id="h-y1000-3-e" numLanes="2" type="standardroad"/>
+    <edge from="n10" to="n6" id="h-y1000-3-w" numLanes="2" type="standardroad"/>
+    <edge from="n10" to="n14" id="h-y1000-4-e" numLanes="2" type="standardroad"/>
+    <edge from="n14" to="n10" id="h-y1000-4-w" numLanes="2" type="standardroad"/>
+    <edge from="n14" to="n30" id="h-y1000-5-e" numLanes="2" type="standardroad"/>
+    <edge from="n30" to="n14" id="h-y1000-5-w" numLanes="2" type="standardroad"/>
+    <!--horizontal y1500-->
+    <edge from="n19" to="n3" id="h-y1500-1-e" numLanes="2" type="standardroad"/>
+    <edge from="n3" to="n19" id="h-y1500-1-w" numLanes="2" type="standardroad"/>
+    <edge from="n3" to="n7" id="h-y1500-2-e" numLanes="2" type="standardroad"/>
+    <edge from="n7" to="n3" id="h-y1500-2-w" numLanes="2" type="standardroad"/>
+    <edge from="n7" to="n11" id="h-y1500-3-e" numLanes="2" type="standardroad"/>
+    <edge from="n11" to="n7" id="h-y1500-3-w" numLanes="2" type="standardroad"/>
+    <edge from="n11" to="n15" id="h-y1500-4-e" numLanes="2" type="standardroad"/>
+    <edge from="n15" to="n11" id="h-y1500-4-w" numLanes="2" type="standardroad"/>
+    <edge from="n15" to="n31" id="h-y1500-5-e" numLanes="2" type="standardroad"/>
+    <edge from="n31" to="n15" id="h-y1500-5-w" numLanes="2" type="standardroad"/>
+    <!--horizontal y2000-->
+    <edge from="n20" to="n4" id="h-y2000-1-e" numLanes="2" type="standardroad"/>
+    <edge from="n4" to="n20" id="h-y2000-1-w" numLanes="2" type="standardroad"/>
+    <edge from="n4" to="n8" id="h-y2000-2-e" numLanes="2" type="standardroad"/>
+    <edge from="n8" to="n4" id="h-y2000-2-w" numLanes="2" type="standardroad"/>
+    <edge from="n8" to="n12" id="h-y2000-3-e" numLanes="2" type="standardroad"/>
+    <edge from="n12" to="n8" id="h-y2000-3-w" numLanes="2" type="standardroad"/>
+    <edge from="n12" to="n16" id="h-y2000-4-e" numLanes="2" type="standardroad"/>
+    <edge from="n16" to="n12" id="h-y2000-4-w" numLanes="2" type="standardroad"/>
+    <edge from="n16" to="n32" id="h-y2000-5-e" numLanes="2" type="standardroad"/>
+    <edge from="n32" to="n16" id="h-y2000-5-w" numLanes="2" type="standardroad"/>
 </edges>
