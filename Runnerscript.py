@@ -28,9 +28,9 @@ PORT = 8873
 
 rootDir = os.path.abspath(os.getcwd())
 pathToResults = os.path.join(rootDir,'results')
-pathToModels = os.path.join(rootDir,'Uppaal')
+pathToModels = os.path.join(rootDir,'UppaalModels')
 icavQuery = os.path.join(pathToModels, 'ICAV.q')
-icavModel = os.path.join(pathToModels, 'IcavSpeed2.xml')
+icavModel = os.path.join(pathToModels, 'IcavSpeedIterationUpdate.xml')
 
 
 def run(options):
