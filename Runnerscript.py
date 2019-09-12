@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python
 from __future__ import absolute_import
 from __future__ import print_function
@@ -21,7 +20,7 @@ except:
 
 from sumolib import checkBinary
 import traci
-from CallModel import modelCaller
+#from CallModel import modelCaller
 
 # the port used for communicating with your sumo instance
 PORT = 8873
@@ -54,6 +53,8 @@ def run(options):
 
         if options.controller == "P7Controller":
             CarsInNetworkList = traci.vehicle.getIDList()
+            for car in CarsInNetworkList:
+                print(traci.vehicle.getRoute(car))
 
         traci.simulationStep()
         step += 1    
@@ -90,10 +91,12 @@ if __name__ == "__main__":
         sumoBinary = checkBinary('sumo-gui')
     # this is the normal way of using traci. sumo is started as a
     # subprocess and then the python script connects and runs
-    emissioninfofile = "results/emission" + str(options.expid) + ".xml"
-    tripinfofile = "results/tripinfo" + str(options.expid) + ".xml"
-    sumoProcess = subprocess.Popen([sumoBinary, "-c", options.sumocfg, "--tripinfo-output", 
-                                    tripinfofile, "--emission-output", emissioninfofile, "--remote-port", str(options.port)], stdout=sys.stdout,
+    #emissioninfofile = "results/emission" + str(options.expid) + ".xml"
+    #tripinfofile = "results/tripinfo" + str(options.expid) + ".xml"
+    #sumoProcess = subprocess.Popen([sumoBinary, "-c", options.sumocfg, "--tripinfo-output", 
+     #                               tripinfofile, "--emission-output", emissioninfofile, "--remote-port", str(options.port)], stdout=sys.stdout,
+      #                             stderr=sys.stderr)
+    sumoProcess = subprocess.Popen([sumoBinary, "-c", options.sumocfg, "--remote-port", str(options.port)], stdout=sys.stdout,
                                    stderr=sys.stderr)
     run(options)
     sumoProcess.wait()

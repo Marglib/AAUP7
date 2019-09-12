@@ -2,21 +2,9 @@
     <vType accel="1.0" decel="5.0" id="Car" jmIgnoreKeepClearTime="100.0" maxSpeed="30" length="3" />
         
     <!--emergencyDecel="0.0"-->
-    <route id="route12" edges="Road1 Road2_out"/> <!-- Geradeaus-->
-    <route id="route13" edges="Road1 Road3_out"/>
-    <route id="route14" edges="Road1 Road4_out"/>
+    <trip id="0" depart="0.00" from="h-y500-1-e" to="v-x500-5-n"/>
 
-    <route id="route21" edges="Road2 Road1_out"/> <!-- Geradeaus-->
-    <route id="route23" edges="Road2 Road3_out"/>
-    <route id="route24" edges="Road2 Road4_out"/> 
 
-    <route id="route31" edges="Road3 Road1_out"/> 
-    <route id="route32" edges="Road3 Road2_out"/> 
-    <route id="route34" edges="Road3 Road4_out"/> <!-- Geradeaus-->
-
-    <route id="route41" edges="Road4 Road1_out"/>
-    <route id="route42" edges="Road4 Road2_out"/>
-    <route id="route43" edges="Road4 Road3_out"/> <!-- Geradeaus-->
 
 
 
@@ -27,10 +15,10 @@
     <vehicle depart ="0" id="car23" route="route23" type="Car"/>
     <vehicle depart ="0" id="car24" route="route24" type="Car"/>
     <vehicle depart ="0" id="car31" route="route31" type="Car"/>
-    <vehicle depart ="0" id="car32" route="route32" type="Car"/>-->
-    <vehicle depart ="0" id="car41" route="route41" type="Car"/>
-    <vehicle depart ="0" id="car42" route="route42" type="Car"/>
-    <!--<vehicle depart ="7" id="car6" route="route21" type="Car"/>
+    <vehicle depart ="0" id="car32" route="route32" type="Car"/>
+    <vehicle depart ="0" id="car41" route="testRoute" type="Car"/>
+    <vehicle depart ="10" id="car42" route="testRoute" type="Car"/>
+    <vehicle depart ="7" id="car6" route="route21" type="Car"/>
     <vehicle depart ="10" id="car7" route="route34" type="Car"/>
     <vehicle depart ="10" id="car8" route="route43" type="Car"/>
     <vehicle depart ="12" id="car9" route="route12" type="Car"/>

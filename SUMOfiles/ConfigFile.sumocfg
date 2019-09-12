@@ -4,9 +4,9 @@
 
     <input>
         <net-file value="NetFile.net.xml"/>
-        <route-files value="TrafficLoads/HighTrafficLoad.rou.xml"/>
+        <route-files value="RouteFile.rou.xml"/>
         <!--<additional-files value="DetFile.det.xml"/>-->
-    <gui-settings-file value="nylandsvejPlainTest.set.xml"/>
+    <!--<gui-settings-file value="nylandsvejPlainTest.set.xml"/>-->
     </input>
 
     <time>
