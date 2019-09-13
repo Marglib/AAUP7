@@ -20,7 +20,7 @@ except:
 
 from sumolib import checkBinary
 import traci
-#from CallModel import modelCaller
+from CallModel import modelCaller
 
 # the port used for communicating with your sumo instance
 PORT = 8873
@@ -28,8 +28,8 @@ PORT = 8873
 rootDir = os.path.abspath(os.getcwd())
 pathToResults = os.path.join(rootDir,'results')
 pathToModels = os.path.join(rootDir,'UppaalModels')
-icavQuery = os.path.join(pathToModels, 'ICAV.q')
-icavModel = os.path.join(pathToModels, 'IcavSpeedIterationUpdate.xml')
+icavQuery = os.path.join(pathToModels, 'TNC.q')
+icavModel = os.path.join(pathToModels, 'TrafficNetworkController.xml')
 
 
 def run(options):
@@ -51,7 +51,7 @@ def run(options):
                 traci.vehicle.getSpeed(carID)
 
 
-        if options.controller == "P7Controller":
+        if options.controller == "TrafficNetworkController":
             CarsInNetworkList = traci.vehicle.getIDList()
             for car in CarsInNetworkList:
                 print(traci.vehicle.getRoute(car))
