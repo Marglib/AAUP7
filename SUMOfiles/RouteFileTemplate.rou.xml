@@ -1,0 +1,7 @@
+<routes>
+    <vType accel="1.0" decel="5.0" id="Car" jmIgnoreKeepClearTime="100.0" maxSpeed="30" length="3" />
+        
+    <!--emergencyDecel="0.0"-->
+    //TRIPS_PLACEHOLDER
+
+</routes>
