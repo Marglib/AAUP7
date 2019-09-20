@@ -12,8 +12,8 @@
     <node id="n10" x="175" y="300" type="unregulated"/>
     <node id="n11" x="250" y="150" type="unregulated"/>
     <node id="n12" x="250" y="200" type="unregulated"/>
-    <node id="n13" x="250" y="250" type="unregulated"/>
-    <node id="n14" x="250" y="275" type="unregulated"/>
+    <node id="n13" x="250" y="225" type="unregulated"/>
+    <node id="n14" x="250" y="250" type="unregulated"/>
     <node id="n15" x="325" y="100" type="unregulated"/>
     <node id="n16" x="325" y="150" type="unregulated"/>
     <node id="n17" x="300" y="200" type="unregulated"/>
