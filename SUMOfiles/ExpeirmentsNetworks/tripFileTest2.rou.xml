@@ -1,0 +1,57 @@
+<routes>
+    <vType accel="1.0" decel="5.0" id="Car" jmIgnoreKeepClearTime="100.0" maxSpeed="30" length="3" />
+        
+    <!--emergencyDecel="0.0"-->
+    <trip id="0" depart="0" from="n7-n6" to="n2-n1"/>
+<trip id="1" depart="3" from="n1-n2" to="n6-n7"/>
+<trip id="2" depart="4" from="n7-n6" to="n2-n1"/>
+<trip id="3" depart="4" from="n8-n9" to="n6-n7"/>
+<trip id="4" depart="6" from="n4-n5" to="n6-n7"/>
+<trip id="5" depart="7" from="n8-n9" to="n6-n7"/>
+<trip id="6" depart="7" from="n4-n5" to="n2-n1"/>
+<trip id="7" depart="8" from="n8-n9" to="n9-n8"/>
+<trip id="8" depart="9" from="n1-n2" to="n6-n7"/>
+<trip id="9" depart="9" from="n1-n2" to="n2-n1"/>
+<trip id="10" depart="11" from="n1-n2" to="n5-n4"/>
+<trip id="11" depart="12" from="n7-n6" to="n2-n1"/>
+<trip id="12" depart="12" from="n1-n2" to="n6-n7"/>
+<trip id="13" depart="13" from="n1-n2" to="n6-n7"/>
+<trip id="14" depart="14" from="n8-n9" to="n5-n4"/>
+<trip id="15" depart="14" from="n4-n5" to="n2-n1"/>
+<trip id="16" depart="16" from="n8-n9" to="n5-n4"/>
+<trip id="17" depart="17" from="n1-n2" to="n2-n1"/>
+<trip id="18" depart="21" from="n8-n9" to="n6-n7"/>
+<trip id="19" depart="22" from="n8-n9" to="n6-n7"/>
+<trip id="20" depart="22" from="n7-n6" to="n6-n7"/>
+<trip id="21" depart="23" from="n4-n5" to="n9-n8"/>
+<trip id="22" depart="25" from="n8-n9" to="n9-n8"/>
+<trip id="23" depart="25" from="n1-n2" to="n2-n1"/>
+<trip id="24" depart="26" from="n7-n6" to="n2-n1"/>
+<trip id="25" depart="27" from="n7-n6" to="n9-n8"/>
+<trip id="26" depart="28" from="n8-n9" to="n9-n8"/>
+<trip id="27" depart="29" from="n7-n6" to="n6-n7"/>
+<trip id="28" depart="29" from="n7-n6" to="n9-n8"/>
+<trip id="29" depart="31" from="n4-n5" to="n2-n1"/>
+<trip id="30" depart="33" from="n4-n5" to="n5-n4"/>
+<trip id="31" depart="35" from="n7-n6" to="n9-n8"/>
+<trip id="32" depart="35" from="n8-n9" to="n2-n1"/>
+<trip id="33" depart="35" from="n8-n9" to="n5-n4"/>
+<trip id="34" depart="36" from="n4-n5" to="n9-n8"/>
+<trip id="35" depart="37" from="n7-n6" to="n9-n8"/>
+<trip id="36" depart="38" from="n1-n2" to="n2-n1"/>
+<trip id="37" depart="39" from="n7-n6" to="n6-n7"/>
+<trip id="38" depart="39" from="n4-n5" to="n2-n1"/>
+<trip id="39" depart="41" from="n1-n2" to="n6-n7"/>
+<trip id="40" depart="41" from="n1-n2" to="n9-n8"/>
+<trip id="41" depart="44" from="n7-n6" to="n6-n7"/>
+<trip id="42" depart="44" from="n4-n5" to="n6-n7"/>
+<trip id="43" depart="45" from="n4-n5" to="n5-n4"/>
+<trip id="44" depart="48" from="n4-n5" to="n2-n1"/>
+<trip id="45" depart="48" from="n7-n6" to="n9-n8"/>
+<trip id="46" depart="49" from="n7-n6" to="n6-n7"/>
+<trip id="47" depart="49" from="n7-n6" to="n9-n8"/>
+<trip id="48" depart="49" from="n4-n5" to="n5-n4"/>
+<trip id="49" depart="50" from="n8-n9" to="n2-n1"/>
+
+
+</routes>
