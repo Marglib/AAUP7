@@ -4,7 +4,7 @@
 
     <input>
         <net-file value="SimpleRerouteNet.net.xml"/>
-        <!--<route-files value="TripFileTest.rou.xml"/>-->
+        <route-files value="SimpleReroutingTrips.rou.xml"/>
         <!--<additional-files value="DetFile.det.xml"/>-->
     <gui-settings-file value="GuiFile.set.xml"/>
     </input>

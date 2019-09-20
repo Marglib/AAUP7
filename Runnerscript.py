@@ -54,8 +54,9 @@ def run(options):
         if options.controller == "SimpleRerouting":
             CarsInNetworkList = traci.vehicle.getIDList()
             for car in CarsInNetworkList:
-                if(traci.vehicle.getRoute(car) == ...):
-                    eaf
+                print(traci.vehicle.getRoute(car))
+                #if(traci.vehicle.getRoute(car) == ...):
+                 #   eaf
 
 
 
@@ -64,6 +65,7 @@ def run(options):
             # ['n4-n5','n5-n6','n6-n7']
             # ['n8-n9','n9-n10','n10-n6','n6-n7']      
             # ['n1-n2','n2-n5','n5-n6','n6-n7']
+            
             # ['n4-n5','n2-n3','n3-n6','n6-n7']
             # ['n1-n2','n2-n3','n3-n6','n6-n7']
             # ['n1-n2','n2-n3','n3-n6','n6-n7']

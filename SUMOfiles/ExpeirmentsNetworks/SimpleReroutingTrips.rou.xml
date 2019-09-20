@@ -1,0 +1,12 @@
+<routes>
+    <vType accel="1.0" decel="5.0" id="Car" jmIgnoreKeepClearTime="100.0" maxSpeed="30" length="3" />
+        
+    <!--emergencyDecel="0.0"-->
+
+<trip id="0" depart="1" from="n1-n2" to="n6-n7"/>
+<trip id="1" depart="1" from="n4-n5" to="n6-n7"/>
+<trip id="2" depart="1" from="n8-n9" to="n6-n7"/>
+
+
+
+</routes>
