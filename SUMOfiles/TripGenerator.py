@@ -1,73 +1,101 @@
+from __future__ import absolute_import
+from __future__ import print_function
 from xml.dom import minidom
 import os
 import sys
 import random
+import optparse
+import subprocess
+import random
+import time
+import math
+import copy
 
-argumentList = sys.argv
-if(len(argumentList) != 3):
-    sys.exit("Please give 2 arguements: numberOfTrips and fileName.")
+routeFile = "RouteFileTemplate.rou.xml"
 
+def generateTrips(options, edgeFileDir):
+    fromNodes = []
+    toNodes = []
+    numberOfTrips = options.numberOfTrips
+    runTime = options.runTime
+    # parse an xml file by name
+    mydoc = minidom.parse(options.edgeFile)
 
-try:
-    numberOfTrips = int(argumentList[1])
-    fileName = argumentList[2]
-except ValueError as verr:
-    sys.exit("Value has to be an integers")
-except Exception as ex:
-    sys.exit("Stuff went wrong it seems")
+    edges = mydoc.getElementsByTagName('edge')
 
-edgeFile = 'EdgeFile.edg.xml'
-routeFile = 'RouteFileTemplate.rou.xml'
+    for elem in edges:
+        fromNodes.append(elem.attributes['from'].value)
+        toNodes.append(elem.attributes['to'].value)
 
+    fromNodes = removeIntersectionNodes(fromNodes)
+    toNodes = removeIntersectionNodes(toNodes)
 
-fromNodes = []
-toNodes = []
-numberOfTrips = 50
-# parse an xml file by name
-mydoc = minidom.parse(edgeFile)
+    fromEdges = []
+    toEdges = []
 
-edges = mydoc.getElementsByTagName('edge')
+    for edge in edges:
+        if(edge.attributes['from'].value in fromNodes):
+            fromEdges.append(edge.attributes['id'].value)
+        if(edge.attributes['to'].value in fromNodes):
+            toEdges.append(edge.attributes['id'].value)
+    
+    randomDepartures = [] 
+  
+    for j in range(0, numberOfTrips): 
+        randomDepartures.append(random.randint(0, runTime)) 
 
-for elem in edges:
-    fromNodes.append(elem.attributes['from'].value)
-    toNodes.append(elem.attributes['to'].value)
+    randomDepartures.sort()
+
+    fo = open(routeFile, "r+")
+    routeFileAsString = fo.read()
+    fo.close()
+
+    toReplace = "//TRIPS_PLACEHOLDER"
+    value = ""
+    for i in range(0, numberOfTrips):
+        value += "<trip id=\"" + str(i) + "\" depart=\"" + str(randomDepartures[i]) + "\" from=\"" + random.choice(fromEdges) + "\" to=\"" + random.choice(toEdges) + "\"/>\n"
+
+    routeFileAsString = str.replace(routeFileAsString, toReplace, value, 1)
+
+    modelName = os.path.join(edgeFileDir, options.outFile + '.rou.xml')
+    text_file = open(modelName, "w")
+    text_file.write(routeFileAsString)
+    text_file.close()
+    print("Success")
 
 def removeIntersectionNodes(listOfNodes):
     return [i for i in listOfNodes if listOfNodes.count(i) <= 1]
 
-fromNodes = removeIntersectionNodes(fromNodes)
-toNodes = removeIntersectionNodes(toNodes)
 
-fromEdges = []
-toEdges = []
+def get_options():
+    optParser = optparse.OptionParser()
+    optParser.add_option("--trips", type="int",
+                         default=2000, dest="numberOfTrips")
+    optParser.add_option("--time", type="int",
+                         default=1000, dest="runTime")
+    optParser.add_option("--edgeFile", type="string", dest="edgeFile", default="")
+    optParser.add_option("-o", type="string", dest="outFile", default="")  
+    options, args = optParser.parse_args()
+    return options
 
-for edge in edges:
-    if(edge.attributes['from'].value in fromNodes):
-        fromEdges.append(edge.attributes['id'].value)
-    if(edge.attributes['to'].value in fromNodes):
-        toEdges.append(edge.attributes['id'].value)
+                  
+# this is the main entry point of this script
+if __name__ == "__main__":
+    options = get_options()
 
-print("well done friend")
+    if(options.edgeFile == ""):
+        sys.exit("edgeFile cannot be empty")
+    if((os.path.exists(options.edgeFile)) == False):
+        sys.exit("edgeFile does not exist: " + options.edgeFile)
+    if(options.outFile == ""):
+        sys.exit("outFile cannot be empty")
+    
+    edgeFileDir = os.path.dirname(options.edgeFile)
+    generateTrips(options, edgeFileDir)
 
 
 
 
-
-fo = open(routeFile, "r+")
-routeFileAsString = fo.read()
-fo.close()
-
-toReplace = "//TRIPS_PLACEHOLDER"
-value = ""
-for i in range(0, numberOfTrips):
-    value += "<trip id=\"" + str(i) + "\" depart=\"" + str(i) + "\" from=\"" + random.choice(fromEdges) + "\" to=\"" + random.choice(toEdges) + "\"/>\n"
-
-routeFileAsString = str.replace(routeFileAsString, toReplace, value, 1)
-
-modelName = fileName + '.rou.xml'
-text_file = open(modelName, "w")
-text_file.write(routeFileAsString)
-text_file.close()
 
 
 
