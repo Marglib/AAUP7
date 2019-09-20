@@ -11,10 +11,3 @@ VerifierPath.py
 
 # Visual Studio Code
 .vscode
-<<<<<<< HEAD
-
-#output result
-results/
-/ExpeirmentsNetwork/TripsMainRoad.rou.xml
-=======
->>>>>>> Update gitignore to ignore VS code and pyc files
