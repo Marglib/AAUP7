@@ -44,17 +44,34 @@ def run(options):
     while traci.simulation.getMinExpectedNumber() > 0:
         print(">>>simulation step: " + str(step))
                 
-        if options.controller == "StandardTrafficLight":
-            ListOfCars = traci.vehicle.getIDList()
-
-            for carID in ListOfCars:
-                traci.vehicle.getSpeed(carID)
-
 
         if options.controller == "TrafficNetworkController":
             CarsInNetworkList = traci.vehicle.getIDList()
             for car in CarsInNetworkList:
                 print(traci.vehicle.getRoute(car))
+
+
+        if options.controller == "SimpleRerouting":
+            CarsInNetworkList = traci.vehicle.getIDList()
+            for car in CarsInNetworkList:
+                if(traci.vehicle.getRoute(car) == ...):
+                    eaf
+
+
+
+            #Possible Routes:
+            # ['n1-n2','n2-n3','n3-n6','n6-n7']
+            # ['n4-n5','n5-n6','n6-n7']
+            # ['n8-n9','n9-n10','n10-n6','n6-n7']      
+            # ['n1-n2','n2-n5','n5-n6','n6-n7']
+            # ['n4-n5','n2-n3','n3-n6','n6-n7']
+            # ['n1-n2','n2-n3','n3-n6','n6-n7']
+            # ['n1-n2','n2-n3','n3-n6','n6-n7']
+            # ['n1-n2','n2-n3','n3-n6','n6-n7']
+            # ['n1-n2','n2-n3','n3-n6','n6-n7']
+
+
+
 
         traci.simulationStep()
         step += 1    
