@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from __future__ import absolute_import
 from __future__ import print_function
+from xml.dom import minidom
 import os
 import sys
 import optparse
@@ -38,15 +39,9 @@ def run(options):
     traci.init(options.port)
     step = 0
     ListOfCarsPlaceholder = []
-    EdgesInNetwork = traci.edge.getIDList()
-    
+    ListOfNodes, ListOfEdges = preprocess()    
 
     print("Starting simulation expid=" + str(options.expid))
-    
-    for edge in EdgesInNetwork:
-        NrOfLanes = traci.edge.getLaneNumber(edge)
-        for i in range(0,NrOfLanes):
-            print("lane: " + edge + "_" + str(i) + " is connected with: " + str(traci.lane.getLinks(edge + "_" + str(i))))
 
     while traci.simulation.getMinExpectedNumber() > 0:
         print(">>>simulation step: " + str(step))
@@ -74,30 +69,69 @@ def run(options):
 
 
             ListOfCarsPlaceholder = list(CarsInNetworkList)
-    
-            #Possible Routes for cars spawning on n1-n2 going to n3-n12:
-            # ['n1-n2','n2-n3','n3-n12']
-            # ['n1-n2','n2-n5','n5-n6','n6-n3','n3-n12']
-
-            #Possible Routes for cars spawning on n1-n2 going to n2-n11:
-            # ['n1-n2','n2-n3','n3-n12']
-            # ['n1-n2','n2-n5','n5-n6','n6-n3','n3-n12']
-
-            # ['n8-n9','n9-n10','n10-n6','n6-n7']      
-            # ['n1-n2','n2-n5','n5-n6','n6-n7']
-            # ['n4-n5','n5-n2','n2-n3','n3-n6','n6-n7']
-            # ['n1-n2','n2-n3','n3-n6','n6-n7']
-            # ['n1-n2','n2-n3','n3-n6','n6-n7']
-            # ['n1-n2','n2-n3','n3-n6','n6-n7']
-            # ['n1-n2','n2-n3','n3-n6','n6-n7']
-
-
-
 
         traci.simulationStep()
         step += 1    
     traci.close()
     sys.stdout.flush()
+
+
+def preprocess():
+    get_external_edges()
+    ListOfNodes, ListOfEdges = configure_graph_from_network()
+
+def get_external_edges():
+    edgeList = []
+    EdgeTuple = traci.edge.getIDList()
+
+    for edge in EdgeTuple:
+        if((edge[0] == ":") == False):
+            edgeList.append(edge)
+
+def configure_graph_from_network():
+    #Initialize empty list of nodes and edges (graph)
+    
+    TupleOfNodes = traci.junction.getIDList()
+    ListOfNodes = []
+    ListOfEdges = []
+    EdgeTuple = ()
+
+    for node in TupleOfNodes:
+        if((node[0] == ":") == False):
+            ListOfNodes.append(node)
+
+    #Retrieving netfile from the sumo cfg
+    mydoc = minidom.parse(options.sumocfg)
+    netFile = ""
+    netFileName = mydoc.getElementsByTagName('net-file')
+    netFileDirectory = get_directory()
+    for name in netFileName:
+        netFile = name.attributes['value'].value
+
+    netFile = minidom.parse(netFileDirectory + netFile)
+
+    connections = tuple(netFile.getElementsByTagName('connection'))
+    for conn in connections:
+       fromStr = str(conn.attributes['from'].value)
+       toStr = str(conn.attributes['to'].value)
+
+       if(((fromStr[0] == ":") == False) and ((toStr[0] == ":") == False)):
+           keyLoc = conn.attributes['from'].value.find("-")
+           EdgeTuple = (conn.attributes['from'].value[:keyLoc], conn.attributes['from'].value[keyLoc + 1:])
+           ListOfEdges.append(EdgeTuple)
+
+           keyLoc = conn.attributes['to'].value.find("-")
+           EdgeTuple = (conn.attributes['to'].value[:keyLoc], conn.attributes['to'].value[keyLoc + 1:])
+           ListOfEdges.append(EdgeTuple)
+
+    ListOfEdges = list(set(ListOfEdges))
+    return ListOfNodes, ListOfEdges
+
+def get_directory():
+    key = "/"
+    keyLen = len(key)
+    keyLoc = options.sumocfg.rfind(key)
+    return options.sumocfg[:keyLoc+keyLen]
 
 def debug_print(options, msg):
     if options.debug:
