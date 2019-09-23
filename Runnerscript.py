@@ -37,32 +37,52 @@ def run(options):
     print("starting run")
     traci.init(options.port)
     step = 0
-
+    ListOfCarsPlaceholder = []
+    EdgesInNetwork = traci.edge.getIDList()
+    
 
     print("Starting simulation expid=" + str(options.expid))
     
+    for edge in EdgesInNetwork:
+        NrOfLanes = traci.edge.getLaneNumber(edge)
+        for i in range(0,NrOfLanes):
+            print("lane: " + edge + "_" + str(i) + " is connected with: " + str(traci.lane.getLinks(edge + "_" + str(i))))
+
     while traci.simulation.getMinExpectedNumber() > 0:
         print(">>>simulation step: " + str(step))
                 
-
+        #THE MAIN CONTROLLER
         if options.controller == "TrafficNetworkController":
             CarsInNetworkList = traci.vehicle.getIDList()
             for car in CarsInNetworkList:
                 print(traci.vehicle.getRoute(car))
 
-
+        #Controllers used for experiments from here -------------------
+        #Simple rerouting controller
         if options.controller == "SimpleRerouting":
-            CarsInNetworkList = traci.vehicle.getIDList()
+            CarsInNetworkList = traci.vehicle.getIDList()  
+            NewCars = []
+
+            #Check if the car is new in the network - if it is, add it to the list of new cars
             for car in CarsInNetworkList:
+                if(car not in ListOfCarsPlaceholder):
+                    NewCars.append(car)
+
+            #Stuff to do for new cars
+            for car in NewCars:
                 print(traci.vehicle.getRoute(car))
-                #if(traci.vehicle.getRoute(car) == ...):
-                 #   eaf
 
 
+            ListOfCarsPlaceholder = list(CarsInNetworkList)
+    
+            #Possible Routes for cars spawning on n1-n2 going to n3-n12:
+            # ['n1-n2','n2-n3','n3-n12']
+            # ['n1-n2','n2-n5','n5-n6','n6-n3','n3-n12']
 
-            #Possible Routes:
-            # ['n1-n2','n2-n3','n3-n6','n6-n7']
-            # ['n4-n5','n5-n6','n6-n7']
+            #Possible Routes for cars spawning on n1-n2 going to n2-n11:
+            # ['n1-n2','n2-n3','n3-n12']
+            # ['n1-n2','n2-n5','n5-n6','n6-n3','n3-n12']
+
             # ['n8-n9','n9-n10','n10-n6','n6-n7']      
             # ['n1-n2','n2-n5','n5-n6','n6-n7']
             # ['n4-n5','n5-n2','n2-n3','n3-n6','n6-n7']
