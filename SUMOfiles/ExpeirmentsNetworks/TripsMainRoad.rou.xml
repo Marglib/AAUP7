@@ -5,6 +5,9 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> added requirement for all cars to cross grid
     <trip id="0" depart="0" from="n2-n5" to="n4-n1"/>
 <trip id="1" depart="1" from="n21-n17" to="n5-n2"/>
 <trip id="2" depart="2" from="n1-n4" to="n15-n20"/>
@@ -3635,6 +3638,7 @@
 <trip id="1998" depart="1499" from="n20-n15" to="n4-n1"/>
 <trip id="1999" depart="1500" from="n1-n4" to="n15-n20"/>
 >>>>>>> added requirement for all cars to cross grid
+<<<<<<< HEAD
 =======
     <trip id="0" depart="0" from="n22-n19" to="n15-n20"/>
 <trip id="1" depart="0" from="n22-n19" to="n19-n22"/>
@@ -5637,6 +5641,8 @@
 <trip id="1998" depart="1499" from="n21-n17" to="n5-n2"/>
 <trip id="1999" depart="1500" from="n3-n10" to="n15-n20"/>
 >>>>>>> Ensure that to to and from edges are never equal
+=======
+>>>>>>> added requirement for all cars to cross grid
 
 
 </routes>
