@@ -54,8 +54,10 @@ def generateTrips(options, edgeFileDir):
         while True:
             randomDep = random.choice(fromEdges)
             randomDest = random.choice(toEdges)
-            if randomDep != randomDest:
+            if randomDep.split("-")[0] != randomDest.split("-")[1]:
+                print(randomDep + " ------- " + randomDest)
                 break
+        
         value += "<trip id=\"" + str(i) + "\" depart=\"" + str(randomDepartures[i]) + "\" from=\"" + randomDep + "\" to=\"" + randomDest + "\"/>\n"
 
     routeFileAsString = str.replace(routeFileAsString, toReplace, value, 1)
