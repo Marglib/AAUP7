@@ -1,31 +1,31 @@
 <edges>
     <!--Horizontal edges-->
-    <edge from="n1" to="n4" id="n1-n4" numLanes="1" type="standardroad"/>
-    <edge from="n4" to="n1" id="n4-n1" numLanes="1" type="standardroad"/>
+    <edge from="n1" to="n4" id="n1-n4" numLanes="1" type="standardroad_in"/>
+    <edge from="n4" to="n1" id="n4-n1" numLanes="1" type="standardroad_out"/>
     <edge from="n4" to="n6" id="n4-n6" numLanes="1" type="standardroad"/>
     <edge from="n6" to="n4" id="n6-n4" numLanes="1" type="standardroad"/>
     <edge from="n6" to="n15" id="n6-n15" numLanes="1" type="standardroad"/>
     <edge from="n15" to="n6" id="n15-n6" numLanes="1" type="standardroad"/>
-    <edge from="n15" to="n20" id="n15-n20" numLanes="1" type="standardroad"/>
-    <edge from="n20" to="n15" id="n20-n15" numLanes="1" type="standardroad"/>
+    <edge from="n15" to="n20" id="n15-n20" numLanes="1" type="standardroad_out"/>
+    <edge from="n20" to="n15" id="n20-n15" numLanes="1" type="standardroad_in"/>
 
-    <edge from="n2" to="n5" id="n2-n5" numLanes="2" type="standardroad"/>
-    <edge from="n5" to="n2" id="n5-n2" numLanes="2" type="standardroad"/>
+    <edge from="n2" to="n5" id="n2-n5" numLanes="2" type="standardroad_in"/>
+    <edge from="n5" to="n2" id="n5-n2" numLanes="2" type="standardroad_out"/>
     <edge from="n5" to="n8" id="n5-n8" numLanes="2" type="standardroad"/>
     <edge from="n8" to="n5" id="n8-n5" numLanes="2" type="standardroad"/>
     <edge from="n8" to="n12" id="n8-n12" numLanes="2" type="standardroad"/>
     <edge from="n12" to="n8" id="n12-n8" numLanes="2" type="standardroad"/>
     <edge from="n12" to="n17" id="n12-n17" numLanes="2" type="standardroad"/>
     <edge from="n17" to="n12" id="n17-n12" numLanes="2" type="standardroad"/>
-    <edge from="n17" to="n21" id="n17-n21" numLanes="2" type="standardroad"/>
-    <edge from="n21" to="n17" id="n21-n17" numLanes="2" type="standardroad"/>
+    <edge from="n17" to="n21" id="n17-n21" numLanes="2" type="standardroad_out"/>
+    <edge from="n21" to="n17" id="n21-n17" numLanes="2" type="standardroad_in"/>
 
-    <edge from="n3" to="n10" id="n3-n10" numLanes="1" type="standardroad"/>
-    <edge from="n10" to="n3" id="n10-n3" numLanes="1" type="standardroad"/>
+    <edge from="n3" to="n10" id="n3-n10" numLanes="1" type="standardroad_in"/>
+    <edge from="n10" to="n3" id="n10-n3" numLanes="1" type="standardroad_out"/>
     <edge from="n10" to="n19" id="n10-n19" numLanes="1" type="standardroad"/>
     <edge from="n19" to="n10" id="n19-n10" numLanes="1" type="standardroad"/>
-    <edge from="n19" to="n22" id="n19-n22" numLanes="1" type="standardroad"/>
-    <edge from="n22" to="n19" id="n22-n19" numLanes="1" type="standardroad"/>
+    <edge from="n19" to="n22" id="n19-n22" numLanes="1" type="standardroad_out"/>
+    <edge from="n22" to="n19" id="n22-n19" numLanes="1" type="standardroad_in"/>
 
     <!--Slow Roads-->
     <edge from="n7" to="n11" id="n7-n11" numLanes="1" type="slowroad"/>
@@ -47,6 +47,9 @@
     <edge from="n9" to="n8" id="n9-n8" numLanes="1" type="standardroad"/>
     <edge from="n9" to="n10" id="n9-n10" numLanes="1" type="standardroad"/>
     <edge from="n10" to="n9" id="n10-n9" numLanes="1" type="standardroad"/>
+
+    <edge from="n12" to="n13" id="n12-n13" numLanes="1" type="slowroad"/>
+    <edge from="n13" to="n12" id="n13-n12" numLanes="1" type="slowroad"/>    
 
     <!--Slow Roads-->
     <edge from="n6" to="n7" id="n6-n7" numLanes="1" type="slowroad"/>

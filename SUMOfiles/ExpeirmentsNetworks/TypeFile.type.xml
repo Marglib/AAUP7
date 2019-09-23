@@ -5,4 +5,6 @@
     <type id="onelane_in" priority="1" numLanes="1" speed="16"/>
     <type id="onelane_out" priority="1" numLanes="1" speed="16"/>
     <type id="slowroad" priority="1" numLanes="2" speed="12"/>
+    <type id="slowroad_in" priority="1" numLanes="2" speed="12"/>
+    <type id="slowroad_out" priority="1" numLanes="2" speed="12"/>
 </types>
