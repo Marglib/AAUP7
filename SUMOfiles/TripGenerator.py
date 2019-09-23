@@ -25,20 +25,13 @@ def generateTrips(options, edgeFileDir):
 
     edges = mydoc.getElementsByTagName('edge')
 
-    for elem in edges:
-        fromNodes.append(elem.attributes['from'].value)
-        toNodes.append(elem.attributes['to'].value)
-
-    fromNodes = removeIntersectionNodes(fromNodes)
-    toNodes = removeIntersectionNodes(toNodes)
-
     fromEdges = []
     toEdges = []
 
     for edge in edges:
-        if(edge.attributes['from'].value in fromNodes):
+        if("_in" in edge.attributes['type'].value):
             fromEdges.append(edge.attributes['id'].value)
-        if(edge.attributes['to'].value in fromNodes):
+        if("_out" in edge.attributes['type'].value):
             toEdges.append(edge.attributes['id'].value)
     
     randomDepartures = [] 
