@@ -10,6 +10,8 @@ import random
 import time
 import math
 import copy
+import webbrowser
+
 
 routeFile = "RouteFileTemplate.rou.xml"
 
@@ -23,20 +25,13 @@ def generateTrips(options, edgeFileDir):
 
     edges = mydoc.getElementsByTagName('edge')
 
-    for elem in edges:
-        fromNodes.append(elem.attributes['from'].value)
-        toNodes.append(elem.attributes['to'].value)
-
-    fromNodes = removeIntersectionNodes(fromNodes)
-    toNodes = removeIntersectionNodes(toNodes)
-
     fromEdges = []
     toEdges = []
 
     for edge in edges:
-        if(edge.attributes['from'].value in fromNodes):
+        if("_in" in edge.attributes['type'].value):
             fromEdges.append(edge.attributes['id'].value)
-        if(edge.attributes['to'].value in fromNodes):
+        if("_out" in edge.attributes['type'].value):
             toEdges.append(edge.attributes['id'].value)
     
     randomDepartures = [] 
@@ -62,6 +57,9 @@ def generateTrips(options, edgeFileDir):
     text_file.write(routeFileAsString)
     text_file.close()
     print("Success")
+    if(options.playSong == True):
+        webbrowser.open('https://www.youtube.com/watch?v=Y6ljFaKRTrI')  #
+
 
 def removeIntersectionNodes(listOfNodes):
     return [i for i in listOfNodes if listOfNodes.count(i) <= 1]
@@ -75,6 +73,7 @@ def get_options():
                          default=1000, dest="runTime")
     optParser.add_option("--edgeFile", type="string", dest="edgeFile", default="")
     optParser.add_option("-o", type="string", dest="outFile", default="")  
+    optParser.add_option("--song", action="store_true", dest="playSong", default=False)
     options, args = optParser.parse_args()
     return options
 
@@ -92,11 +91,6 @@ if __name__ == "__main__":
     
     edgeFileDir = os.path.dirname(options.edgeFile)
     generateTrips(options, edgeFileDir)
-
-
-
-
-
 
 
 
