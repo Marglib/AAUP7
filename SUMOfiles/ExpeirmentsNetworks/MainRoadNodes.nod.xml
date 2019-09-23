@@ -11,11 +11,7 @@
     <node id="n9" x="175" y="225" type="unregulated"/>
     <node id="n10" x="175" y="300" type="unregulated"/>
     <node id="n11" x="250" y="150" type="unregulated"/>
-<<<<<<< HEAD
     <node id="n12" x="250" y="200" type="traffic_light"/>
-=======
-    <node id="n12" x="250" y="200" type="unregulated"/>
->>>>>>> Adjust roads
     <node id="n13" x="250" y="225" type="unregulated"/>
     <node id="n14" x="250" y="250" type="unregulated"/>
     <node id="n15" x="325" y="100" type="unregulated"/>
