@@ -51,11 +51,16 @@ def generateTrips(options, edgeFileDir):
     for i in range(0, numberOfTrips):
         randomDep = ""
         randomDest = ""
+        leftOutNodes = ["n1", "n2", "n3"]
+        rightOutNodes = ["n22", "n21", "n20"]
+
         while True:
             randomDep = random.choice(fromEdges)
             randomDest = random.choice(toEdges)
-            if randomDep.split("-")[0] != randomDest.split("-")[1]:
-                print(randomDep + " ------- " + randomDest)
+
+            if randomDep.split("-")[0] in leftOutNodes and randomDest.split("-")[1] in rightOutNodes:
+                break
+            if randomDep.split("-")[0] in rightOutNodes and randomDest.split("-")[1] in leftOutNodes:
                 break
         
         value += "<trip id=\"" + str(i) + "\" depart=\"" + str(randomDepartures[i]) + "\" from=\"" + randomDep + "\" to=\"" + randomDest + "\"/>\n"
