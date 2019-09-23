@@ -163,6 +163,11 @@ def get_directory():
     keyLen = len(key)
     keyLoc = options.sumocfg.rfind(key)
     return options.sumocfg[:keyLoc+keyLen]        
+def update_edgetime(edge):
+    if traci.edge.getLastStepOccupancy(edge) > 0.3:
+        traci.edge.adaptTraveltime(edge, 1*traci.edge.getLastStepOccupancy(edge))
+    else:
+        traci.edge.adaptTraveltime(edge, 0)
 
 def debug_print(options, msg):
     if options.debug:
