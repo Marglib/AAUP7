@@ -4,8 +4,8 @@
     <node id="n2" x="100" y="200" type="unregulated"/>
     <node id="n3" x="100" y="300" type="unregulated"/>
     <node id="n4" x="150" y="100" type="unregulated"/>
-    <node id="n5" x="150" y="200" type="unregulated"/>
-    <node id="n6" x="150" y="300" type="unregulated"/>
+    <node id="n5" x="150" y="200" type="traffic_light"/>
+    <node id="n6" x="150" y="300" type="traffic_light"/>
     <node id="n7" x="150" y="400" type="unregulated"/>
     <node id="n8" x="200" y="100" type="unregulated"/>
     <node id="n9" x="200" y="200" type="unregulated"/>
