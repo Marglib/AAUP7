@@ -47,8 +47,16 @@ def generateTrips(options, edgeFileDir):
 
     toReplace = "//TRIPS_PLACEHOLDER"
     value = ""
+
     for i in range(0, numberOfTrips):
-        value += "<trip id=\"" + str(i) + "\" depart=\"" + str(randomDepartures[i]) + "\" from=\"" + random.choice(fromEdges) + "\" to=\"" + random.choice(toEdges) + "\"/>\n"
+        randomDep = ""
+        randomDest = ""
+        while True:
+            randomDep = random.choice(fromEdges)
+            randomDest = random.choice(toEdges)
+            if randomDep != randomDest:
+                break
+        value += "<trip id=\"" + str(i) + "\" depart=\"" + str(randomDepartures[i]) + "\" from=\"" + randomDep + "\" to=\"" + randomDest + "\"/>\n"
 
     routeFileAsString = str.replace(routeFileAsString, toReplace, value, 1)
 
