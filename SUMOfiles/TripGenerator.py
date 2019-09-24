@@ -51,19 +51,25 @@ def generateTrips(options, edgeFileDir):
     for i in range(0, numberOfTrips):
         randomDep = ""
         randomDest = ""
-        leftOutNodes = ["n1", "n2", "n3"]
-        rightOutNodes = ["n22", "n21", "n20"]
 
-        while True:
-            randomDep = random.choice(fromEdges)
-            randomDest = random.choice(toEdges)
+        if options.setRouteRestriction :
 
-            if randomDep.split("-")[0] in leftOutNodes and randomDest.split("-")[1] in rightOutNodes:
-                break
-            if randomDep.split("-")[0] in rightOutNodes and randomDest.split("-")[1] in leftOutNodes:
-                break
-        
-        value += "<trip id=\"" + str(i) + "\" depart=\"" + str(randomDepartures[i]) + "\" from=\"" + randomDep + "\" to=\"" + randomDest + "\"/>\n"
+            leftOutNodes = ["n1", "n2", "n3"]
+            rightOutNodes = ["n22", "n21", "n20"]
+
+            while True:
+                randomDep = random.choice(fromEdges)
+                randomDest = random.choice(toEdges)
+
+                if randomDep.split("-")[0] in leftOutNodes and randomDest.split("-")[1] in rightOutNodes:
+                    break
+                if randomDep.split("-")[0] in rightOutNodes and randomDest.split("-")[1] in leftOutNodes:
+                    break
+            
+            value += "<trip id=\"" + str(i) + "\" depart=\"" + str(randomDepartures[i]) + "\" from=\"" + randomDep + "\" to=\"" + randomDest + "\"/>\n"
+        else:
+            value += "<trip id=\"" + str(i) + "\" depart=\"" + str(randomDepartures[i]) + "\" from=\"" + random.choice(fromEdges) + "\" to=\"" +  random.choice(toEdges) + "\"/>\n"
+            
 
     routeFileAsString = str.replace(routeFileAsString, toReplace, value, 1)
 
@@ -97,6 +103,7 @@ def get_options():
                          default=2000, dest="numberOfTrips")
     optParser.add_option("--time", type="int",
                          default=1000, dest="runTime")
+    optParser.add_option("--setRouteRestriction", action="store_true", dest="setRouteRestriction", default=False)
     optParser.add_option("--edgeFile", type="string", dest="edgeFile", default="")
     optParser.add_option("-o", type="string", dest="outFile", default="")  
     optParser.add_option("--song", action="store_true", dest="playSong", default=False)
