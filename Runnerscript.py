@@ -21,6 +21,7 @@ except:
 
 from sumolib import checkBinary
 import traci
+import sumolib
 from CallModel import modelCaller
 
 # the port used for communicating with your sumo instance
@@ -31,7 +32,6 @@ pathToResults = os.path.join(rootDir,'results')
 pathToModels = os.path.join(rootDir,'UppaalModels')
 icavQuery = os.path.join(pathToModels, 'TNC.q')
 icavModel = os.path.join(pathToModels, 'TrafficNetworkController.xml')
-
 
 def run(options):
     """execute the TraCI control loop"""
@@ -67,7 +67,6 @@ def run(options):
             for car in NewCars:
                 print(traci.vehicle.getRoute(car))
 
-
             ListOfCarsPlaceholder = list(CarsInNetworkList)
 
         traci.simulationStep()
@@ -77,28 +76,25 @@ def run(options):
 
 
 def preprocess():
-    get_external_edges()
     ListOfNodes, ListOfEdges = configure_graph_from_network()
+    return ListOfNodes, ListOfEdges
 
-def get_external_edges():
-    edgeList = []
-    EdgeTuple = traci.edge.getIDList()
-
-    for edge in EdgeTuple:
-        if((edge[0] == ":") == False):
-            edgeList.append(edge)
+def get_weight(node1, node2, measure):
+    if(measure == "euclidian"):
+        #Find euclidian distance between nodes - node1[1][0] is the x coordinate for node1 as an example
+        return math.sqrt((pow(node1[1][0] - node2[1][0]),2) + (pow(node1[1][1] - node2[1][1]),2))
+    
+    return 9999
 
 def configure_graph_from_network():
     #Initialize empty list of nodes and edges (graph)
     
-    TupleOfNodes = traci.junction.getIDList()
+    tupleOfEdges = traci.edge.getIDList() #SUMO returns a tuple
+    TupleOfNodes = traci.junction.getIDList() #SUMO returns a tuple 
     ListOfNodes = []
     ListOfEdges = []
     EdgeTuple = ()
-
-    for node in TupleOfNodes:
-        if((node[0] == ":") == False):
-            ListOfNodes.append(node)
+    NodeTuple = ()
 
     #Retrieving netfile from the sumo cfg
     mydoc = minidom.parse(options.sumocfg)
@@ -108,30 +104,30 @@ def configure_graph_from_network():
     for name in netFileName:
         netFile = name.attributes['value'].value
 
-    netFile = minidom.parse(netFileDirectory + netFile)
+    net = sumolib.net.readNet(netFileDirectory + netFile)
 
-    connections = tuple(netFile.getElementsByTagName('connection'))
-    for conn in connections:
-       fromStr = str(conn.attributes['from'].value)
-       toStr = str(conn.attributes['to'].value)
+    #Checks if the note is an internal node in one of the intersections
+    for node in TupleOfNodes:
+        if((node[0] == ":") == False):
+            NodeTuple = (node, net.getNode(node).getCoord())
+            ListOfNodes.append(NodeTuple)
 
-       if(((fromStr[0] == ":") == False) and ((toStr[0] == ":") == False)):
-           keyLoc = conn.attributes['from'].value.find("-")
-           EdgeTuple = (conn.attributes['from'].value[:keyLoc], conn.attributes['from'].value[keyLoc + 1:])
-           ListOfEdges.append(EdgeTuple)
-
-           keyLoc = conn.attributes['to'].value.find("-")
-           EdgeTuple = (conn.attributes['to'].value[:keyLoc], conn.attributes['to'].value[keyLoc + 1:])
-           ListOfEdges.append(EdgeTuple)
+    #Finds every connection in the edges and adds them as pairs of nodes
+    for edge in tupleOfEdges:
+        if((edge[0] == ":") == False):
+            keyLoc = edge.find("-")
+            EdgeTuple = (edge[:keyLoc], edge[keyLoc + 1:])
+            ListOfEdges.append(EdgeTuple)
 
     ListOfEdges = list(set(ListOfEdges))
+
     return ListOfNodes, ListOfEdges
 
 def get_directory():
     key = "/"
     keyLen = len(key)
     keyLoc = options.sumocfg.rfind(key)
-    return options.sumocfg[:keyLoc+keyLen]
+    return options.sumocfg[:keyLoc+keyLen]        
 
 def debug_print(options, msg):
     if options.debug:
