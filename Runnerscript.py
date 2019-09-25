@@ -12,6 +12,7 @@ import math
 import copy
 import networkx as nx
 import matplotlib.pyplot as plt
+from itertools import islice
 #import pandas as pd
 
 # we need to import python modules from the $SUMO_HOME/tools directory
@@ -72,7 +73,12 @@ def run(options):
                 keyLocTarget = traci.vehicle.getRoute(car)[(len(traci.vehicle.getRoute(car))-1)].find("-")
                 sourceNode = traci.vehicle.getRoute(car)[0][:keyLocSource]
                 targetNode = traci.vehicle.getRoute(car)[(len(traci.vehicle.getRoute(car))-1)][keyLocTarget + 1:]
-                print(list(nx.shortest_simple_paths(networkGraph, source=sourceNode, target=targetNode)))
+                kShortestPaths = find_k_shortest_paths(networkGraph, sourceNode, targetNode, pathsToFind)
+                print("Route: " + str(traci.vehicle.getRoute(car)))
+                print("k shortest routes:")
+                for path in kShortestPaths:
+                    print(path)
+                assign_random_new_route(car, kShortestPaths)
 
             ListOfCarsPlaceholder = list(CarsInNetworkList)
 
@@ -92,6 +98,25 @@ def get_weight(node1, node2, measure):
         return math.sqrt((pow(node1[0] - node2[0],2)) + (pow(node1[1] - node2[1],2)))
     
     return 9999
+
+def find_k_shortest_paths(G, source, target, k):
+    return list(islice(nx.shortest_simple_paths(G, source, target, weight='weight'), k))
+
+def assign_random_new_route(car, routes):
+    newRouteNodes = random.choice(routes)
+    newRoute = []
+    edge = ""
+
+    for i in range(0, len(newRouteNodes)-1):
+        edge = str(newRouteNodes[i]) + "-" + str(newRouteNodes[i + 1])
+        newRoute.append(edge)
+    
+    print("new route: " + str(newRoute))
+    newRoute = tuple(newRoute)
+    if(not len(newRouteNodes) <= 1):
+        traci.vehicle.setRoute(car, newRoute)
+
+
 
 def configure_graph_from_network():
     #Initialize empty list of nodes and edges (graph)
