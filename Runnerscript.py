@@ -10,6 +10,8 @@ import random
 import time
 import math
 import copy
+import networkx as nx
+import matplotlib.pyplot as plt
 #import pandas as pd
 
 # we need to import python modules from the $SUMO_HOME/tools directory
@@ -39,7 +41,8 @@ def run(options):
     traci.init(options.port)
     step = 0
     ListOfCarsPlaceholder = []
-    ListOfNodes, ListOfEdges = preprocess()    
+    networkGraph = preprocess()    
+    pathsToFind = 3
 
     print("Starting simulation expid=" + str(options.expid))
 
@@ -65,7 +68,11 @@ def run(options):
 
             #Stuff to do for new cars
             for car in NewCars:
-                print(traci.vehicle.getRoute(car))
+                keyLocSource = traci.vehicle.getRoute(car)[0].find("-")
+                keyLocTarget = traci.vehicle.getRoute(car)[(len(traci.vehicle.getRoute(car))-1)].find("-")
+                sourceNode = traci.vehicle.getRoute(car)[0][:keyLocSource]
+                targetNode = traci.vehicle.getRoute(car)[(len(traci.vehicle.getRoute(car))-1)][keyLocTarget + 1:]
+                print(list(nx.shortest_simple_paths(networkGraph, source=sourceNode, target=targetNode)))
 
             ListOfCarsPlaceholder = list(CarsInNetworkList)
 
@@ -76,18 +83,19 @@ def run(options):
 
 
 def preprocess():
-    ListOfNodes, ListOfEdges = configure_graph_from_network()
-    return ListOfNodes, ListOfEdges
+    network = configure_graph_from_network()
+    return network
 
 def get_weight(node1, node2, measure):
     if(measure == "euclidian"):
         #Find euclidian distance between nodes - node1[1][0] is the x coordinate for node1 as an example
-        return math.sqrt((pow(node1[1][0] - node2[1][0]),2) + (pow(node1[1][1] - node2[1][1]),2))
+        return math.sqrt((pow(node1[0] - node2[0],2)) + (pow(node1[1] - node2[1],2)))
     
     return 9999
 
 def configure_graph_from_network():
     #Initialize empty list of nodes and edges (graph)
+    G = nx.DiGraph()
     
     tupleOfEdges = traci.edge.getIDList() #SUMO returns a tuple
     TupleOfNodes = traci.junction.getIDList() #SUMO returns a tuple 
@@ -109,19 +117,23 @@ def configure_graph_from_network():
     #Checks if the note is an internal node in one of the intersections
     for node in TupleOfNodes:
         if((node[0] == ":") == False):
-            NodeTuple = (node, net.getNode(node).getCoord())
-            ListOfNodes.append(NodeTuple)
+            ListOfNodes.append(node)
 
     #Finds every connection in the edges and adds them as pairs of nodes
     for edge in tupleOfEdges:
         if((edge[0] == ":") == False):
             keyLoc = edge.find("-")
-            EdgeTuple = (edge[:keyLoc], edge[keyLoc + 1:])
+            EdgeTuple = (edge[:keyLoc], edge[keyLoc + 1:], float(get_weight(net.getNode(edge[:keyLoc]).getCoord(), net.getNode(edge[keyLoc + 1:]).getCoord(), "euclidian")))
             ListOfEdges.append(EdgeTuple)
 
-    ListOfEdges = list(set(ListOfEdges))
+    G.add_nodes_from(ListOfNodes)
+    print(ListOfEdges)
+    G.add_weighted_edges_from(ListOfEdges)
+    #nx.draw(G,with_labels=True) #These lines can be used to print the directed graph if needed
+    #plt.savefig("graph.png")
+    #plt.show()
 
-    return ListOfNodes, ListOfEdges
+    return G
 
 def get_directory():
     key = "/"
