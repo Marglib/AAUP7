@@ -68,12 +68,17 @@ def removeIntersectionNodes(listOfNodes):
 def get_options():
     optParser = optparse.OptionParser()
     optParser.add_option("--trips", type="int",
-                         default=2000, dest="numberOfTrips")
+                         default=2000, dest="numberOfTrips",
+                         help="Number of trips you would like.")
     optParser.add_option("--time", type="int",
-                         default=1000, dest="runTime")
-    optParser.add_option("--edgeFile", type="string", dest="edgeFile", default="")
-    optParser.add_option("-o", type="string", dest="outFile", default="")  
-    optParser.add_option("--song", action="store_true", dest="playSong", default=False)
+                         default=1000, dest="runTime",
+                         help="The latest time a car can spawn. Average cars pr. second is trips/time.")
+    optParser.add_option("--edgeFile", type="string", dest="edgeFile", default="",
+                         help="The file containing edges to spawn on. Should contain types that end in \"*_out\" and \"*_in\" to identify in and out lanes.")
+    optParser.add_option("-o", type="string", dest="outFile", default="",
+                         help="What you would like the trip file to be called. It will be placed the same place as the edgeFile.")  
+    optParser.add_option("--song", action="store_true", dest="playSong", default=False,
+                         help="Opens a success song so you can feel good.")
     options, args = optParser.parse_args()
     return options
 
