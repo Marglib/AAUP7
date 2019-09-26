@@ -26,14 +26,14 @@ def generate_results(options, tripResultDir, tripFileDir):
 			timeLossList.append(find_value(line, "timeLoss", 5))
 			waitingTimeList.append(find_value(line, "waitingTime", 5))
 
-	print(durationList, timeLossList, waitingTimeList)
 	def Average(lst):
 		lst = list(map(float, lst))
 		return sum(lst) / len(lst)
 
-	df = {'AverageDuration':Average(durationList),'AverageTimeLoss':Average(timeLossList),'AverageWaitingTime':Average(waitingTimeList)}
+	d = {'AverageDuration':[Average(durationList)],'AverageTimeLoss':[Average(timeLossList)],'AverageWaitingTime':[Average(waitingTimeList)]}
+	df = pd.DataFrame(d)
 
-	df.to_csv(tripResultDir)
+	df.to_csv(tripResultDir, index=False)
 
 	f.close()
 
