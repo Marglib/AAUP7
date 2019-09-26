@@ -111,11 +111,10 @@ def assign_random_new_route(car, routes):
         edge = str(newRouteNodes[i]) + "-" + str(newRouteNodes[i + 1])
         newRoute.append(edge)
     
-    print("new route: " + str(newRoute))
     newRoute = tuple(newRoute)
     if(not len(newRouteNodes) <= 1):
         traci.vehicle.setRoute(car, newRoute)
-
+        print("new route: " + str(newRoute))
 
 
 def configure_graph_from_network():
@@ -152,7 +151,6 @@ def configure_graph_from_network():
             ListOfEdges.append(EdgeTuple)
 
     G.add_nodes_from(ListOfNodes)
-    print(ListOfEdges)
     G.add_weighted_edges_from(ListOfEdges)
     #nx.draw(G,with_labels=True) #These lines can be used to print the directed graph if needed
     #plt.savefig("graph.png")
