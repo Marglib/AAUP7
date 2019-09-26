@@ -196,12 +196,10 @@ if __name__ == "__main__":
         sumoBinary = checkBinary('sumo-gui')
     # this is the normal way of using traci. sumo is started as a
     # subprocess and then the python script connects and runs
-    #emissioninfofile = "results/emission" + str(options.expid) + ".xml"
-    #tripinfofile = "results/tripinfo" + str(options.expid) + ".xml"
-    #sumoProcess = subprocess.Popen([sumoBinary, "-c", options.sumocfg, "--tripinfo-output", 
-     #                               tripinfofile, "--emission-output", emissioninfofile, "--remote-port", str(options.port)], stdout=sys.stdout,
-      #                             stderr=sys.stderr)
-    sumoProcess = subprocess.Popen([sumoBinary, "-c", options.sumocfg, "--remote-port", str(options.port)], stdout=sys.stdout,
+    emissioninfofile = "results/emission" + str(options.expid) + ".xml"
+    tripinfofile = "results/tripinfo" + str(options.expid) + ".xml"
+    sumoProcess = subprocess.Popen([sumoBinary, "-c", options.sumocfg, "--tripinfo-output", 
+                                   tripinfofile, "--emission-output", emissioninfofile, "--remote-port", str(options.port)], stdout=sys.stdout,
                                    stderr=sys.stderr)
     run(options)
     sumoProcess.wait()
