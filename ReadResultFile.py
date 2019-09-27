@@ -69,6 +69,8 @@ def generate_results(options, tripResultDir, tripFileDir, queueFileDir):
 		'maxWaitingTime':[maxWaitingTime],
 		'maxQueueLength':[maxQueueLength],
 		'maxQueueLengthExp':[maxQueueLengthExp],
+		'95thPercentileLength':[getnPercentile(95, queueLengthList)],
+		'95thPercentileLengthExp':[getnPercentile(95, queueLengthExpList)]
 		
 		}
 	df = pd.DataFrame(d)
@@ -86,10 +88,12 @@ def Average(lst):
 	return sum(lst) / len(lst)
 
 def getnPercentile(n, queueLengthList):
-	listLength = len(queueLengthList)
+	lst = list(map(float, queueLengthList))
+	lst.sort()
+	listLength = len(lst)
 	index = listLength * (n/100)
 
-	return 	(queueLengthList[math.floor(index)] + queueLengthList[math.ceil(index)]) / 2
+	return 	(lst[math.floor(index)] + lst[math.ceil(index)]) / 2
 
 def get_options():
     optParser = optparse.OptionParser()
