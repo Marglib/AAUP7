@@ -1,2 +1,2 @@
-AverageDuration,AverageTimeLoss,AverageWaitingTime
-195.765,110.21095000000007,69.135
+AverageDuration,AverageTimeLoss,AverageWaitingTime,AverageQueueLength,AverageQueueLengthExp,maxDuration,maxTimeLoss,maxWaitingTime,maxQueueLength,maxQueueLengthExp
+166.61904761904762,82.28809523809522,50.095238095238095,31.382319201995085,33.94063341645896,193.0,118.5,92.0,186.0,149.1
