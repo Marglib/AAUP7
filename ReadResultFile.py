@@ -30,7 +30,7 @@ def generate_results(options, tripResultDir, tripFileDir, queueFileDir):
 	for line in f:
 		if "<tripinfo id" in line:
 		#Finds a value with 2 digits. 
-
+			
 			durationList.append(find_value(line, "duration", 5))
 			timeLossList.append(find_value(line, "timeLoss", 5))
 			waitingTimeList.append(find_value(line, "waitingTime", 5))
