@@ -196,8 +196,10 @@ if __name__ == "__main__":
     # subprocess and then the python script connects and runs
     emissioninfofile = "results/emission" + str(options.expid) + ".xml"
     tripinfofile = "results/tripinfo" + str(options.expid) + ".xml"
+    queueinfofile = "results/queueinfo" + str(options.expid) + ".xml"
     sumoProcess = subprocess.Popen([sumoBinary, "-c", options.sumocfg, "--tripinfo-output", 
-                                   tripinfofile, "--emission-output", emissioninfofile, "--remote-port", str(options.port)], stdout=sys.stdout,
+                                   tripinfofile, "--emission-output", emissioninfofile, "--queue-output", queueinfofile, 
+                                   "--remote-port", str(options.port)], stdout=sys.stdout,
                                    stderr=sys.stderr)
     run(options)
     sumoProcess.wait()
