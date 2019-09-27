@@ -12,6 +12,7 @@ import math
 import copy
 import webbrowser
 import pandas as pd
+from numpy.random import choice
 
 
 routeFile = "RouteFileTemplate.rou.xml"
@@ -37,6 +38,7 @@ def generateTrips(options, edgeFileDir):
         if("_out" in edge.attributes['type'].value):
             toEdges.append(edge.attributes['id'].value)
     
+
     randomDepartures = [] 
   
     for j in range(0, numberOfTrips): 
@@ -51,69 +53,52 @@ def generateTrips(options, edgeFileDir):
     toReplace = "//TRIPS_PLACEHOLDER"
     value = ""
 
+    if options.useProbFile:
+        df = pd.read_csv("inOutNodes.txt")
+        
+        isCorrect = verifyProbabilitys(df)
+        fromNodes = [element.split("-")[0] for element in fromEdges]
+        toNodes = [element.split("-")[1] for element in toEdges]
+
+        additionalInNodes = len(fromEdges) - len(df[df["inOut"] == "in"])
+        additionalOutNodes = len(toEdges) - len(df[df["inOut"] == "out"])
+
+        probabilityRemainder = 100 - df[df["inOut"] == "in"].probability.sum()
+        defaultWeight = 0
+
+        if additionalInNodes <= 0 and not isCorrect:
+            print("something is wrong with your probFile")
+            return
+        else:  
+            defaultWeight = probabilityRemainder / additionalInNodes
+        
+        inWeights = []
+        for ele in fromNodes:
+            if ele in (df[df["inOut"] == "in"].nodeName.values):
+                inWeights.append( df[df["nodeName"] == ele].iloc[0].probability / 100)
+            else:
+                inWeights.append(defaultWeight / 100)
+
+        probabilityRemainder = 100 - df[df["inOut"] == "out"].probability.sum()
+        outWeights = []
+        defaultWeight = probabilityRemainder / additionalOutNodes
+        for ele in toNodes:
+            if ele in (df[df["inOut"] == "out"].nodeName.values):
+                outWeights.append( df[df["nodeName"] == ele].iloc[0].probability / 100)
+            else:
+                outWeights.append(defaultWeight / 100)
+
+        randomDep = choice(fromEdges, numberOfTrips, p=inWeights)
+        randomDest = choice(toEdges, numberOfTrips, p=outWeights)
+
+        for i in range (0, numberOfTrips):
+            value += "<trip id=\"" + str(i) + "\" depart=\"" + str(randomDepartures[i]) + "\" from=\"" + randomDep[i] + "\" to=\"" + randomDest[i] + "\"/>\n"
+            
+
     for i in range(0, numberOfTrips):
         randomDep = ""
         randomDest = ""
 
-
-        if options.useProbFile:
-            df = pd.read_csv("inOutNodes.txt")
-          
-            isCorrect = verifyProbabilitys(df)
-            fromNodes = [element.split("-")[0] for element in fromEdges]
-            toNodes = [element.split("-")[1] for element in toEdges]
-
-            #newWork
-            additionalInNodes = len(fromEdges) - len(df[df["inOut"] == "in"])
-            additionalOutNodes = len(toEdges) - len(df[df["inOut"] == "out"])
-
-            probabilityRemainder = 100 - df[df["inOut"] == "in"].probability.sum()
-            defaultWeight = 0
-
-            if additionalInNodes <= 0 and not isCorrect:
-                print("something is wrong with your probFile")
-                return
-            else:  
-                defaultWeight = probabilityRemainder / additionalInNodes
-            
-            inWeights = []
-            for ele in fromNodes:
-                if ele in (df[df["inOut"] == "in"].nodeName.values):
-                   inWeights.append( df[df["nodeName"] == ele].iloc[0].probability / 100)
-                else:
-                    inWeights.append(defaultWeight / 100)
-
-            probabilityRemainder = 100 - df[df["inOut"] == "out"].probability.sum()
-            outWeights = []
-            defaultWeight = probabilityRemainder / additionalOutNodes
-            for ele in toNodes:
-                if ele in (df[df["inOut"] == "out"].nodeName.values):
-                    outWeights.append( df[df["nodeName"] == ele].iloc[0].probability / 100)
-                else:
-                    outWeights.append(defaultWeight / 100)
-
-        
-            randomDep = random.choices(fromEdges, weights = inWeights)[0]
-            randomDest = random.choices(toEdges, weights =  outWeights)[0]
-
-            value += "<trip id=\"" + str(i) + "\" depart=\"" + str(randomDepartures[i]) + "\" from=\"" + randomDep + "\" to=\"" + randomDest + "\"/>\n"
-               
-
-        if options.setRouteRestriction :
-
-            leftOutNodes = ["n1", "n2", "n3"]
-            rightOutNodes = ["n22", "n21", "n20"]
-
-            while True:
-                randomDep = random.choice(fromEdges)
-                randomDest = random.choice(toEdges)
-
-                if randomDep.split("-")[0] in leftOutNodes and randomDest.split("-")[1] in rightOutNodes:
-                    break
-                if randomDep.split("-")[0] in rightOutNodes and randomDest.split("-")[1] in leftOutNodes:
-                    break
-            
-            value += "<trip id=\"" + str(i) + "\" depart=\"" + str(randomDepartures[i]) + "\" from=\"" + randomDep + "\" to=\"" + randomDest + "\"/>\n"
         
         if options.standard:
             value += "<trip id=\"" + str(i) + "\" depart=\"" + str(randomDepartures[i]) + "\" from=\"" + random.choice(fromEdges) + "\" to=\"" +  random.choice(toEdges) + "\"/>\n"
@@ -156,8 +141,7 @@ def get_options():
                          help="What you would like the trip file to be called. It will be placed the same place as the edgeFile.")  
     optParser.add_option("--song", action="store_true", dest="playSong", default=False,
                          help="Opens a success song so you can feel good.")
-    optParser.add_option("--setRouteRestriction", action="store_true", dest="setRouteRestriction", default=False)
-    optParser.add_option("--useProbFile", action="store_true", dest = "useProbFile", default=False)
+    optParser.add_option("--useProbFile", action="store_true", dest = "useProbFile", default=False, help="when used will use probabilities you define in inOutNodes.txt all remainding probility not set will be evenly distributed between undefined nodes in inOutNodes")
     optParser.add_option("--standard" , action = "store_true", dest="standard", default=False)
     options, args = optParser.parse_args()
     return options
