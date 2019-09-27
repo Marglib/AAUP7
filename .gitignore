@@ -11,3 +11,6 @@ VerifierPath.py
 
 # Visual Studio Code
 .vscode
+
+#output result
+results/
