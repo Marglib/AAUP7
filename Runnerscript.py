@@ -50,6 +50,11 @@ def run(options):
     while traci.simulation.getMinExpectedNumber() > 0:
         print(">>>simulation step: " + str(step))
                 
+        #THE DEFAULT CONTROLLER - doesnt do anything 
+        if options.controller == "default":
+            CarsInNetworkList = traci.vehicle.getIDList()
+            print(CarsInNetworkList)
+
         #THE MAIN CONTROLLER
         if options.controller == "TrafficNetworkController":
             CarsInNetworkList = traci.vehicle.getIDList()
@@ -184,7 +189,7 @@ def get_options():
     optParser.add_option("--sumocfg", type="string", dest="sumocfg",
                              default="data/nylandsvejPlain.sumocfg")
     optParser.add_option("--load", type="string", dest="load",default="reserve")
-    optParser.add_option("--controller", type="string", dest="controller",default="static")    
+    optParser.add_option("--controller", type="string", dest="controller",default="default")    
     options, args = optParser.parse_args()
     return options
 
