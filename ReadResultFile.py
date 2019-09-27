@@ -20,6 +20,7 @@ def generate_results(options, tripResultDir, tripFileDir, queueFileDir):
 	maxTimeLoss = 0
 	maxWaitingTime = 0
 	maxQueueLength = 0
+	maxQueueLengthExp = 0
 	durationList = []
 	timeLossList = []
 	waitingTimeList = []
@@ -30,18 +31,54 @@ def generate_results(options, tripResultDir, tripFileDir, queueFileDir):
 	for line in f:
 		if "<tripinfo id" in line:
 		#Finds a value with 2 digits. 
-			
+			currDuration = float(find_value(line, "duration", 5))
+			currTimeLoss = float(find_value(line, "timeLoss", 5))
+			currWaitingTime = float(find_value(line, "waitingTime", 5))
+			if(currDuration > maxDuration):
+				maxDuration = currDuration
+			if(currTimeLoss > maxTimeLoss):
+				maxTimeLoss = currTimeLoss
+			if(currWaitingTime > maxWaitingTime):
+				maxWaitingTime = currWaitingTime
+
 			durationList.append(find_value(line, "duration", 5))
 			timeLossList.append(find_value(line, "timeLoss", 5))
 			waitingTimeList.append(find_value(line, "waitingTime", 5))
+		
+	for line in r:
+		if "<lane id" in line:
+			currQueueLength = float(find_value(line, "queueing_length", 5))
+			currQueueLengthExp = float(find_value(line, "queueing_length_experimental", 5))
+			if(currQueueLength > maxQueueLength):
+				maxQueueLength = currQueueLength
+			if(currQueueLengthExp > maxQueueLengthExp):
+				maxQueueLengthExp = currQueueLengthExp
+
+			queueLengthList.append(find_value(line, "queueing_length", 5))
+			queueLengthExpList.append(find_value(line, "queueing_length_experimental", 5))
 
 
-	d = {'AverageDuration':[Average(durationList)],'AverageTimeLoss':[Average(timeLossList)],'AverageWaitingTime':[Average(waitingTimeList)]}
+	d = {'AverageDuration':[Average(durationList)],
+		'AverageTimeLoss':[Average(timeLossList)],
+		'AverageWaitingTime':[Average(waitingTimeList)],
+		'AverageQueueLength':[Average(queueLengthList)],
+		'AverageQueueLengthExp':[Average(queueLengthExpList)],
+		'maxDuration':[maxDuration],
+		'maxTimeLoss':[maxTimeLoss],
+		'maxWaitingTime':[maxWaitingTime],
+		'maxQueueLength':[maxQueueLength],
+		'maxQueueLengthExp':[maxQueueLengthExp],
+		
+		}
 	df = pd.DataFrame(d)
 
 	df.to_csv(tripResultDir, index=False)
-
+	
 	f.close()
+	r.close()
+	
+	print("succes")
+
 
 def Average(lst):
 	lst = list(map(float, lst))
@@ -49,8 +86,8 @@ def Average(lst):
 
 def get_options():
     optParser = optparse.OptionParser()
-    optParser.add_option("--tripinfofile", type="string", dest="tripinfofile", default="", help="--tripinforfile parses the trip info. They are in the results directory")
-    optParser.add_option("--queuefile", type="string", dest="queuefile", default="", help="--queuefile parses the queue info. They are in the results directory")
+    optParser.add_option("--tripinfofile", type="string", dest="tripinfofile", default="", help="Parses the trip info. They are in the results directory")
+    optParser.add_option("--queuefile", type="string", dest="queuefile", default="", help="Parses the queue info. They are in the results directory")
     options, args = optParser.parse_args()
     return options
                   
