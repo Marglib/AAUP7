@@ -91,8 +91,17 @@ def generateTrips(options, edgeFileDir):
         randomDep = choice(fromEdges, numberOfTrips, p=inWeights)
         randomDest = choice(toEdges, numberOfTrips, p=outWeights)
 
+        singleDest = ""
+
         for i in range (0, numberOfTrips):
-            value += "<trip id=\"" + str(i) + "\" depart=\"" + str(randomDepartures[i]) + "\" from=\"" + randomDep[i] + "\" to=\"" + randomDest[i] + "\"/>\n"
+            singleDest = randomDest[i]
+            while True:
+                if randomDep[i].split("-")[0] != singleDest.split("-")[1] :
+                    break
+                else:
+                    singleDest = choice(toEdges, 1, p=outWeights)[0]
+                    
+            value += "<trip id=\"" + str(i) + "\" depart=\"" + str(randomDepartures[i]) + "\" from=\"" + randomDep[i] + "\" to=\"" + singleDest + "\"/>\n"
             
 
     for i in range(0, numberOfTrips):
