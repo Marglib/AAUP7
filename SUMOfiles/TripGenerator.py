@@ -12,6 +12,7 @@ import math
 import copy
 import webbrowser
 import pandas as pd
+from numpy.random import choice
 
 
 routeFile = "RouteFileTemplate.rou.xml"
@@ -93,28 +94,13 @@ def generateTrips(options, edgeFileDir):
                 else:
                     outWeights.append(defaultWeight / 100)
 
-        
-            randomDep = random.choices(fromEdges, weights = inWeights)[0]
-            randomDest = random.choices(toEdges, weights =  outWeights)[0]
+            randomDep = choice(fromEdges, 1, p=inWeights)[0]
+            randomDest = choice(toEdges, 1, p=outWeights)[0]
+
 
             value += "<trip id=\"" + str(i) + "\" depart=\"" + str(randomDepartures[i]) + "\" from=\"" + randomDep + "\" to=\"" + randomDest + "\"/>\n"
                
 
-        if options.setRouteRestriction :
-
-            leftOutNodes = ["n1", "n2", "n3"]
-            rightOutNodes = ["n22", "n21", "n20"]
-
-            while True:
-                randomDep = random.choice(fromEdges)
-                randomDest = random.choice(toEdges)
-
-                if randomDep.split("-")[0] in leftOutNodes and randomDest.split("-")[1] in rightOutNodes:
-                    break
-                if randomDep.split("-")[0] in rightOutNodes and randomDest.split("-")[1] in leftOutNodes:
-                    break
-            
-            value += "<trip id=\"" + str(i) + "\" depart=\"" + str(randomDepartures[i]) + "\" from=\"" + randomDep + "\" to=\"" + randomDest + "\"/>\n"
         
         if options.standard:
             value += "<trip id=\"" + str(i) + "\" depart=\"" + str(randomDepartures[i]) + "\" from=\"" + random.choice(fromEdges) + "\" to=\"" +  random.choice(toEdges) + "\"/>\n"
@@ -157,8 +143,7 @@ def get_options():
                          help="What you would like the trip file to be called. It will be placed the same place as the edgeFile.")  
     optParser.add_option("--song", action="store_true", dest="playSong", default=False,
                          help="Opens a success song so you can feel good.")
-    optParser.add_option("--setRouteRestriction", action="store_true", dest="setRouteRestriction", default=False)
-    optParser.add_option("--useProbFile", action="store_true", dest = "useProbFile", default=False)
+    optParser.add_option("--useProbFile", action="store_true", dest = "useProbFile", default=False, help="when used will use probabilities you define in inOutNodes.txt all remainding probility not set will be evenly distributed between undefined nodes in inOutNodes")
     optParser.add_option("--standard" , action = "store_true", dest="standard", default=False)
     options, args = optParser.parse_args()
     return options
