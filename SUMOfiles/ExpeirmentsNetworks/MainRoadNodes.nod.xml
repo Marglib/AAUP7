@@ -1,0 +1,25 @@
+<nodes>
+    <!--Intersection nodes-->
+    <node id="n1" x="01" y="100" type="unregulated"/>
+    <node id="n2" x="01" y="200" type="unregulated"/>
+    <node id="n3" x="01" y="300" type="unregulated"/>
+    <node id="n4" x="50" y="100" type="unregulated"/>
+    <node id="n5" x="50" y="200" type="traffic_light"/>
+    <node id="n6" x="200" y="100" type="unregulated"/>
+    <node id="n7" x="200" y="150" type="unregulated"/>
+    <node id="n8" x="175" y="200" type="traffic_light"/>
+    <node id="n9" x="175" y="225" type="unregulated"/>
+    <node id="n10" x="175" y="300" type="unregulated"/>
+    <node id="n11" x="250" y="150" type="unregulated"/>
+    <node id="n12" x="250" y="200" type="traffic_light"/>
+    <node id="n13" x="250" y="225" type="unregulated"/>
+    <node id="n14" x="250" y="250" type="unregulated"/>
+    <node id="n15" x="325" y="100" type="unregulated"/>
+    <node id="n16" x="325" y="150" type="unregulated"/>
+    <node id="n17" x="300" y="200" type="traffic_light"/>
+    <node id="n18" x="300" y="250" type="unregulated"/>
+    <node id="n19" x="300" y="300" type="unregulated"/>
+    <node id="n20" x="400" y="100" type="unregulated"/>
+    <node id="n21" x="400" y="200" type="unregulated"/>
+    <node id="n22" x="400" y="300" type="unregulated"/>
+</nodes>

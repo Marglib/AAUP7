@@ -11,6 +11,7 @@ import time
 import math
 import copy
 import webbrowser
+import pandas as pd
 
 
 routeFile = "RouteFileTemplate.rou.xml"
@@ -28,12 +29,16 @@ def generateTrips(options, edgeFileDir):
     fromEdges = []
     toEdges = []
 
+
+
     for edge in edges:
         if("_in" in edge.attributes['type'].value):
             fromEdges.append(edge.attributes['id'].value)
         if("_out" in edge.attributes['type'].value):
             toEdges.append(edge.attributes['id'].value)
     
+    print(fromEdges, toEdges)
+
     randomDepartures = [] 
   
     for j in range(0, numberOfTrips): 
@@ -47,8 +52,88 @@ def generateTrips(options, edgeFileDir):
 
     toReplace = "//TRIPS_PLACEHOLDER"
     value = ""
+
     for i in range(0, numberOfTrips):
-        value += "<trip id=\"" + str(i) + "\" depart=\"" + str(randomDepartures[i]) + "\" from=\"" + random.choice(fromEdges) + "\" to=\"" + random.choice(toEdges) + "\"/>\n"
+        randomDep = ""
+        randomDest = ""
+
+
+        if options.useProbFile:
+            df = pd.read_csv("inOutNodes.txt")
+          
+            isCorrect = verifyProbabilitys(df)
+            fromNodes = [element.split("-")[0] for element in fromEdges]
+            toNodes = [element.split("-")[1] for element in toEdges]
+            for node in df.nodeName:
+                if  not (node in fromNodes) and not (node in toNodes):
+                    print("You gave an invalid node:", node )
+                    return
+
+            if not isCorrect:
+                print("Something is wrong with the probabilities you gave")
+                return
+
+            ranInNumber = random.randrange(1,101,1)
+            ranOutNumber = random.randrange(1,101,1)
+
+
+            dfIn = df[df["inOut"] == "in"].sort_values("probability")
+            dfOut = df[df["inOut"] == "out"].sort_values("probability")
+
+            inNode = ""
+            outNode = ""
+
+            restProb = 101
+
+            for index, row in dfIn.iterrows():
+                if ranInNumber <= row["probability"]:
+                    inNode = row.nodeName
+                    break
+                else:
+                    restProb -= row.probability 
+                    ranInNumber = random.randrange(1,restProb,1)
+            
+            restProb = 101
+            for index, row in dfOut.iterrows():
+                if ranOutNumber <= row["probability"]:
+                    outNode = row.nodeName
+                    break
+                else:
+                    restProb -= row.probability 
+                    ranOutNumber = random.randrange(1,restProb,1)
+
+            while True:
+                #TODO: This should be optimized to a for loop!!
+                randomDep = random.choice(fromEdges)
+                randomDest = random.choice(toEdges)
+
+                if randomDep.split("-")[0] == inNode and randomDest.split("-")[1] == outNode:
+                    break
+            
+    
+            value += "<trip id=\"" + str(i) + "\" depart=\"" + str(randomDepartures[i]) + "\" from=\"" + randomDep + "\" to=\"" + randomDest + "\"/>\n"
+
+               
+
+        if options.setRouteRestriction :
+
+            leftOutNodes = ["n1", "n2", "n3"]
+            rightOutNodes = ["n22", "n21", "n20"]
+
+            while True:
+                randomDep = random.choice(fromEdges)
+                randomDest = random.choice(toEdges)
+
+                if randomDep.split("-")[0] in leftOutNodes and randomDest.split("-")[1] in rightOutNodes:
+                    break
+                if randomDep.split("-")[0] in rightOutNodes and randomDest.split("-")[1] in leftOutNodes:
+                    break
+            
+            value += "<trip id=\"" + str(i) + "\" depart=\"" + str(randomDepartures[i]) + "\" from=\"" + randomDep + "\" to=\"" + randomDest + "\"/>\n"
+        
+        if options.standard:
+            value += "<trip id=\"" + str(i) + "\" depart=\"" + str(randomDepartures[i]) + "\" from=\"" + random.choice(fromEdges) + "\" to=\"" +  random.choice(toEdges) + "\"/>\n"
+            
 
     routeFileAsString = str.replace(routeFileAsString, toReplace, value, 1)
 
@@ -60,6 +145,14 @@ def generateTrips(options, edgeFileDir):
     if(options.playSong == True):
         webbrowser.open('https://www.youtube.com/watch?v=Y6ljFaKRTrI')  #
 
+
+def verifyProbabilitys(df):
+    if df[df["inOut" ] == "in"].probability.sum() != 100:
+        return False
+    if df[df["inOut" ]== "out"].probability.sum() != 100:
+        return False
+
+    return True
 
 def removeIntersectionNodes(listOfNodes):
     return [i for i in listOfNodes if listOfNodes.count(i) <= 1]
@@ -79,6 +172,9 @@ def get_options():
                          help="What you would like the trip file to be called. It will be placed the same place as the edgeFile.")  
     optParser.add_option("--song", action="store_true", dest="playSong", default=False,
                          help="Opens a success song so you can feel good.")
+    optParser.add_option("--setRouteRestriction", action="store_true", dest="setRouteRestriction", default=False)
+    optParser.add_option("--useProbFile", action="store_true", dest = "useProbFile", default=False)
+    optParser.add_option("--standard" , action = "store_true", dest="standard", default=False)
     options, args = optParser.parse_args()
     return options
 

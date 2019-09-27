@@ -1,0 +1,5 @@
+nodeName,inOut,probability
+"n21","in",60
+"n34","out",90
+"n25","in",40
+"n41","out",10
