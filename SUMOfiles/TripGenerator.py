@@ -37,7 +37,6 @@ def generateTrips(options, edgeFileDir):
         if("_out" in edge.attributes['type'].value):
             toEdges.append(edge.attributes['id'].value)
     
-    print(fromEdges, toEdges)
 
     randomDepartures = [] 
   
@@ -64,55 +63,41 @@ def generateTrips(options, edgeFileDir):
             isCorrect = verifyProbabilitys(df)
             fromNodes = [element.split("-")[0] for element in fromEdges]
             toNodes = [element.split("-")[1] for element in toEdges]
-            for node in df.nodeName:
-                if  not (node in fromNodes) and not (node in toNodes):
-                    print("You gave an invalid node:", node )
-                    return
 
-            if not isCorrect:
-                print("Something is wrong with the probabilities you gave")
+            #newWork
+            additionalInNodes = len(fromEdges) - len(df[df["inOut"] == "in"])
+            additionalOutNodes = len(toEdges) - len(df[df["inOut"] == "out"])
+
+            probabilityRemainder = 100 - df[df["inOut"] == "in"].probability.sum()
+            defaultWeight = 0
+
+            if additionalInNodes <= 0 and not isCorrect:
+                print("something is wrong with your probFile")
                 return
-
-            ranInNumber = random.randrange(1,101,1)
-            ranOutNumber = random.randrange(1,101,1)
-
-
-            dfIn = df[df["inOut"] == "in"].sort_values("probability")
-            dfOut = df[df["inOut"] == "out"].sort_values("probability")
-
-            inNode = ""
-            outNode = ""
-
-            restProb = 101
-
-            for index, row in dfIn.iterrows():
-                if ranInNumber <= row["probability"]:
-                    inNode = row.nodeName
-                    break
-                else:
-                    restProb -= row.probability 
-                    ranInNumber = random.randrange(1,restProb,1)
+            else:  
+                defaultWeight = probabilityRemainder / additionalInNodes
             
-            restProb = 101
-            for index, row in dfOut.iterrows():
-                if ranOutNumber <= row["probability"]:
-                    outNode = row.nodeName
-                    break
+            inWeights = []
+            for ele in fromNodes:
+                if ele in (df[df["inOut"] == "in"].nodeName.values):
+                   inWeights.append( df[df["nodeName"] == ele].iloc[0].probability / 100)
                 else:
-                    restProb -= row.probability 
-                    ranOutNumber = random.randrange(1,restProb,1)
+                    inWeights.append(defaultWeight / 100)
 
-            while True:
-                #TODO: This should be optimized to a for loop!!
-                randomDep = random.choice(fromEdges)
-                randomDest = random.choice(toEdges)
+            probabilityRemainder = 100 - df[df["inOut"] == "out"].probability.sum()
+            outWeights = []
+            defaultWeight = probabilityRemainder / additionalOutNodes
+            for ele in toNodes:
+                if ele in (df[df["inOut"] == "out"].nodeName.values):
+                    outWeights.append( df[df["nodeName"] == ele].iloc[0].probability / 100)
+                else:
+                    outWeights.append(defaultWeight / 100)
 
-                if randomDep.split("-")[0] == inNode and randomDest.split("-")[1] == outNode:
-                    break
-            
-    
+        
+            randomDep = random.choices(fromEdges, weights = inWeights)[0]
+            randomDest = random.choices(toEdges, weights =  outWeights)[0]
+
             value += "<trip id=\"" + str(i) + "\" depart=\"" + str(randomDepartures[i]) + "\" from=\"" + randomDep + "\" to=\"" + randomDest + "\"/>\n"
-
                
 
         if options.setRouteRestriction :
