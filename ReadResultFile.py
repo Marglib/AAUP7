@@ -107,7 +107,9 @@ if __name__ == "__main__":
     options = get_options()
 
     if(options.tripinfofile == ""):
-	    sys.exit("A result file is neccesary")
+	    sys.exit("A tripfile file is neccesary")
+    if(options.queuefile == ""):
+	    sys.exit("A queue file is neccesary")
 
     tripFileDir = "results/" + options.tripinfofile + ".xml"
     queueFileDir = "results/" + options.queuefile + ".xml"
