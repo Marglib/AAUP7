@@ -3,6 +3,7 @@ import sys
 import random
 import optparse
 import subprocess
+import math
 import pandas as pd
 
 def find_value(line, parameter, digits):
@@ -67,7 +68,10 @@ def generate_results(options, tripResultDir, tripFileDir, queueFileDir):
 		'maxTimeLoss':[maxTimeLoss],
 		'maxWaitingTime':[maxWaitingTime],
 		'maxQueueLength':[maxQueueLength],
-		'maxQueueLengthExp':[maxQueueLengthExp],		
+		'maxQueueLengthExp':[maxQueueLengthExp],
+		'95thPercentileLength':[getnPercentile(95, queueLengthList)],
+		'95thPercentileLengthExp':[getnPercentile(95, queueLengthExpList)]
+		
 		}
 	df = pd.DataFrame(d)
 
@@ -82,6 +86,14 @@ def generate_results(options, tripResultDir, tripFileDir, queueFileDir):
 def Average(lst):
 	lst = list(map(float, lst))
 	return sum(lst) / len(lst)
+
+def getnPercentile(n, queueLengthList):
+	lst = list(map(float, queueLengthList))
+	lst.sort()
+	listLength = len(lst)
+	index = listLength * (n/100)
+
+	return 	(lst[math.floor(index)] + lst[math.ceil(index)]) / 2
 
 def get_options():
     optParser = optparse.OptionParser()
