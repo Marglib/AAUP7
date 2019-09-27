@@ -14,10 +14,18 @@ def find_value(line, parameter, digits):
 
 def generate_results(options, tripResultDir, tripFileDir, queueFileDir):
 	f = open(tripFileDir, "r+")
+	r = open(queueFileDir, "r+")
 
+	maxDuration = 0
+	maxTimeLoss = 0
+	maxWaitingTime = 0
+	maxQueueLength = 0
 	durationList = []
 	timeLossList = []
 	waitingTimeList = []
+	queueLengthList = []
+	queueLengthExpList = []
+
 
 	for line in f:
 		if "<tripinfo id" in line:
