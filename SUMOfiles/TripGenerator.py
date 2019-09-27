@@ -37,7 +37,7 @@ def generateTrips(options, edgeFileDir):
         if("_out" in edge.attributes['type'].value):
             toEdges.append(edge.attributes['id'].value)
     
-    print(toEdges, fromEdges)
+    print(fromEdges, toEdges)
 
     randomDepartures = [] 
   
@@ -172,14 +172,8 @@ def get_options():
                          help="What you would like the trip file to be called. It will be placed the same place as the edgeFile.")  
     optParser.add_option("--song", action="store_true", dest="playSong", default=False,
                          help="Opens a success song so you can feel good.")
-                         default=2000, dest="numberOfTrips")
-    optParser.add_option("--time", type="int",
-                         default=1000, dest="runTime")
     optParser.add_option("--setRouteRestriction", action="store_true", dest="setRouteRestriction", default=False)
-    optParser.add_option("--edgeFile", type="string", dest="edgeFile", default="")
     optParser.add_option("--useProbFile", action="store_true", dest = "useProbFile", default=False)
-    optParser.add_option("-o", type="string", dest="outFile", default="")  
-    optParser.add_option("--song", action="store_true", dest="playSong", default=False)
     optParser.add_option("--standard" , action = "store_true", dest="standard", default=False)
     options, args = optParser.parse_args()
     return options
