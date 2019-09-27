@@ -37,7 +37,8 @@ def generateTrips(options, edgeFileDir):
         if("_out" in edge.attributes['type'].value):
             toEdges.append(edge.attributes['id'].value)
     
-    print(fromEdges, toEdges)
+    print(toEdges, fromEdges)
+
     randomDepartures = [] 
   
     for j in range(0, numberOfTrips): 
