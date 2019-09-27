@@ -12,7 +12,7 @@ def find_value(line, parameter, digits):
   	return line
 
 
-def generate_results(options, tripResultDir, tripFileDir):
+def generate_results(options, tripResultDir, tripFileDir, queueFileDir):
 	f = open(tripFileDir, "r+")
 
 	durationList = []
@@ -40,6 +40,7 @@ def generate_results(options, tripResultDir, tripFileDir):
 def get_options():
     optParser = optparse.OptionParser()
     optParser.add_option("--tripinfofile", type="string", dest="tripinfofile", default="", help="--tripinforfile parses the trip info. They are in the results directory")
+    optParser.add_option("--queuefile", type="string", dest="queuefile", default="", help="--queuefile parses the queue info. They are in the results directory")
     options, args = optParser.parse_args()
     return options
                   
@@ -51,8 +52,8 @@ if __name__ == "__main__":
 	    sys.exit("A result file is neccesary")
 
     tripFileDir = "results/" + options.tripinfofile + ".xml"
+    queueFileDir = "results/" + options.queuefile + ".xml"
     tripResults = "results/Results_" + str(options.tripinfofile) + ".csv"
-    generate_results(options, tripResults, tripFileDir)
-
+    generate_results(options, tripResults, tripFileDir, queueFileDir)
 
 
