@@ -53,53 +53,51 @@ def generateTrips(options, edgeFileDir):
     toReplace = "//TRIPS_PLACEHOLDER"
     value = ""
 
+    if options.useProbFile:
+        df = pd.read_csv("inOutNodes.txt")
+        
+        isCorrect = verifyProbabilitys(df)
+        fromNodes = [element.split("-")[0] for element in fromEdges]
+        toNodes = [element.split("-")[1] for element in toEdges]
+
+        additionalInNodes = len(fromEdges) - len(df[df["inOut"] == "in"])
+        additionalOutNodes = len(toEdges) - len(df[df["inOut"] == "out"])
+
+        probabilityRemainder = 100 - df[df["inOut"] == "in"].probability.sum()
+        defaultWeight = 0
+
+        if additionalInNodes <= 0 and not isCorrect:
+            print("something is wrong with your probFile")
+            return
+        else:  
+            defaultWeight = probabilityRemainder / additionalInNodes
+        
+        inWeights = []
+        for ele in fromNodes:
+            if ele in (df[df["inOut"] == "in"].nodeName.values):
+                inWeights.append( df[df["nodeName"] == ele].iloc[0].probability / 100)
+            else:
+                inWeights.append(defaultWeight / 100)
+
+        probabilityRemainder = 100 - df[df["inOut"] == "out"].probability.sum()
+        outWeights = []
+        defaultWeight = probabilityRemainder / additionalOutNodes
+        for ele in toNodes:
+            if ele in (df[df["inOut"] == "out"].nodeName.values):
+                outWeights.append( df[df["nodeName"] == ele].iloc[0].probability / 100)
+            else:
+                outWeights.append(defaultWeight / 100)
+
+        randomDep = choice(fromEdges, numberOfTrips, p=inWeights)
+        randomDest = choice(toEdges, numberOfTrips, p=outWeights)
+
+        for i in range (0, numberOfTrips):
+            value += "<trip id=\"" + str(i) + "\" depart=\"" + str(randomDepartures[i]) + "\" from=\"" + randomDep[i] + "\" to=\"" + randomDest[i] + "\"/>\n"
+            
+
     for i in range(0, numberOfTrips):
         randomDep = ""
         randomDest = ""
-
-
-        if options.useProbFile:
-            df = pd.read_csv("inOutNodes.txt")
-          
-            isCorrect = verifyProbabilitys(df)
-            fromNodes = [element.split("-")[0] for element in fromEdges]
-            toNodes = [element.split("-")[1] for element in toEdges]
-
-            #newWork
-            additionalInNodes = len(fromEdges) - len(df[df["inOut"] == "in"])
-            additionalOutNodes = len(toEdges) - len(df[df["inOut"] == "out"])
-
-            probabilityRemainder = 100 - df[df["inOut"] == "in"].probability.sum()
-            defaultWeight = 0
-
-            if additionalInNodes <= 0 and not isCorrect:
-                print("something is wrong with your probFile")
-                return
-            else:  
-                defaultWeight = probabilityRemainder / additionalInNodes
-            
-            inWeights = []
-            for ele in fromNodes:
-                if ele in (df[df["inOut"] == "in"].nodeName.values):
-                   inWeights.append( df[df["nodeName"] == ele].iloc[0].probability / 100)
-                else:
-                    inWeights.append(defaultWeight / 100)
-
-            probabilityRemainder = 100 - df[df["inOut"] == "out"].probability.sum()
-            outWeights = []
-            defaultWeight = probabilityRemainder / additionalOutNodes
-            for ele in toNodes:
-                if ele in (df[df["inOut"] == "out"].nodeName.values):
-                    outWeights.append( df[df["nodeName"] == ele].iloc[0].probability / 100)
-                else:
-                    outWeights.append(defaultWeight / 100)
-
-            randomDep = choice(fromEdges, 1, p=inWeights)[0]
-            randomDest = choice(toEdges, 1, p=outWeights)[0]
-
-
-            value += "<trip id=\"" + str(i) + "\" depart=\"" + str(randomDepartures[i]) + "\" from=\"" + randomDep + "\" to=\"" + randomDest + "\"/>\n"
-               
 
         
         if options.standard:
