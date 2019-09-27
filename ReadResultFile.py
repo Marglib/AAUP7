@@ -30,13 +30,11 @@ def generate_results(options, tripResultDir, tripFileDir, queueFileDir):
 	for line in f:
 		if "<tripinfo id" in line:
 		#Finds a value with 2 digits. 
+
 			durationList.append(find_value(line, "duration", 5))
 			timeLossList.append(find_value(line, "timeLoss", 5))
 			waitingTimeList.append(find_value(line, "waitingTime", 5))
 
-	def Average(lst):
-		lst = list(map(float, lst))
-		return sum(lst) / len(lst)
 
 	d = {'AverageDuration':[Average(durationList)],'AverageTimeLoss':[Average(timeLossList)],'AverageWaitingTime':[Average(waitingTimeList)]}
 	df = pd.DataFrame(d)
@@ -44,6 +42,10 @@ def generate_results(options, tripResultDir, tripFileDir, queueFileDir):
 	df.to_csv(tripResultDir, index=False)
 
 	f.close()
+
+def Average(lst):
+	lst = list(map(float, lst))
+	return sum(lst) / len(lst)
 
 def get_options():
     optParser = optparse.OptionParser()
