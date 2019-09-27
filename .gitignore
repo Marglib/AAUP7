@@ -1,7 +1,13 @@
 #detector files
 *.out
 
+#python files
+*.pyc
+
 # mypy
 .mypy_cache/
 
 VerifierPath.py
+
+# Visual Studio Code
+.vscode
