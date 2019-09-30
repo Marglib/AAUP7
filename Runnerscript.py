@@ -26,15 +26,22 @@ from sumolib import checkBinary
 import traci
 import sumolib
 from CallModel import modelCaller
+from callStratego import cStratego
 
 # the port used for communicating with your sumo instance
 PORT = 8873
 
 rootDir = os.path.abspath(os.getcwd())
 pathToResults = os.path.join(rootDir,'results')
-pathToModels = os.path.join(rootDir,'UppaalModels')
+pathToModels = os.path.join(rootDir,'UppaalModels') + '\\'
 icavQuery = os.path.join(pathToModels, 'TNC.q')
 icavModel = os.path.join(pathToModels, 'TrafficNetworkController.xml')
+#------------ STRATEGO STUFF --------
+phaseWE = 0
+phaseToNS = 1 # from here a transition to NS start
+phaseNS = 3
+phaseToEW = 4
+#------------ END -------------
 
 def run(options):
     """execute the TraCI control loop"""
@@ -44,6 +51,71 @@ def run(options):
     ListOfCarsPlaceholder = []
     networkGraph = preprocess()    
     pathsToFind = 3
+
+    #-------------------------------STRATEGO CONTROLLER STUFF---------------------------------------
+    numDetectors = 8
+    yellow = 8
+    carsPassed = [0] * numDetectors
+    carsJammed = [0] * numDetectors
+    carsJammedMeters = [0] * numDetectors
+    carsPassinge1 = [0] * numDetectors
+    carsPassinge2 = [0] * numDetectors
+    meanSpeed = [0] * numDetectors
+
+    areDet = ["n43-n31_0_det", "n43-n31_1_det", "n48-n31_0_det", "n48-n31_1_det", "n32-n31_0_det", "n30-n31_0_det"]
+
+    # meassuring performance per leg in intersection
+    # left A1 down B1
+    legs = ["A1","A2","B1","B2"]
+    detLegH = {}
+    detLegH["A1"] = [ "n43-n31_0_det", "n43-n31_1_det"] #These need a revisit
+    detLegH["A2"] = [ "n48-n31_0_det", "n48-n31_1_det"]#These need a revisit
+    detLegH["B1"] = [ "n32-n31_0_det"]#These need a revisit
+    detLegH["B2"] = [ "n30-n31_0_det"] #These need a revisit
+    jamMetLegH = {}
+    jamMetLegH["A1"] = 0.0
+    jamMetLegH["A2"] = 0.0
+    jamMetLegH["B1"] = 0.0
+    jamMetLegH["B2"] = 0.0
+    jamCarLegH = {}
+    jamCarLegH["A1"] = 0
+    jamCarLegH["A2"] = 0
+    jamCarLegH["B1"] = 0
+    jamCarLegH["B2"] = 0
+    
+    totalJam = 0
+    totalJamMeters = 0
+    strategoMasterModel = pathToModels + "lowActivityMiniPro.xml"
+    strategoMasterModelGreen = pathToModels + "highActivityPro.xml"
+    strategoQuery = pathToModels + "StrategoQuery.q"
+    strategoLearningMet = "3"
+    strategoSuccRuns = "50"
+    strategoGoodRuns = "50"
+    strategoMaxRuns = "100"
+    strategoEvalRuns = "10"
+    strategoMaxIterations = "200"
+    # we start with phase 1 where EW has green
+    phase = phaseWE
+    duration = yellow #phase duration from cross.net.xml   
+    totaltimeNS = 0
+    totaltimeEW = 0
+    nextPhase = phaseNS
+    strategoRunTime = 4
+    phaseTimer = yellow
+    strategoTimer = phaseTimer - strategoRunTime
+    strategoMaxGreen = 120 #max time in green in one direction
+    strategoGreenTimer = 0
+    inYellow = True
+    idTL = "n31"
+    print("phase: " + str(phase))
+    traci.trafficlights.setProgram(idTL, options.load)
+    traci.trafficlights.setPhase(idTL, phase)
+    minGreen = 10
+    maxGreenEW,maxGreenNS = get_max_green(options)
+    extTime = 3
+    ext = 0
+    timeInPhase = 0
+    #-------------------------------END OF STRATEGO STUFF-------------------------------------------
 
     print("Starting simulation expid=" + str(options.expid))
 
@@ -87,11 +159,95 @@ def run(options):
 
             ListOfCarsPlaceholder = list(CarsInNetworkList)
 
+
+        #------------------------- BEGIN STRATEGO CONTROLLER -----------------------------
+        if options.controller == "stratego":
+            if strategoTimer == 0:
+                if inYellow:
+                    nextPhase,_,_ = cStratego(strategoMasterModel,strategoQuery,
+                                              strategoLearningMet,strategoSuccRuns,
+                                              strategoMaxRuns,strategoGoodRuns,
+                                              strategoEvalRuns,strategoMaxIterations,
+                                              options.expid,carsPassinge2, carsJammed,
+                                              phase,duration,step,options)
+                    duration = 10
+                    inYellow = False
+                    strategoGreenTimer = 0
+                else:
+                    nextPhase,_,_ =  cStratego(strategoMasterModelGreen,strategoQuery,
+                                               strategoLearningMet,strategoSuccRuns,
+                                               strategoMaxRuns,strategoGoodRuns,
+                                               strategoEvalRuns,strategoMaxIterations,
+                                               options.expid,carsPassinge2, carsJammed,
+                                               phase,duration,step,options,greenModel=True,
+                                               greenTimer=strategoGreenTimer)
+                    if nextPhase == phase:
+                        duration = 5
+                    else:
+                        nextPhase = phaseToNS
+                        duration = yellow              
+                if options.debug:
+                    print("calling stratego \n  strategoTimer:" + str(strategoTimer) + \
+                              ", currentPhase:"+ str(phase) + ", nextPhase:" \
+                              + str(nextPhase) + ", duration:" + str(duration) + "\n" )
+            if phaseTimer == 0:
+                phase = nextPhase
+                traci.trafficlights.setPhase(idTL,phase)
+                totaltimeNS,totaltimeEW = sumtimes(totaltimeNS,totaltimeEW,phase,duration)
+                print("setting phase:" + str(phase) + " with duration:" + str(duration))
+                if phase == phaseToNS or phase == phaseToEW:
+                    inYellow = True
+                else:
+                    inYellow = False
+                if not inYellow:
+                    traci.trafficlights.setPhaseDuration(idTL,duration)
+                strategoTimer = duration - strategoRunTime
+                phaseTimer = duration
+            if options.debug:
+                print("phase:" + str(phase) + ", nextphase:"+ str(nextPhase) + \
+                      ", duration:" + str(duration)  + \
+                      ", inYellow:" + str(inYellow) + \
+                      ", strategoTimer:" + str(strategoTimer) + \
+                      ", strategoGreenTimer:" + str(strategoGreenTimer) + \
+                      ", phaseTimer:" + str(phaseTimer))
+                print_dets_state("carsPassing",areDet,carsPassinge2)
+                print_dets_state("carsJammed",areDet,carsJammed)
+
+            strategoGreenTimer = strategoGreenTimer + 1   
+            strategoTimer = strategoTimer - 1
+            phaseTimer = phaseTimer - 1
+
+            #---------------------------- END -----------------------------
+
         traci.simulationStep()
         step += 1    
     traci.close()
     sys.stdout.flush()
 
+#----------------------- FUNCTIONS FOR STRATEGO ---------------------------
+def get_max_green(options):
+    if options.load == 'max':
+        return 64,40
+    if options.load == 'mid':
+        return 54,26
+    if options.load == 'low':
+        return 36,20
+    if options.load == '0':
+        return 35,20
+                      
+def sumtimes(totaltimeNS,totaltimeEW,phase,duration):
+    ttNS = 0
+    ttWE = 0
+    if phase == phaseNS:
+        ttNS = totaltimeNS + duration
+    if phase == phaseWE:
+        ttWE = totaltimeEW + duration
+    return ttNS, ttWE
+
+def print_dets_state(msg,dets,res):
+    print(msg + " detectors: " +str(dets) + " values: " + str(res))
+
+#------------------------------- END -----------------------------------
 
 def preprocess():
     network = configure_graph_from_network()
@@ -188,7 +344,7 @@ def get_options():
     optParser.add_option("--expid", type="int", dest="expid")
     optParser.add_option("--sumocfg", type="string", dest="sumocfg",
                              default="data/nylandsvejPlain.sumocfg")
-    optParser.add_option("--load", type="string", dest="load",default="reserve")
+    optParser.add_option("--load", type="string", dest="load",default="0")
     optParser.add_option("--controller", type="string", dest="controller",default="default")    
     options, args = optParser.parse_args()
     return options
