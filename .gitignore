@@ -12,5 +12,5 @@ VerifierPath.py
 # Visual Studio Code
 .vscode
 
-#output result
+#xml files in results
 results/*.xml
