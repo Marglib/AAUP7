@@ -6,13 +6,9 @@ The indeces for the different experiments:
 #300 - simple rerouting experiments
     #301 - 1000 time steps with 1000 trips for a default controller
     #302 - 1000 time steps with 2000 trips for a default controller
-    #303 - 1000 time steps with 4000 trips for a default controller
-    #304 - 1000 time steps with 8000 trips for a default controller
 
     #311 - 1000 time steps with 1000 trips for a simplererouting controller
     #312 - 1000 time steps with 2000 trips for a simplererouting controller
-    #313 - 1000 time steps with 4000 trips for a simplererouting controller
-    #314 - 1000 time steps with 8000 trips for a simplererouting controller
 
 #400 - Smart traffic lights and simple Uppaal implementation
 
