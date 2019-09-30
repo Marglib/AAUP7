@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<additional>
+
+  <laneAreaDetector id="n43-n31_0_in" lane="n43-n31_0" pos="-100" length="100" freq="10" file="n43-n31_0.out" friendlyPos="false"/>
+  
+</additional> 
