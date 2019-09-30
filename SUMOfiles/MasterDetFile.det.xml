@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <additional>
-
-  <laneAreaDetector id="n43-n31_0_in" lane="n43-n31_0" pos="-100" length="100" freq="10" file="n43-n31_0.out" friendlyPos="false"/>
-  
+<!--INTERSECTION n31-->
+    <!--Horizontal detectors for intersection n31-->
+    <laneAreaDetector id="n43-n31_0_det" lane="n43-n31_0" pos="-88" length="88" freq="10" file="DetectorOutFiles/n43-n31_0.out" friendlyPos="false"/>
+    <laneAreaDetector id="n43-n31_1_det" lane="n43-n31_1" pos="-88" length="88" freq="10" file="DetectorOutFiles/n43-n31_1.out" friendlyPos="false"/>
+    <laneAreaDetector id="n48-n31_0_det" lane="n48-n31_0" pos="-88" length="88" freq="10" file="DetectorOutFiles/n48-n31_0.out" friendlyPos="false"/>
+    <laneAreaDetector id="n48-n31_1_det" lane="n48-n31_1" pos="-88" length="88" freq="10" file="DetectorOutFiles/n48-n31_1.out" friendlyPos="false"/>
+    
+    <!--Vertical detectors for intersection n31-->  
+    <laneAreaDetector id="n32-n31_0_det" lane="n32-n31_0" pos="-88" length="88" freq="10" file="DetectorOutFiles/n32-n31_0.out" friendlyPos="false"/>
+    <laneAreaDetector id="n30-n31_0_det" lane="n30-n31_0" pos="-88" length="88" freq="10" file="DetectorOutFiles/n30-n31_0.out" friendlyPos="false"/>
 </additional> 
