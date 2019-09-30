@@ -13,5 +13,4 @@ VerifierPath.py
 .vscode
 
 #output result
-results/
-/ExpeirmentsNetwork/TripsMainRoad.rou.xml
+results/*.xml
