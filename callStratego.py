@@ -4,13 +4,14 @@ import os
 import time
 import string
 import math
+import VerifierPath as VP
 from os.path import expanduser
 
 home = expanduser("~")
 numberOfSignals = 6
 rootDir = os.path.abspath(os.getcwd())
-pathToResults = rootDir+"/results/"
-pathToModels = rootDir+"/models/"
+pathToResults = os.path.join(rootDir,'results')
+pathToModels = os.path.join(rootDir,'UppaalModels')
 
 def runStratego(com, args, query):
     print('calling stratego with command: ' + com + args + query) 
@@ -33,7 +34,7 @@ def runStratego(com, args, query):
 
 
 def myGetSubString(mstr, key, greenModel):
-    #print("myGetSubstring"+mstr)
+    print("myGetSubstring"+mstr)
     if not greenModel:
         delim = "(180," #hard coded 2*horizon!!! (180,
     else:
@@ -44,7 +45,10 @@ def myGetSubString(mstr, key, greenModel):
         return "no-strategy"        
     else:
         start = found + key_len
+        print("start:" +start)
         end = mstr.find(delim, start) + len(delim) + 2
+        print("end: " + end)
+        print(mstr[start:end])
         return mstr[start:end]
     
 def getTuple(mstr, pos):
@@ -56,7 +60,9 @@ def getTuple(mstr, pos):
     pos2 = mstr.find(splitKey,pos1)
     pos3 = mstr.find(endKey,pos2)
     val1 = mstr[pos1+1:pos2]
+    print(val1)
     val2 = mstr[pos2+1:pos3]
+    print(val2)
     return int(val1),int(val2), pos3
 
 def getSignalStrategy(signaliStr):
@@ -146,7 +152,7 @@ def createModel(master_model,expId,carsPassinge2,carsJammed,phase,duration,simSt
     value = "//SIM_STEP=" + str(simStep)
     str_model = str.replace(str_model, toReplace, value, 1)
         
-    modelName = pathToModels + "tl" + str(expId) + ".xml"
+    modelName = rootDir + "\\UppaalModels\\TempModel" + "tl" + str(expId) + ".xml"
     text_file = open(modelName, "w")
     text_file.write(str_model)
     text_file.close()
@@ -156,9 +162,10 @@ def createModel(master_model,expId,carsPassinge2,carsJammed,phase,duration,simSt
 def cStratego(model,query,learningMet,succRuns,maxRuns,goodRuns,evalRuns,maxIterations,expId,
               carsPassinge2,carsJammed,phase,duration,simStep,options,greenModel=False,greenTimer=0):      
     newModel = createModel(model,expId,carsPassinge2,carsJammed,phase,duration,simStep,options,greenModel,greenTimer)
-    stratego = home+'/bin/stratego/bin-Linux/verifyta '
-    com = 'time ' + stratego
-    args = newModel \
+    stratego = VP.veri + " "
+    #'time '
+    com = stratego
+    args = "\"" + newModel+"\"" \
       + ' --learning-method ' + learningMet \
       + ' --good-runs ' + succRuns \
       + ' --total-runs ' + maxRuns \
@@ -166,6 +173,7 @@ def cStratego(model,query,learningMet,succRuns,maxRuns,goodRuns,evalRuns,maxIter
       + ' --eval-runs ' + evalRuns \
       + ' --max-iterations ' + maxIterations \
       + ' --filter 0 '
+    query = "\"" + query + "\""
 
     print("Calling stratego for traffic light strategy \n")
     time_avg_sim, out1 = runStratego(com,args,query)

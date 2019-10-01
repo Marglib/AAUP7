@@ -36,6 +36,7 @@ pathToResults = os.path.join(rootDir,'results')
 pathToModels = os.path.join(rootDir,'UppaalModels') + '\\'
 icavQuery = os.path.join(pathToModels, 'TNC.q')
 icavModel = os.path.join(pathToModels, 'TrafficNetworkController.xml')
+
 #------------ STRATEGO STUFF --------
 phaseWE = 0
 phaseToNS = 1 # from here a transition to NS start
@@ -85,9 +86,12 @@ def run(options):
     
     totalJam = 0
     totalJamMeters = 0
-    strategoMasterModel = pathToModels + "lowActivityMiniPro.xml"
-    strategoMasterModelGreen = pathToModels + "highActivityPro.xml"
-    strategoQuery = pathToModels + "StrategoQuery.q"
+    strategoMasterModel = os.path.join(pathToModels,'lowActivityMiniPro.xml')
+    #strategoMasterModel = pathToModels + "lowActivityMiniPro.xml"
+    strategoMasterModelGreen = os.path.join(pathToModels,'highActivityPro.xml')
+    #strategoMasterModelGreen = pathToModels + "highActivityPro.xml"
+    #strategoQuery = pathToModels + "\"StrategoQuery.q\""
+    strategoQuery = os.path.join(pathToModels,'StrategoQuery.q')
     strategoLearningMet = "3"
     strategoSuccRuns = "50"
     strategoGoodRuns = "50"
