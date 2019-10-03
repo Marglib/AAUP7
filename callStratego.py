@@ -42,12 +42,12 @@ def myGetSubString(mstr, key, greenModel):
     if found == -1:
         return "no-strategy"        
     else:
-        start = found + key_len
-        end = mstr.find(delim, start+3) 
+        start = found + key_len     
+        end = mstr.find(delim, start+5) +1 #To make sure we search the next line for linebreak 
         return mstr[start:end]
     
 def getTuple(mstr, pos):
-    #print("getTuple:"+mstr) 
+    print("getTuple:"+mstr) 
     startKey = "("
     endKey = ")"
     splitKey = ","
@@ -55,9 +55,10 @@ def getTuple(mstr, pos):
     pos2 = mstr.find(splitKey,pos1)
     pos3 = mstr.find(endKey,pos2)
     val1 = mstr[pos1+1:pos2]
-    print(val1)
+    print(pos1,pos2,pos3)
+    print("VAL1: " + str(val1))
     val2 = mstr[pos2+1:pos3]
-    print(val2)
+    print("VAL2: " +str(val2))
     return int(val1),int(val2), pos3
 
 def getSignalStrategy(signaliStr):
