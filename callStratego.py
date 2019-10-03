@@ -34,21 +34,16 @@ def runStratego(com, args, query):
 
 
 def myGetSubString(mstr, key, greenModel):
-    print("myGetSubstring"+mstr)
-    if not greenModel:
-        delim = "(180," #hard coded 2*horizon!!! (180,
-    else:
-        delim = "(40,"
+    print("myGetSubstring"+mstr)      
+    delim = "\n" #Start of next signal line
+
     key_len = len(key)
     found = mstr.find(key)
     if found == -1:
         return "no-strategy"        
     else:
         start = found + key_len
-        print("start:" +start)
-        end = mstr.find(delim, start) + len(delim) + 2
-        print("end: " + end)
-        print(mstr[start:end])
+        end = mstr.find(delim, start+3) 
         return mstr[start:end]
     
 def getTuple(mstr, pos):
