@@ -62,7 +62,7 @@ broadcast chan red[max_signal_conf_t];
 
 
 const signal_conf_t maximal_comp_comb[max_signal_conf_t] = {
-15, 48  //15 is lane A{1,2}_{0,1} enabled, 48 is lane B{1,2} ebabled
+9, 54  //15 is lane A{1,2}_{0,1} enabled, 48 is lane B{1,2} ebabled
 };
 
 

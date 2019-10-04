@@ -55,10 +55,7 @@ def getTuple(mstr, pos):
     pos2 = mstr.find(splitKey,pos1)
     pos3 = mstr.find(endKey,pos2)
     val1 = mstr[pos1+1:pos2]
-    print(pos1,pos2,pos3)
-    print("VAL1: " + str(val1))
     val2 = mstr[pos2+1:pos3]
-    print("VAL2: " +str(val2))
     return int(val1),int(val2), pos3
 
 def getSignalStrategy(signaliStr):

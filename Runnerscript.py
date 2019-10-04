@@ -87,10 +87,7 @@ def run(options):
     totalJam = 0
     totalJamMeters = 0
     strategoMasterModel = os.path.join(pathToModels,'lowActivityMiniPro.xml')
-    #strategoMasterModel = pathToModels + "lowActivityMiniPro.xml"
     strategoMasterModelGreen = os.path.join(pathToModels,'highActivityPro.xml')
-    #strategoMasterModelGreen = pathToModels + "highActivityPro.xml"
-    #strategoQuery = pathToModels + "\"StrategoQuery.q\""
     strategoQuery = os.path.join(pathToModels,'StrategoQuery.q')
     strategoLearningMet = "3"
     strategoSuccRuns = "50"

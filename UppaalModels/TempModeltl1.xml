@@ -62,7 +62,7 @@ broadcast chan red[max_signal_conf_t];
 
 
 const signal_conf_t maximal_comp_comb[max_signal_conf_t] = {
-15, 48  //15 is lane A{1,2}_{0,1} enabled, 48 is lane B{1,2} ebabled
+9, 54  //15 is lane A{1,2}_{0,1} enabled, 48 is lane B{1,2} ebabled
 };
 
 
@@ -85,7 +85,7 @@ false, false, false, false, false, false
 //int greenTimer = 10;
  
 //PLACE HOLDERS
-const max_signal_conf_t initialPhase = 0;
+const max_signal_conf_t initialPhase = 1;
 int greenTimer = 10;
 int carsAreal[signal_t] = {0, 0, 0, 0, 0, 0};
 int carsJammed[signal_t] = {0, 0, 0, 0, 0, 0};
