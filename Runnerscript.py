@@ -2,6 +2,7 @@
 from __future__ import absolute_import
 from __future__ import print_function
 from xml.dom import minidom
+import pandas as pd
 import os
 import sys
 import optparse
@@ -47,19 +48,72 @@ def run(options):
 
     print("Starting simulation expid=" + str(options.expid))
 
+    edgeDF = [] #pd.DataFrame(columns=["roadType", "waitingTime", "traveltime", "density"])
+    flowData = []
+    carDict = {}
     while traci.simulation.getMinExpectedNumber() > 0:
         print(">>>simulation step: " + str(step))
-                
+        allEdges = traci.edge.getIDList()
+        
+        if options.newDataFile != "":
+
+            leftMostEdgeNode = "n3"
+            rightMostEdgeNode = "n55"
+            middleEdgeNode =    "n7"
+
+            sumOfDistanceTravel = 0
+            CarsInNetworkList = traci.vehicle.getIDList()
+
+            for car in CarsInNetworkList:
+                currentedge = traci.vehicle.getRoadID(car)
+                print(currentedge)
+                if currentedge.split("-")[0] == leftMostEdgeNode or currentedge.split("-")[0] == middleEdgeNode  : #check if the currentEdge is the edge we wanna collect data on
+                    leftxValue = traci.junction.getPosition(leftMostEdgeNode)[0]
+                    if car in carDict:
+                        leftxValue = carDict[car]
+
+                    carPos = traci.vehicle.getPosition(car)
+                    carDict[car] = carPos[0]
+                    distanceTravelledOnEdge = carPos[0] - leftxValue
+                    sumOfDistanceTravel += distanceTravelledOnEdge
+
+            density1 = traci.edge.getLastStepOccupancy("n3-n55")
+            density2 = traci.edge.getLastStepOccupancy("n55-n7")
+
+            d = {
+                "flow" : round( (sumOfDistanceTravel / (traci.junction.getPosition(rightMostEdgeNode)[0] - traci.junction.getPosition(leftMostEdgeNode)[0])) , 3 ) ,
+                "density" : round(((density1 + density2) / 2) , 3)
+            }
+            flowData.append(d)
+
+                    
+
+            """
+            for edge in allEdges:
+                if traci.edge.getLaneNumber(edge) >= 2:
+                    roadType = "main"
+                else:
+                    roadType = "normal"
+        
+                d = {
+                   "roadType" :  roadType, 
+                   "waitingTime" :traci.edge.getWaitingTime(edge) , 
+                   "traveltime" :traci.edge.getTraveltime(edge), 
+                   "density" :traci.edge.getLastStepOccupancy(edge)
+                   }
+                edgeDF.append(d)
+        
+            """
         #THE DEFAULT CONTROLLER - doesnt do anything 
         if options.controller == "default":
             CarsInNetworkList = traci.vehicle.getIDList()
-            print(CarsInNetworkList)
+            #print(CarsInNetworkList)
 
         #THE MAIN CONTROLLER
         if options.controller == "TrafficNetworkController":
             CarsInNetworkList = traci.vehicle.getIDList()
             for car in CarsInNetworkList:
-                print(traci.vehicle.getRoute(car))
+               traci.vehicle.getRoute(car)
 
         #Controllers used for experiments from here -------------------
         #Simple rerouting controller
@@ -90,6 +144,9 @@ def run(options):
         traci.simulationStep()
         step += 1    
     traci.close()
+    if options.newDataFile != "":
+        edgeDF = pd.DataFrame(flowData)
+        edgeDF.to_csv(options.newDataFile)
     sys.stdout.flush()
 
 
@@ -188,6 +245,7 @@ def get_options():
     optParser.add_option("--expid", type="int", dest="expid")
     optParser.add_option("--sumocfg", type="string", dest="sumocfg",
                              default="data/nylandsvejPlain.sumocfg")
+    optParser.add_option("--storeEdgeData" , type="string", dest="newDataFile", default = "", help = "use --storeEdgeData <desiredFilePath>/<desiredFileName>.csv to store information of each edge for each simStep")
     optParser.add_option("--load", type="string", dest="load",default="reserve")
     optParser.add_option("--controller", type="string", dest="controller",default="default")    
     options, args = optParser.parse_args()

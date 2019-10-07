@@ -100,7 +100,8 @@ def generateTrips(options, edgeFileDir):
                     break
                 else:
                     singleDest = choice(toEdges, 1, p=outWeights)[0]
-                    
+            if i % 1000 == 0:
+                print("have now created:", i , "trips")
             value += "<trip id=\"" + str(i) + "\" depart=\"" + str(randomDepartures[i]) + "\" from=\"" + randomDep[i] + "\" to=\"" + singleDest + "\"/>\n"
             
 
