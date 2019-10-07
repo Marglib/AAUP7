@@ -44,8 +44,8 @@ def runModel(com, args, query, simStep):
     #out = f.read()
     return outerror
 
-def modelCaller(model,query,expId,simStep,cars,routes):
-    newModel = createModel(model,expId,simStep,cars,routes)
+def modelCaller(model,query,expId,simStep,cars, network_nodes):
+    newModel = createModel(model,expId,simStep,cars, network_nodes)
     veri = VP.veri
     com = veri +  ' -o 1 -t 0 -u '
     args = "\"" + newModel + "\" "
@@ -96,7 +96,7 @@ def standardGetSubString(outStr, key):
     value = (outStr[start:end]).strip()
     return value[1:]
 
-def createModel(master_model,expId,simStep,cars,routes):
+def createModel(master_model,expId,simStep,cars,network_nodes):
     fo = open(master_model, "r+")
     str_model = fo.read()
     fo.close()
@@ -109,6 +109,19 @@ def createModel(master_model,expId,simStep,cars,routes):
     value = "{"
     for i in range (0,len(cars)):
         value += str(cars[i][0][-1:]) + ","
+    value = value[:-1]
+    value += "};"
+    str_model = str.replace(str_model, toReplace, value, 1)
+
+    #Car routes are assumed to be set up as an array of the node numbers of the route
+    toReplace = "//HOLDER_CAR_ROUTE"
+    value = "{"
+    for i in range (0,len(cars)):
+        value += "{"
+        for j in range (0, network_nodes):
+            value += str(cars[i][1][j]) + ","
+        value = value[:-1]
+        value += "},"
     value = value[:-1]
     value += "};"
     str_model = str.replace(str_model, toReplace, value, 1)
