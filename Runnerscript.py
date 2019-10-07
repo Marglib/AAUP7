@@ -44,6 +44,8 @@ def run(options):
     ListOfCarsPlaceholder = []
     networkGraph = preprocess()    
     pathsToFind = 3
+    nodes_in_network = 57
+
 
     print("Starting simulation expid=" + str(options.expid))
 
@@ -58,8 +60,12 @@ def run(options):
         #THE MAIN CONTROLLER
         if options.controller == "TrafficNetworkController":
             CarsInNetworkList = traci.vehicle.getIDList()
-            for car in CarsInNetworkList:
-                print(traci.vehicle.getRoute(car))
+            Cars = []
+            for car in CarsInNetworkList:               
+                Cars.append([car, get_route_nodes(car)])
+            modelCaller(model, query, expId, step, Cars, nodes_in_network)
+                
+            
 
         #Controllers used for experiments from here -------------------
         #Simple rerouting controller
@@ -162,6 +168,16 @@ def configure_graph_from_network():
     #plt.show()
 
     return G
+
+def get_route_nodes(car):
+    route = traci.vehicle.getRoute(car)
+    route_nodes = []
+    for edge in route:
+        route_nodes.append(edge.split('-')[0])
+    #pad with 0 to keep uppaal happy
+    route_nodes += [0] * (57 - len(route_nodes))  
+    
+    return route_nodes
 
 def get_directory():
     key = "/"
