@@ -27,6 +27,7 @@ import traci
 import sumolib
 from CallModel import modelCaller
 from callStratego import cStratego
+from TrafficLightClass import smartTL
 
 # the port used for communicating with your sumo instance
 PORT = 8873
@@ -37,12 +38,6 @@ pathToModels = os.path.join(rootDir,'UppaalModels') + '\\'
 icavQuery = os.path.join(pathToModels, 'TNC.q')
 icavModel = os.path.join(pathToModels, 'TrafficNetworkController.xml')
 
-#------------ STRATEGO STUFF --------
-phaseWE = 0
-phaseToNS = 1 # from here a transition to NS start
-phaseNS = 3
-phaseToEW = 4
-#------------ END -------------
 
 def run(options):
     """execute the TraCI control loop"""
@@ -52,19 +47,11 @@ def run(options):
     ListOfCarsPlaceholder = []
     networkGraph = preprocess()    
     pathsToFind = 3
+    
+    #Detectors for each intersection declared here
+    n31det = ["n43-n31_0_det", "n43-n31_1_det", "n48-n31_0_det", "n48-n31_1_det", "n32-n31_0_det", "n30-n31_0_det"]
 
-    #-------------------------------STRATEGO CONTROLLER STUFF---------------------------------------
-    numDetectors = 8
-    yellow = 8
-    carsPassed = [0] * numDetectors
-    carsJammed = [0] * numDetectors
-    carsJammedMeters = [0] * numDetectors
-    carsPassinge1 = [0] * numDetectors
-    carsPassinge2 = [0] * numDetectors
-    meanSpeed = [0] * numDetectors
-
-    areDet = ["n43-n31_0_det", "n43-n31_1_det", "n48-n31_0_det", "n48-n31_1_det", "n32-n31_0_det", "n30-n31_0_det"]
-
+    #-------------------------------STRATEGO info---------------------------------------
     strategoMasterModel = os.path.join(pathToModels,'lowActivityMiniPro.xml')
     strategoMasterModelGreen = os.path.join(pathToModels,'highActivityPro.xml')
     strategoQuery = os.path.join(pathToModels,'StrategoQuery.q')
@@ -74,33 +61,16 @@ def run(options):
     strategoMaxRuns = "50"
     strategoEvalRuns = "10"
     strategoMaxIterations = "150"
-    # we start with phase 1 where EW has green
-    phase = phaseWE
-    duration = yellow #phase duration from cross.net.xml   
-    totaltimeNS = 0
-    totaltimeEW = 0
-    nextPhase = phaseNS
-    strategoRunTime = 4
-    phaseTimer = yellow
-    strategoTimer = phaseTimer - strategoRunTime
-    strategoMaxGreen = 120 #max time in green in one direction
-    strategoGreenTimer = 0
-    inYellow = True
-    idTL = "n31"
-    traci.trafficlights.setProgram(idTL, options.load)
-    traci.trafficlights.setPhase(idTL, phase)
-    minGreen = 10
-    maxGreenEW,maxGreenNS = get_max_green(options)
-    extTime = 3
-    ext = 0
-    timeInPhase = 0
 
-    #-------------------- CLASS tests from here ---------------------
+    #-------------------- CLASS tls from here ---------------------
     #Declare all the classes
-    
+    tln31 = smartTL('n31',6,n31det,[0,1,2,3,4],'0',8,0)
+    ListOfTls = [tln31]
+
     #Set all phases and program ids
-    traci.trafficlights.setProgram(idTL, '0')
-    traci.trafficlights.setPhase(idTL, phase)
+    for tls in ListOfTls:
+        traci.trafficlights.setProgram(tls.tlID, tls.programID)
+        traci.trafficlights.setPhase(tls.tlID, tls.phase)
     #-------------------------------END OF STRATEGO STUFF-------------------------------------------
 
     print("Starting simulation expid=" + str(options.expid))
@@ -119,7 +89,6 @@ def run(options):
             for car in CarsInNetworkList:
                 print(traci.vehicle.getRoute(car))
 
-        #Controllers used for experiments from here -------------------
         #Simple rerouting controller
         if options.controller == "SimpleRerouting":
             CarsInNetworkList = traci.vehicle.getIDList()  
@@ -148,60 +117,16 @@ def run(options):
 
         #------------------------- BEGIN STRATEGO CONTROLLER -----------------------------
         if options.controller == "stratego":
-            if strategoTimer == 0:
-                if inYellow:
-                    nextPhase,_,_ = cStratego(strategoMasterModel,strategoQuery,
+            for tls in ListOfTls:
+                setPhase,setDurr = tls.update_tl_state(strategoMasterModel,strategoQuery,
                                               strategoLearningMet,strategoSuccRuns,
                                               strategoMaxRuns,strategoGoodRuns,
                                               strategoEvalRuns,strategoMaxIterations,
-                                              options.expid,carsPassinge2, carsJammed,
-                                              phase,duration,step,options)
-                    duration = 10
-                    inYellow = False
-                    strategoGreenTimer = 0
-                else:
-                    nextPhase,_,_ =  cStratego(strategoMasterModelGreen,strategoQuery,
-                                               strategoLearningMet,strategoSuccRuns,
-                                               strategoMaxRuns,strategoGoodRuns,
-                                               strategoEvalRuns,strategoMaxIterations,
-                                               options.expid,carsPassinge2, carsJammed,
-                                               phase,duration,step,options,greenModel=True,
-                                               greenTimer=strategoGreenTimer)
-                    if nextPhase == phase:
-                        duration = 5
-                    else:
-                        nextPhase = phaseToNS
-                        duration = yellow              
-                if options.debug:
-                    print("calling stratego \n  strategoTimer:" + str(strategoTimer) + \
-                              ", currentPhase:"+ str(phase) + ", nextPhase:" \
-                              + str(nextPhase) + ", duration:" + str(duration) + "\n" )
-            if phaseTimer == 0:
-                phase = nextPhase
-                traci.trafficlights.setPhase(idTL,phase)
-                totaltimeNS,totaltimeEW = sumtimes(totaltimeNS,totaltimeEW,phase,duration)
-                print("setting phase:" + str(phase) + " with duration:" + str(duration))
-                if phase == phaseToNS or phase == phaseToEW:
-                    inYellow = True
-                else:
-                    inYellow = False
-                if not inYellow:
-                    traci.trafficlights.setPhaseDuration(idTL,duration)
-                strategoTimer = duration - strategoRunTime
-                phaseTimer = duration
-            if options.debug:
-                print("phase:" + str(phase) + ", nextphase:"+ str(nextPhase) + \
-                      ", duration:" + str(duration)  + \
-                      ", inYellow:" + str(inYellow) + \
-                      ", strategoTimer:" + str(strategoTimer) + \
-                      ", strategoGreenTimer:" + str(strategoGreenTimer) + \
-                      ", phaseTimer:" + str(phaseTimer))
-                print_dets_state("carsPassing",areDet,carsPassinge2)
-                print_dets_state("carsJammed",areDet,carsJammed)
-
-            strategoGreenTimer = strategoGreenTimer + 1   
-            strategoTimer = strategoTimer - 1
-            phaseTimer = phaseTimer - 1
+                                              options.expid,step,options)
+                if(setPhase == True):
+                    traci.trafficlights.setPhase(tls.tlID,tls.phase)
+                if(setDurr == True): 
+                    traci.trafficlights.setPhaseDuration(tls.tlID,tls.duration)
 
             #---------------------------- END -----------------------------
 
@@ -209,31 +134,6 @@ def run(options):
         step += 1    
     traci.close()
     sys.stdout.flush()
-
-#----------------------- FUNCTIONS FOR STRATEGO ---------------------------
-def get_max_green(options):
-    if options.load == 'max':
-        return 64,40
-    if options.load == 'mid':
-        return 54,26
-    if options.load == 'low':
-        return 36,20
-    if options.load == '0':
-        return 35,20
-                      
-def sumtimes(totaltimeNS,totaltimeEW,phase,duration):
-    ttNS = 0
-    ttWE = 0
-    if phase == phaseNS:
-        ttNS = totaltimeNS + duration
-    if phase == phaseWE:
-        ttWE = totaltimeEW + duration
-    return ttNS, ttWE
-
-def print_dets_state(msg,dets,res):
-    print(msg + " detectors: " +str(dets) + " values: " + str(res))
-
-#------------------------------- END -----------------------------------
 
 def preprocess():
     network = configure_graph_from_network()
