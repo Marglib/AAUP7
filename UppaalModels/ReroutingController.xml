@@ -7,11 +7,67 @@
 const int nodes = 57; //number of nodes in the network
 </declaration>
 	<template>
-		<name x="5" y="5">Template</name>
+		<name x="5" y="5">WeightFinder</name>
 		<declaration>// Place local declarations here.</declaration>
-		<location id="id0" x="0" y="0">
+		<location id="id0" x="-909" y="-187">
+		</location>
+		<location id="id1" x="-748" y="-187">
+			<name x="-758" y="-221">GetRoute</name>
+		</location>
+		<location id="id2" x="-595" y="-187">
+			<name x="-605" y="-221">UpdateWeights</name>
+		</location>
+		<location id="id3" x="-348" y="-187">
+			<name x="-408" y="-221">AddCarToReroutePool?</name>
+		</location>
+		<location id="id4" x="-93" y="-187">
+			<name x="-103" y="-221">Done</name>
 		</location>
 		<init ref="id0"/>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id4"/>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id1"/>
+			<nail x="-348" y="17"/>
+			<nail x="-748" y="17"/>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id3"/>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id2"/>
+		</transition>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id1"/>
+		</transition>
+	</template>
+	<template>
+		<name>Rerouter</name>
+		<location id="id5" x="-450" y="-59">
+		</location>
+		<location id="id6" x="-280" y="-59">
+			<name x="-331" y="-93">Compute route</name>
+		</location>
+		<location id="id7" x="-119" y="-59">
+			<name x="-129" y="-93">End</name>
+		</location>
+		<init ref="id5"/>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id7"/>
+			<label kind="assignment" x="-262" y="-59">Reroute</label>
+		</transition>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id6"/>
+			<label kind="synchronisation" x="-442" y="-42">getCarForRerouting?</label>
+		</transition>
 	</template>
 	<system>// Place template instantiations here.
 
@@ -22,7 +78,7 @@ const int route[N][nodes] = //HOLDER_CAR_ROUTE
 
 
 // List one or more processes to be composed into a system.
-system Template;
+system Rerouter;
     </system>
 	<queries>
 		<query>
