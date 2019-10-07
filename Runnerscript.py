@@ -65,36 +65,15 @@ def run(options):
 
     areDet = ["n43-n31_0_det", "n43-n31_1_det", "n48-n31_0_det", "n48-n31_1_det", "n32-n31_0_det", "n30-n31_0_det"]
 
-    # meassuring performance per leg in intersection
-    # left A1 down B1
-    legs = ["A1","A2","B1","B2"]
-    detLegH = {}
-    detLegH["A1"] = [ "n43-n31_0_det", "n43-n31_1_det"] #These need a revisit
-    detLegH["A2"] = [ "n48-n31_0_det", "n48-n31_1_det"]#These need a revisit
-    detLegH["B1"] = [ "n32-n31_0_det"]#These need a revisit
-    detLegH["B2"] = [ "n30-n31_0_det"] #These need a revisit
-    jamMetLegH = {}
-    jamMetLegH["A1"] = 0.0
-    jamMetLegH["A2"] = 0.0
-    jamMetLegH["B1"] = 0.0
-    jamMetLegH["B2"] = 0.0
-    jamCarLegH = {}
-    jamCarLegH["A1"] = 0
-    jamCarLegH["A2"] = 0
-    jamCarLegH["B1"] = 0
-    jamCarLegH["B2"] = 0
-    
-    totalJam = 0
-    totalJamMeters = 0
     strategoMasterModel = os.path.join(pathToModels,'lowActivityMiniPro.xml')
     strategoMasterModelGreen = os.path.join(pathToModels,'highActivityPro.xml')
     strategoQuery = os.path.join(pathToModels,'StrategoQuery.q')
     strategoLearningMet = "3"
-    strategoSuccRuns = "50"
-    strategoGoodRuns = "50"
-    strategoMaxRuns = "100"
+    strategoSuccRuns = "40"
+    strategoGoodRuns = "40"
+    strategoMaxRuns = "50"
     strategoEvalRuns = "10"
-    strategoMaxIterations = "200"
+    strategoMaxIterations = "150"
     # we start with phase 1 where EW has green
     phase = phaseWE
     duration = yellow #phase duration from cross.net.xml   
@@ -108,7 +87,6 @@ def run(options):
     strategoGreenTimer = 0
     inYellow = True
     idTL = "n31"
-    print("phase: " + str(phase))
     traci.trafficlights.setProgram(idTL, options.load)
     traci.trafficlights.setPhase(idTL, phase)
     minGreen = 10
@@ -116,6 +94,13 @@ def run(options):
     extTime = 3
     ext = 0
     timeInPhase = 0
+
+    #-------------------- CLASS tests from here ---------------------
+    #Declare all the classes
+    
+    #Set all phases and program ids
+    traci.trafficlights.setProgram(idTL, '0')
+    traci.trafficlights.setPhase(idTL, phase)
     #-------------------------------END OF STRATEGO STUFF-------------------------------------------
 
     print("Starting simulation expid=" + str(options.expid))
@@ -324,7 +309,8 @@ def get_directory():
     key = "/"
     keyLen = len(key)
     keyLoc = options.sumocfg.rfind(key)
-    return options.sumocfg[:keyLoc+keyLen]        
+    return options.sumocfg[:keyLoc+keyLen]
+
 def update_edgetime(edge):
     if traci.edge.getLastStepOccupancy(edge) > 0.3:
         traci.edge.adaptTraveltime(edge, 1*traci.edge.getLastStepOccupancy(edge))
