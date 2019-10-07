@@ -21,7 +21,7 @@ class smartTL:
         self.yellow = yellowTime
 
         #Setting phaseWE, phaseToNS, phaseNS and phaseToEW depending on what the programID is
-        self.phaseWE, self.phaseToNS, self.phaseNS, self.phaseToEW = get_programID_phases(self)
+        self.phaseWE, self.phaseToNS, self.phaseNS, self.phaseToEW = self.get_programID_phases()
 
         #Initial values for important variables
         self.duration = yellowTime
@@ -38,6 +38,8 @@ class smartTL:
         self.carsJammedMeters = [0] * self.numDetectors
         self.carsPassinge2 = [0] * self.numDetectors
         self.meanSpeed = [0] * self.numDetectors
+
+        #MISSING CALL TO MAXGREEN
 
     def update_tl_state(self,strategoMasterModel,strategoMasterModelGreen,strategoQuery,strategoLearningMet,strategoSuccRuns,strategoMaxRuns,strategoGoodRuns,strategoEvalRuns,strategoMaxIterations,expid,options,step):
         setPhase = False

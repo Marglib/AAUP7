@@ -118,7 +118,7 @@ def run(options):
         #------------------------- BEGIN STRATEGO CONTROLLER -----------------------------
         if options.controller == "stratego":
             for tls in ListOfTls:
-                setPhase,setDurr = tls.update_tl_state(strategoMasterModel,strategoQuery,
+                setPhase,setDurr = tls.update_tl_state(strategoMasterModel,strategoMasterModelGreen,strategoQuery,
                                               strategoLearningMet,strategoSuccRuns,
                                               strategoMaxRuns,strategoGoodRuns,
                                               strategoEvalRuns,strategoMaxIterations,
