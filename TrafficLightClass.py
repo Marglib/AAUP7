@@ -20,16 +20,17 @@ import sumolib
 from callStratego import cStratego
 
 class smartTL:
-    def __init__(self, tlID, numDetectors, detectors, phases, programID, yellowTime, initPhase):
+    def __init__(self, tlID, numDetectors, detectors, phases, nrOfSignals, programID, yellowTime, initPhase):
         self.tlID = tlID
         self.numDetectors = numDetectors
         self.detectors = detectors
         self.phases = phases
+        self.nrOfSignals = nrOfSignals
         self.programID = programID
         self.yellow = yellowTime
 
         #Setting phaseWE, phaseToNS, phaseNS and phaseToEW depending on what the programID is
-        self.phaseWE, self.phaseToNS, self.phaseNS, self.phaseToEW = get_programID_phases(self)
+        self.phaseWE, self.phaseToNS, self.phaseNS, self.phaseToEW = self.get_programID_phases()
 
         #Initial values for important variables
         self.duration = yellowTime
@@ -47,6 +48,8 @@ class smartTL:
         self.carsPassinge2 = [0] * self.numDetectors
         self.meanSpeed = [0] * self.numDetectors
 
+        #MISSING CALL TO MAXGREEN
+
     def update_tl_state(self,strategoMasterModel,strategoMasterModelGreen,strategoQuery,strategoLearningMet,strategoSuccRuns,strategoMaxRuns,strategoGoodRuns,strategoEvalRuns,strategoMaxIterations,expid,options,step):
         setPhase = False
         setDurr = False
@@ -57,7 +60,7 @@ class smartTL:
                                             strategoMaxRuns,strategoGoodRuns,
                                             strategoEvalRuns,strategoMaxIterations,
                                             expid,self.carsPassinge2, self.carsJammed,
-                                            self.phase,self.duration,step,options)
+                                            self.phase,self.duration,step,self.nrOfSignals,self.numDetectors)
                 self.duration = 10
                 self.inYellow = False
                 self.strategoGreenTimer = 0
@@ -67,7 +70,7 @@ class smartTL:
                                             strategoMaxRuns,strategoGoodRuns,
                                             strategoEvalRuns,strategoMaxIterations,
                                             options.expid,self.carsPassinge2, self.carsJammed,
-                                            self.phase,self.duration,step,options,greenModel=True,
+                                            self.phase,self.duration,step,self.nrOfSignals,self.numDetectors,greenModel=True,
                                             greenTimer=self.strategoGreenTimer)
                 if self.nextPhase == self.phase:
                     self.duration = 5

@@ -61,10 +61,11 @@ def run(options):
     strategoMaxRuns = "50"
     strategoEvalRuns = "10"
     strategoMaxIterations = "150"
+    #---------------------------- END ------------------------------
 
-    #-------------------- CLASS tls from here ---------------------
+    #-------------------- CLASS tls from here ----------------------
     #Declare all the classes
-    tln31 = smartTL('n31',6,n31det,[0,1,2,3,4],'0',8,0)
+    tln31 = smartTL('n31',6,n31det,[0,1,2,3,4],6,'0',8,0)
     ListOfTls = [tln31]
 
     #Set all phases and program ids
@@ -118,7 +119,7 @@ def run(options):
         #------------------------- BEGIN STRATEGO CONTROLLER -----------------------------
         if options.controller == "stratego":
             for tls in ListOfTls:
-                setPhase,setDurr = tls.update_tl_state(strategoMasterModel,strategoQuery,
+                setPhase,setDurr = tls.update_tl_state(strategoMasterModel,strategoMasterModelGreen,strategoQuery,
                                               strategoLearningMet,strategoSuccRuns,
                                               strategoMaxRuns,strategoGoodRuns,
                                               strategoEvalRuns,strategoMaxIterations,
