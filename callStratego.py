@@ -8,7 +8,6 @@ import VerifierPath as VP
 from os.path import expanduser
 
 home = expanduser("~")
-numberOfSignals = 6
 rootDir = os.path.abspath(os.getcwd())
 pathToResults = os.path.join(rootDir,'results')
 pathToModels = os.path.join(rootDir,'UppaalModels')
@@ -78,7 +77,7 @@ def getSignalStrategy(signaliStr):
             return enabled,val1 #val1 is the delay of the phase, oldval2 indicates if phase is enabled
     return -1,-1
     
-def getStrategy(outStr,greenModel):
+def getStrategy(outStr,greenModel,numberOfSignals):
     sigEnabled = [False] * numberOfSignals
     sigDuration = [0] * numberOfSignals
     for i in range(1,numberOfSignals+1):
@@ -93,15 +92,12 @@ def arrayToStratego(arr):
     arrstr = str.replace(arrstr, "]", "};", 1)
     return arrstr
 
-def mergeDetectors(carsDet,options):        
-    numDetectors = 8
+def mergeDetectors(carsDet,numDetectors):        
     merged = carsDet[0:2]+carsDet[3:5]+carsDet[6:8]
     merged[0] = merged[0] + int(round((3./4.) * carsDet[2]))
     merged[1] = merged[1] + int(round((1./4.) * carsDet[2]))
     merged[2] = merged[2] + int(round((3./4.) * carsDet[5]))
     merged[3] = merged[3] + int(round((1./4.) * carsDet[5]))
-    if options.debug:
-        print("merging: dets: " + str(carsDet) + " merged: " + str(merged) + " \n" )
     return merged   
 
 def convertPhase(phase):
@@ -110,7 +106,7 @@ def convertPhase(phase):
     if phase == 3:
         return "1"
 
-def createModel(master_model,expId,carsPassinge2,carsJammed,phase,duration,simStep,options,greenModel,greenTimer):
+def createModel(master_model,expId,carsPassinge2,carsJammed,phase,duration,simStep,nrOfDetectors,greenModel,greenTimer):
     fo = open(master_model, "r+")
     str_model = fo.read()
     fo.close()
@@ -131,13 +127,13 @@ def createModel(master_model,expId,carsPassinge2,carsJammed,phase,duration,simSt
     
     toReplace = "//HOLDER_CARS_AREAL"
     #due to the disagreement between detectors and lanes we need to merge detectors
-    mergedCarsAreal = mergeDetectors(carsPassinge2,options)
+    mergedCarsAreal = mergeDetectors(carsPassinge2,nrOfDetectors)
     value = "int carsAreal[signal_t] = " + arrayToStratego(mergedCarsAreal)    
     str_model = str.replace(str_model, toReplace, value, 1)
 
     toReplace = "//HOLDER_CARS_JAMMED"
     #due to the disagreement between detectors and lanes we need to merge detectors
-    mergedCarsJammed = mergeDetectors(carsJammed,options)
+    mergedCarsJammed = mergeDetectors(carsJammed,nrOfDetectors)
     value = "int carsJammed[signal_t] = " + arrayToStratego(mergedCarsJammed)
     str_model = str.replace(str_model, toReplace, value, 1)
 
@@ -153,8 +149,8 @@ def createModel(master_model,expId,carsPassinge2,carsJammed,phase,duration,simSt
 
     
 def cStratego(model,query,learningMet,succRuns,maxRuns,goodRuns,evalRuns,maxIterations,expId,
-              carsPassinge2,carsJammed,phase,duration,simStep,options,greenModel=False,greenTimer=0):      
-    newModel = createModel(model,expId,carsPassinge2,carsJammed,phase,duration,simStep,options,greenModel,greenTimer)
+              carsPassinge2,carsJammed,phase,duration,simStep,nrOfSignals,nrOfDetectors,greenModel=False,greenTimer=0):      
+    newModel = createModel(model,expId,carsPassinge2,carsJammed,phase,duration,simStep,nrOfDetectors,greenModel,greenTimer)
     stratego = VP.veri + " "
     #'time '
     com = stratego
@@ -170,7 +166,7 @@ def cStratego(model,query,learningMet,succRuns,maxRuns,goodRuns,evalRuns,maxIter
 
     print("Calling stratego for traffic light strategy \n")
     time_avg_sim, out1 = runStratego(com,args,query)
-    sigEnabled,sigDuration = getStrategy(out1,greenModel)
+    sigEnabled,sigDuration = getStrategy(out1,greenModel,nrOfSignals)
     print(out1)
     print(sigEnabled)
     print(sigDuration)
