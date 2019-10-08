@@ -65,13 +65,13 @@ def run(options):
 
     #-------------------- CLASS tls from here ----------------------
     #Declare all the classes
-    tln31 = smartTL('n31',6,n31det,[0,1,2,3,4],6,'0',8,0)
+    tln31 = smartTL('n31',6,n31det,[1,2,3,4],6,'0',8,0,[27,36])
     ListOfTls = [tln31]
 
     #Set all phases and program ids
     for tls in ListOfTls:
-        traci.trafficlights.setProgram(tls.tlID, tls.programID)
-        traci.trafficlights.setPhase(tls.tlID, tls.phase)
+        traci.trafficlight.setProgram(tls.tlID, tls.programID)
+        traci.trafficlight.setPhase(tls.tlID, tls.phase)
     #-------------------------------END OF STRATEGO STUFF-------------------------------------------
 
     print("Starting simulation expid=" + str(options.expid))
@@ -119,15 +119,11 @@ def run(options):
         #------------------------- BEGIN STRATEGO CONTROLLER -----------------------------
         if options.controller == "stratego":
             for tls in ListOfTls:
-                setPhase,setDurr = tls.update_tl_state(strategoMasterModel,strategoMasterModelGreen,strategoQuery,
+                tls.update_tl_state(strategoMasterModel,strategoMasterModelGreen,strategoQuery,
                                               strategoLearningMet,strategoSuccRuns,
                                               strategoMaxRuns,strategoGoodRuns,
                                               strategoEvalRuns,strategoMaxIterations,
-                                              options.expid,step,options)
-                if(setPhase == True):
-                    traci.trafficlights.setPhase(tls.tlID,tls.phase)
-                if(setDurr == True): 
-                    traci.trafficlights.setPhaseDuration(tls.tlID,tls.duration)
+                                              options.expid,step)
 
             #---------------------------- END -----------------------------
 

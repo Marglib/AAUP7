@@ -12,7 +12,7 @@ import sumolib
 from callStratego import cStratego
 
 class smartTL:
-    def __init__(self, tlID, numDetectors, detectors, phases, nrOfSignals, programID, yellowTime, initPhase):
+    def __init__(self, tlID, numDetectors, detectors, phases, nrOfSignals, programID, yellowTime, initPhase, binaryPhases):
         self.tlID = tlID
         self.numDetectors = numDetectors
         self.detectors = detectors
@@ -20,9 +20,7 @@ class smartTL:
         self.nrOfSignals = nrOfSignals
         self.programID = programID
         self.yellow = yellowTime
-
-        #Setting phaseWE, phaseToNS, phaseNS and phaseToEW depending on what the programID is
-        self.phaseWE, self.phaseToNS, self.phaseNS, self.phaseToEW = self.get_programID_phases()
+        self.binaryPhases = binaryPhases
 
         #Initial values for important variables
         self.duration = yellowTime
@@ -34,25 +32,22 @@ class smartTL:
         self.strategoTimer = self.phaseTimer - self.strategoRunTime
         self.strategoMaxGreen = 120 #max time in green in one direction
         self.strategoGreenTimer = 0
-        self.carsPassed = [0] * self.numDetectors
-        self.carsJammed = [0] * self.numDetectors
-        self.carsJammedMeters = [0] * self.numDetectors
-        self.carsPassinge2 = [0] * self.numDetectors
-        self.meanSpeed = [0] * self.numDetectors
+        self.phaseStrings = traci.trafficlight.getCompleteRedYellowGreenDefinition(self.tlID)
+        print("PHASES: ")
+        print(self.phaseStrings)
 
-        #MISSING CALL TO MAXGREEN
-
-    def update_tl_state(self,strategoMasterModel,strategoMasterModelGreen,strategoQuery,strategoLearningMet,strategoSuccRuns,strategoMaxRuns,strategoGoodRuns,strategoEvalRuns,strategoMaxIterations,expid,options,step):
-        setPhase = False
-        setDurr = False
+    def update_tl_state(self,strategoMasterModel,strategoMasterModelGreen,strategoQuery,strategoLearningMet,strategoSuccRuns,strategoMaxRuns,strategoGoodRuns,strategoEvalRuns,strategoMaxIterations,expid,step):
+        carsAreal = self.get_det_func(traci.areal.getLastStepVehicleNumber,self.detectors)
+        carsJammed = self.get_det_func(traci.areal.getJamLengthVehicle,self.detectors)
+        
         if self.strategoTimer == 0:
             if self.inYellow:
                 self.nextPhase,_,_ = cStratego(strategoMasterModel,strategoQuery,
                                             strategoLearningMet,strategoSuccRuns,
                                             strategoMaxRuns,strategoGoodRuns,
                                             strategoEvalRuns,strategoMaxIterations,
-                                            expid,self.carsPassinge2, self.carsJammed,
-                                            self.phase,self.duration,step,self.nrOfSignals,self.numDetectors)
+                                            expid,carsAreal,carsJammed,
+                                            self.phase,self.duration,step,self.nrOfSignals,self.numDetectors,self.binaryPhases)
                 self.duration = 10
                 self.inYellow = False
                 self.strategoGreenTimer = 0
@@ -61,23 +56,23 @@ class smartTL:
                                             strategoLearningMet,strategoSuccRuns,
                                             strategoMaxRuns,strategoGoodRuns,
                                             strategoEvalRuns,strategoMaxIterations,
-                                            options.expid,self.carsPassinge2, self.carsJammed,
-                                            self.phase,self.duration,step,self.nrOfSignals,self.numDetectors,greenModel=True,
+                                            expid,carsAreal,carsJammed,
+                                            self.phase,self.duration,step,self.nrOfSignals,self.numDetectors,self.binaryPhases,greenModel=True,
                                             greenTimer=self.strategoGreenTimer)
                 if self.nextPhase == self.phase:
                     self.duration = 5
                 else:
-                    self.nextPhase = self.phaseToNS
+                    self.nextPhase = self.phase +1 
                     self.duration = self.yellow              
         if self.phaseTimer == 0:
             self.phase = self.nextPhase
-            setPhase = True
-            if self.phase == self.phaseToNS or self.phase == self.phaseToEW:
+            traci.trafficlight.setPhase(self.tlID,self.phase)
+            if ("y" in traci.trafficlight.getRedYellowGreenState(self.tlID)):
                 self.inYellow = True
             else:
                 self.inYellow = False
             if not self.inYellow:
-                setDurr = True
+                traci.trafficlight.setPhaseDuration(self.tlID,self.duration)
             self.strategoTimer = self.duration - self.strategoRunTime
             self.phaseTimer = self.duration
 
@@ -85,9 +80,7 @@ class smartTL:
         self.strategoTimer = self.strategoTimer - 1
         self.phaseTimer = self.phaseTimer - 1
 
-        return setPhase, setDurr
                                                 
-
     def get_max_green(self):
         if self.programID == 'max':
             return 64,40
@@ -98,9 +91,12 @@ class smartTL:
         if self.programID == '0':
             return 54,26
 
-    def get_programID_phases(self):
-        if(self.programID == '0'):
-            return 0, 1, 3, 4
+    def get_det_func(self,func,dets):
+        numDet = len(dets)
+        res = [0] * numDet
+        for deti in range(0,numDet):
+            res[deti] = func(dets[deti])
+        return res  
 
     def print_dets_state(msg,dets,res):
         print(msg + " detectors: " +str(dets) + " values: " + str(res))

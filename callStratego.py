@@ -106,7 +106,7 @@ def convertPhase(phase):
     if phase == 3:
         return "1"
 
-def createModel(master_model,expId,carsPassinge2,carsJammed,phase,duration,simStep,nrOfDetectors,greenModel,greenTimer):
+def createModel(master_model,expId,carsAreal,carsJammed,phase,duration,simStep,nrOfDetectors,binaryPhases,greenModel,greenTimer):
     fo = open(master_model, "r+")
     str_model = fo.read()
     fo.close()
@@ -120,25 +120,26 @@ def createModel(master_model,expId,carsPassinge2,carsJammed,phase,duration,simSt
         value = "int greenTimer = " + \
           str(greenTimer) + ";"
         str_model = str.replace(str_model, toReplace, value, 1)
-
-    # toReplace = "//HOLDER_FIRST_DELAY"
-    # value = "const int firstDelay = " + str(duration) + ";"
-    # str_model = str.replace(str_model, toReplace, value, 1)
     
     toReplace = "//HOLDER_CARS_AREAL"
     #due to the disagreement between detectors and lanes we need to merge detectors
-    mergedCarsAreal = mergeDetectors(carsPassinge2,nrOfDetectors)
-    value = "int carsAreal[signal_t] = " + arrayToStratego(mergedCarsAreal)    
+    value = "int carsAreal[signal_t] = " + arrayToStratego(carsAreal)    
     str_model = str.replace(str_model, toReplace, value, 1)
 
     toReplace = "//HOLDER_CARS_JAMMED"
     #due to the disagreement between detectors and lanes we need to merge detectors
-    mergedCarsJammed = mergeDetectors(carsJammed,nrOfDetectors)
-    value = "int carsJammed[signal_t] = " + arrayToStratego(mergedCarsJammed)
+    value = "int carsJammed[signal_t] = " + arrayToStratego(carsJammed)
     str_model = str.replace(str_model, toReplace, value, 1)
 
     toReplace = "//HOLDER_SIM_STEP"
     value = "//SIM_STEP=" + str(simStep)
+    str_model = str.replace(str_model, toReplace, value, 1)
+
+    toReplace = "//HOLDER_BINARY_PHASES"
+    value = ""
+    for i in range (0,len(binaryPhases)):
+        value += str(binaryPhases[i]) + ","
+    value = value[:-1]
     str_model = str.replace(str_model, toReplace, value, 1)
         
     modelName = rootDir + "\\UppaalModels\\TempModel" + "tl" + str(expId) + ".xml"
@@ -149,8 +150,8 @@ def createModel(master_model,expId,carsPassinge2,carsJammed,phase,duration,simSt
 
     
 def cStratego(model,query,learningMet,succRuns,maxRuns,goodRuns,evalRuns,maxIterations,expId,
-              carsPassinge2,carsJammed,phase,duration,simStep,nrOfSignals,nrOfDetectors,greenModel=False,greenTimer=0):      
-    newModel = createModel(model,expId,carsPassinge2,carsJammed,phase,duration,simStep,nrOfDetectors,greenModel,greenTimer)
+              carsAreal,carsJammed,phase,duration,simStep,nrOfSignals,nrOfDetectors,binaryPhases,greenModel=False,greenTimer=0):      
+    newModel = createModel(model,expId,carsAreal,carsJammed,phase,duration,simStep,nrOfDetectors,binaryPhases,greenModel,greenTimer)
     stratego = VP.veri + " "
     #'time '
     com = stratego
