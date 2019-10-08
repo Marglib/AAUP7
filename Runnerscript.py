@@ -33,8 +33,8 @@ PORT = 8873
 rootDir = os.path.abspath(os.getcwd())
 pathToResults = os.path.join(rootDir,'results')
 pathToModels = os.path.join(rootDir,'UppaalModels')
-icavQuery = os.path.join(pathToModels, 'TNC.q')
-icavModel = os.path.join(pathToModels, 'TrafficNetworkController.xml')
+mainQuery = os.path.join(pathToModels, 'TNC.q')
+mainModel = os.path.join(pathToModels, 'ReroutingController.xml')
 
 def run(options):
     """execute the TraCI control loop"""
@@ -63,7 +63,7 @@ def run(options):
             Cars = []
             for car in CarsInNetworkList:               
                 Cars.append([car, get_route_nodes(car)])
-            modelCaller(model, query, expId, step, Cars, nodes_in_network)
+            modelCaller(mainModel, mainQuery, options.expid, step, Cars, nodes_in_network)
                 
             
 
@@ -172,10 +172,13 @@ def configure_graph_from_network():
 def get_route_nodes(car):
     route = traci.vehicle.getRoute(car)
     route_nodes = []
+    end_node = -1
     for edge in route:
-        route_nodes.append(edge.split('-')[0])
-    #pad with 0 to keep uppaal happy
-    route_nodes += [0] * (57 - len(route_nodes))  
+        route_nodes.append(edge.split('-')[0][1:])
+        end_node = edge.split('-')[1][1:]
+    route_nodes.append(end_node)
+    #pad with -1 to keep uppaal happy
+    route_nodes += [-1] * (57 - len(route_nodes))  
     
     return route_nodes
 

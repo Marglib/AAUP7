@@ -5,42 +5,85 @@
 //HOLDER_NUMBER_OF_CARS
 
 const int nodes = 57; //number of nodes in the network
-</declaration>
+
+int currentCar = 0;
+
+chan Reroute[N], RouteSet;</declaration>
 	<template>
-		<name x="5" y="5">WeightFinder</name>
-		<declaration>// Place local declarations here.</declaration>
+		<name x="5" y="5">Controller</name>
+		<declaration>// Place local declarations here.
+
+int CarDone = 0;
+int AllCarsDone = 0;
+int RerouteCar = 0;
+int currentCar = 0;
+
+int CheckReroute()
+{
+
+return 0;
+}
+
+void AddRouteWeight() 
+{}</declaration>
 		<location id="id0" x="-909" y="-187">
+			<name x="-919" y="-221">InitSate</name>
 		</location>
 		<location id="id1" x="-748" y="-187">
 			<name x="-758" y="-221">GetRoute</name>
 		</location>
-		<location id="id2" x="-595" y="-187">
-			<name x="-605" y="-221">UpdateWeights</name>
+		<location id="id2" x="-323" y="-187">
+			<name x="-333" y="-221">UpdateWeights</name>
 		</location>
-		<location id="id3" x="-348" y="-187">
-			<name x="-408" y="-221">AddCarToReroutePool?</name>
+		<location id="id3" x="-93" y="-187">
+			<name x="-153" y="-221">CheckDone</name>
 		</location>
-		<location id="id4" x="-93" y="-187">
-			<name x="-103" y="-221">Done</name>
+		<location id="id4" x="187" y="-187">
+			<name x="177" y="-221">End</name>
+		</location>
+		<location id="id5" x="-586" y="-187">
+		</location>
+		<location id="id6" x="-467" y="-289">
 		</location>
 		<init ref="id0"/>
 		<transition>
+			<source ref="id5"/>
+			<target ref="id2"/>
+			<label kind="guard" x="-518" y="-178">RerouteCar == 0</label>
+		</transition>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id2"/>
+			<label kind="synchronisation" x="-408" y="-272">RouteSet?</label>
+		</transition>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id6"/>
+			<label kind="guard" x="-663" y="-289">RerouteCar == 1</label>
+			<label kind="synchronisation" x="-680" y="-272">Reroute[currentCar]!</label>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id5"/>
+			<label kind="assignment" x="-730" y="-187">CheckReroute()</label>
+		</transition>
+		<transition>
 			<source ref="id3"/>
 			<target ref="id4"/>
+			<label kind="guard" x="-85" y="-161">CarDone == 1 &amp;&amp; AllCarsDone == 1</label>
 		</transition>
 		<transition>
 			<source ref="id3"/>
 			<target ref="id1"/>
-			<nail x="-348" y="17"/>
+			<label kind="guard" x="-561" y="-8">CarDone == 1 &amp;&amp; AllCarsDone == 0</label>
+			<nail x="-93" y="17"/>
 			<nail x="-748" y="17"/>
 		</transition>
 		<transition>
 			<source ref="id2"/>
 			<target ref="id3"/>
-		</transition>
-		<transition>
-			<source ref="id1"/>
-			<target ref="id2"/>
+			<label kind="assignment" x="-272" y="-178">currentCar++,
+AddRouteWeight()</label>
 		</transition>
 		<transition>
 			<source ref="id0"/>
@@ -49,24 +92,37 @@ const int nodes = 57; //number of nodes in the network
 	</template>
 	<template>
 		<name>Rerouter</name>
-		<location id="id5" x="-450" y="-59">
+		<parameter>int id</parameter>
+		<declaration>
+
+void ChooseRoute()
+{}</declaration>
+		<location id="id7" x="-450" y="-59">
 		</location>
-		<location id="id6" x="-280" y="-59">
-			<name x="-331" y="-93">Compute route</name>
+		<location id="id8" x="-280" y="-59">
+			<name x="-331" y="-93">ComputeRoute</name>
 		</location>
-		<location id="id7" x="-119" y="-59">
-			<name x="-129" y="-93">End</name>
+		<location id="id9" x="-119" y="-59">
+			<name x="-129" y="-93">SetRoute</name>
 		</location>
-		<init ref="id5"/>
+		<location id="id10" x="25" y="-59">
+			<name x="15" y="-93">Done</name>
+		</location>
+		<init ref="id7"/>
 		<transition>
-			<source ref="id6"/>
-			<target ref="id7"/>
-			<label kind="assignment" x="-262" y="-59">Reroute</label>
+			<source ref="id9"/>
+			<target ref="id10"/>
+			<label kind="synchronisation" x="-85" y="-42">RouteSet!</label>
 		</transition>
 		<transition>
-			<source ref="id5"/>
-			<target ref="id6"/>
-			<label kind="synchronisation" x="-442" y="-42">getCarForRerouting?</label>
+			<source ref="id8"/>
+			<target ref="id9"/>
+			<label kind="assignment" x="-255" y="-51">ChooseRoute()</label>
+		</transition>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id8"/>
+			<label kind="synchronisation" x="-442" y="-42">Reroute[id]?</label>
 		</transition>
 	</template>
 	<system>// Place template instantiations here.
@@ -78,7 +134,7 @@ const int route[N][nodes] = //HOLDER_CAR_ROUTE
 
 
 // List one or more processes to be composed into a system.
-system Rerouter;
+system Controller, Rerouter;
     </system>
 	<queries>
 		<query>

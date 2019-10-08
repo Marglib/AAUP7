@@ -17,6 +17,7 @@ def runModel(com, args, query, simStep):
     f = Popen(com+args+query, stdout = PIPE, stderr = PIPE, shell=True)
     out, outerror = f.communicate()
     #print(outerror)
+    """
 
     out_string = str(out)
     log_text = out_string.split('--')
@@ -39,7 +40,7 @@ def runModel(com, args, query, simStep):
 
     cpu_log_file.close()
     log_file.close()
-
+    """
     #f = os.popen(com+args+query) Used for stratego
     #out = f.read()
     return outerror
@@ -51,7 +52,8 @@ def modelCaller(model,query,expId,simStep,cars, network_nodes):
     args = "\"" + newModel + "\" "
     #newQuery = createQuery(query, expId, cars) Used for stratego
     out = runModel(com,args,query, simStep)
-    carSpeeds = getStrategy(out, cars)
+    print(out)
+    #carSpeeds = getStrategy(out, cars)
     
     #' -o 1 -t 0 '
     """
@@ -64,7 +66,8 @@ def modelCaller(model,query,expId,simStep,cars, network_nodes):
       + ' --filter 0 '
     """
     
-    return carSpeeds
+    #return carSpeeds
+    print("Done")
 
 def getStrategy(outStr, cars):
     carSpeeds = []
@@ -126,9 +129,9 @@ def createModel(master_model,expId,simStep,cars,network_nodes):
     value += "};"
     str_model = str.replace(str_model, toReplace, value, 1)
 
-    queryName = os.path.join(pathToModels, 'tempQuery' + str(expId) + '.q')
-    text_file = open(queryName, "w")
-    text_file.write(str_query)
+    modelName = os.path.join(pathToModels, 'tempModel' + str(expId) + '.xml')
+    text_file = open(modelName, "w")
+    text_file.write(str_model)
     text_file.close()
-    return queryName
+    return modelName
 
