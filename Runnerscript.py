@@ -57,9 +57,9 @@ def run(options):
         
         if options.newDataFile != "":
 
-            leftMostEdgeNode = "n3"
-            rightMostEdgeNode = "n55"
-            middleEdgeNode =    "n7"
+            leftMostEdgeNode = "n2"
+            rightMostEdgeNode = "n6"
+            middleEdgeNode =    "n77777777"
 
             sumOfDistanceTravel = 0
             CarsInNetworkList = traci.vehicle.getIDList()
@@ -77,12 +77,12 @@ def run(options):
                     distanceTravelledOnEdge = carPos[0] - leftxValue
                     sumOfDistanceTravel += distanceTravelledOnEdge
 
-            density1 = traci.edge.getLastStepOccupancy("n3-n55")
-            density2 = traci.edge.getLastStepOccupancy("n55-n7")
+            density1 = traci.edge.getLastStepOccupancy("n2-n6")
+            #density2 = traci.edge.getLastStepOccupancy("n55-n7")
 
             d = {
                 "flow" : round( (sumOfDistanceTravel / (traci.junction.getPosition(rightMostEdgeNode)[0] - traci.junction.getPosition(leftMostEdgeNode)[0])) , 3 ) ,
-                "density" : round(((density1 + density2) / 2) , 3)
+                "density" : round(density1 , 3)
             }
             flowData.append(d)
 
