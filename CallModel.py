@@ -111,7 +111,7 @@ def createModel(master_model,expId,simStep,cars,network_nodes):
     toReplace = "//HOLDER_CAR_PID"
     value = "{"
     for i in range (0,len(cars)):
-        value += str(cars[i][0][-1:]) + ","
+        value += str(cars[i][0]) + ","
     value = value[:-1]
     value += "};"
     str_model = str.replace(str_model, toReplace, value, 1)
