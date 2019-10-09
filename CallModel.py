@@ -120,7 +120,7 @@ def createModel(master_model,expId,simStep,cars,network_nodes):
     toReplace = "//HOLDER_CAR_ROUTE"
     value = "{"
     for i in range (0,len(cars)):
-        value += "{"
+        value += "\n{"
         for j in range (0, network_nodes):
             value += str(cars[i][1][j]) + ","
         value = value[:-1]

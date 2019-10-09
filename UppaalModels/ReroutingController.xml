@@ -20,12 +20,19 @@ int currentCar = 0;
 
 int CheckReroute()
 {
+currentCar ++;
 
 return 0;
 }
 
 void AddRouteWeight() 
-{}</declaration>
+{
+
+currentCar ++;
+
+
+
+}</declaration>
 		<location id="id0" x="-909" y="-187">
 			<name x="-919" y="-221">InitSate</name>
 		</location>
@@ -44,6 +51,7 @@ void AddRouteWeight()
 		<location id="id5" x="-586" y="-187">
 		</location>
 		<location id="id6" x="-467" y="-289">
+			<name x="-501" y="-323">Rerouting</name>
 		</location>
 		<init ref="id0"/>
 		<transition>
@@ -96,8 +104,12 @@ AddRouteWeight()</label>
 		<declaration>
 
 void ChooseRoute()
-{}</declaration>
+{
+currentCar ++;
+
+}</declaration>
 		<location id="id7" x="-450" y="-59">
+			<name x="-460" y="-93">InitState</name>
 		</location>
 		<location id="id8" x="-280" y="-59">
 			<name x="-331" y="-93">ComputeRoute</name>

@@ -60,10 +60,11 @@ def run(options):
         #THE MAIN CONTROLLER
         if options.controller == "TrafficNetworkController":
             CarsInNetworkList = traci.vehicle.getIDList()
-            Cars = []
-            for car in CarsInNetworkList:               
-                Cars.append([car, get_route_nodes(car)])
-            modelCaller(mainModel, mainQuery, options.expid, step, Cars, nodes_in_network)
+            if len(CarsInNetworkList) > 0:
+                Cars = []
+                for car in CarsInNetworkList:               
+                    Cars.append([car, get_route_nodes(car)])
+                modelCaller(mainModel, mainQuery, options.expid, step, Cars, nodes_in_network)
                 
             
 
