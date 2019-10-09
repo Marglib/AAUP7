@@ -142,7 +142,7 @@ def createModel(master_model,expId,carsAreal,carsJammed,phase,duration,simStep,n
     value = value[:-1]
     str_model = str.replace(str_model, toReplace, value, 1)
         
-    modelName = rootDir + "\\UppaalModels\\TrafficLightTempModels\\tl-" + str(tlID) + "-" + str(expId) + ".xml"
+    modelName = rootDir + "/UppaalModels/TrafficLightTempModels/tl-" + str(tlID) + "-" + str(expId) + ".xml"
     text_file = open(modelName, "w")
     text_file.write(str_model)
     text_file.close()

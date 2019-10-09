@@ -35,7 +35,7 @@ PORT = 8873
 
 rootDir = os.path.abspath(os.getcwd())
 pathToResults = os.path.join(rootDir,'results')
-pathToModels = os.path.join(rootDir,'UppaalModels') + '\\'
+pathToModels = os.path.join(rootDir,'UppaalModels')
 icavQuery = os.path.join(pathToModels, 'TNC.q')
 icavModel = os.path.join(pathToModels, 'TrafficNetworkController.xml')
 
@@ -51,7 +51,7 @@ def run(options):
     
     #Detectors for each intersection declared here
     n11det = ["n7-n11_0_det","n7-n11_1_det","n46-n11_0_det","n46-n11_1_det","n12-n11_0_det","n10-n31_0_det"]
-    n31det = ["n43-n31_0_det", "n43-n31_1_det", "n48-n31_0_det", "n48-n31_1_det", "n32-n31_0_det", "n30-n31_0_det"]
+    n31det = ["n43-n31_0_det", "n43-n31_1_det", "n32-n31_0_det", "n48-n31_1_det", "n48-n31_0_det", "n30-n31_0_det"]
 
     #-------------------------------STRATEGO info---------------------------------------
     strategoMasterModel = os.path.join(pathToModels,'lowActivityMiniPro.xml')
