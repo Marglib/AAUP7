@@ -103,7 +103,7 @@ def mergeDetectors(carsDet,numDetectors):
 def convertPhase(phase):
     if phase == 0:
         return "0"
-    if phase == 3:
+    if phase == 2:
         return "1"
 
 def createModel(master_model,expId,carsAreal,carsJammed,phase,duration,simStep,nrOfDetectors,binaryPhases,tlID,greenModel,greenTimer):
@@ -190,8 +190,8 @@ def cStratego(model,query,learningMet,succRuns,maxRuns,goodRuns,evalRuns,maxIter
         phase = 0
         yellowPhase = 1
         duration = sigDuration[0]
-    if sigEnabled[5]:
-        phase = 3
+    else:
+        phase = 2
         yellowPhase = 4
         duration = sigDuration[5]
     return phase,duration,yellowPhase

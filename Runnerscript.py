@@ -53,7 +53,6 @@ def run(options):
     n11det = ["n7-n11_0_det","n7-n11_1_det","n46-n11_0_det","n46-n11_1_det","n12-n11_0_det","n10-n31_0_det"]
     n31det = ["n43-n31_0_det", "n43-n31_1_det", "n48-n31_0_det", "n48-n31_1_det", "n32-n31_0_det", "n30-n31_0_det"]
 
-
     #-------------------------------STRATEGO info---------------------------------------
     strategoMasterModel = os.path.join(pathToModels,'lowActivityMiniPro.xml')
     strategoMasterModelGreen = os.path.join(pathToModels,'highActivityPro.xml')
@@ -68,7 +67,7 @@ def run(options):
 
     #-------------------- CLASS tls from here ----------------------
     #Declare all the classes
-    tln11 = smartTL('n11',6,n31det,[1,2,3,4],6,'0',8,0,[27,36])
+    tln11 = smartTL('n11',6,n11det,[1,2,3,4],6,'0',8,0,[27,36])
     tln31 = smartTL('n31',6,n31det,[1,2,3,4],6,'0',8,0,[27,36])
     ListOfTls = [tln31, tln11]
 
