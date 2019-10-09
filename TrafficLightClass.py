@@ -34,15 +34,12 @@ class smartTL:
         self.duration = yellowTime
         self.phase = initPhase
         self.inYellow = True
-        self.nextPhase = phases[self.phase+1]
+        self.nextPhase = self.phase + 1
         self.strategoRunTime = 4
         self.phaseTimer = self.yellow
         self.strategoTimer = self.phaseTimer - self.strategoRunTime
         self.strategoMaxGreen = 120 #max time in green in one direction
         self.strategoGreenTimer = 0
-        self.phaseStrings = traci.trafficlight.getCompleteRedYellowGreenDefinition(self.tlID)
-        print("PHASES: ")
-        print(self.phaseStrings)
 
     def update_tl_state(self,strategoMasterModel,strategoMasterModelGreen,strategoQuery,strategoLearningMet,strategoSuccRuns,strategoMaxRuns,strategoGoodRuns,strategoEvalRuns,strategoMaxIterations,expid,step):
         carsAreal = self.get_det_func(traci.areal.getLastStepVehicleNumber,self.detectors)
@@ -55,7 +52,7 @@ class smartTL:
                                             strategoMaxRuns,strategoGoodRuns,
                                             strategoEvalRuns,strategoMaxIterations,
                                             expid,carsAreal,carsJammed,
-                                            self.phase,self.duration,step,self.nrOfSignals,self.numDetectors,self.binaryPhases)
+                                            self.phase,self.duration,step,self.nrOfSignals,self.numDetectors,self.binaryPhases,self.tlID)
                 self.duration = 10
                 self.inYellow = False
                 self.strategoGreenTimer = 0
@@ -65,7 +62,7 @@ class smartTL:
                                             strategoMaxRuns,strategoGoodRuns,
                                             strategoEvalRuns,strategoMaxIterations,
                                             expid,carsAreal,carsJammed,
-                                            self.phase,self.duration,step,self.nrOfSignals,self.numDetectors,self.binaryPhases,greenModel=True,
+                                            self.phase,self.duration,step,self.nrOfSignals,self.numDetectors,self.binaryPhases,self.tlID,greenModel=True,
                                             greenTimer=self.strategoGreenTimer)
                 if self.nextPhase == self.phase:
                     self.duration = 5
@@ -87,7 +84,6 @@ class smartTL:
         self.strategoGreenTimer = self.strategoGreenTimer + 1   
         self.strategoTimer = self.strategoTimer - 1
         self.phaseTimer = self.phaseTimer - 1
-
                                                 
     def get_max_green(self):
         if self.programID == 'max':

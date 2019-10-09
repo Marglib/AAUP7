@@ -106,7 +106,7 @@ def convertPhase(phase):
     if phase == 3:
         return "1"
 
-def createModel(master_model,expId,carsAreal,carsJammed,phase,duration,simStep,nrOfDetectors,binaryPhases,greenModel,greenTimer):
+def createModel(master_model,expId,carsAreal,carsJammed,phase,duration,simStep,nrOfDetectors,binaryPhases,tlID,greenModel,greenTimer):
     fo = open(master_model, "r+")
     str_model = fo.read()
     fo.close()
@@ -142,7 +142,7 @@ def createModel(master_model,expId,carsAreal,carsJammed,phase,duration,simStep,n
     value = value[:-1]
     str_model = str.replace(str_model, toReplace, value, 1)
         
-    modelName = rootDir + "\\UppaalModels\\TempModel" + "tl" + str(expId) + ".xml"
+    modelName = rootDir + "\\UppaalModels\\TrafficLightTempModels\\tl-" + str(tlID) + "-" + str(expId) + ".xml"
     text_file = open(modelName, "w")
     text_file.write(str_model)
     text_file.close()
@@ -150,8 +150,8 @@ def createModel(master_model,expId,carsAreal,carsJammed,phase,duration,simStep,n
 
     
 def cStratego(model,query,learningMet,succRuns,maxRuns,goodRuns,evalRuns,maxIterations,expId,
-              carsAreal,carsJammed,phase,duration,simStep,nrOfSignals,nrOfDetectors,binaryPhases,greenModel=False,greenTimer=0):      
-    newModel = createModel(model,expId,carsAreal,carsJammed,phase,duration,simStep,nrOfDetectors,binaryPhases,greenModel,greenTimer)
+              carsAreal,carsJammed,phase,duration,simStep,nrOfSignals,nrOfDetectors,binaryPhases,tlID,greenModel=False,greenTimer=0):      
+    newModel = createModel(model,expId,carsAreal,carsJammed,phase,duration,simStep,nrOfDetectors,binaryPhases,tlID,greenModel,greenTimer)
     stratego = VP.veri + " "
     #'time '
     com = stratego

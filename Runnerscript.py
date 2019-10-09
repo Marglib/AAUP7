@@ -12,6 +12,7 @@ import math
 import copy
 import networkx as nx
 import matplotlib.pyplot as plt
+import concurrent.futures
 from itertools import islice
 #import pandas as pd
 
@@ -49,30 +50,33 @@ def run(options):
     pathsToFind = 3
     
     #Detectors for each intersection declared here
+    n11det = ["n7-n11_0_det","n7-n11_1_det","n46-n11_0_det","n46-n11_1_det","n12-n11_0_det","n10-n31_0_det"]
     n31det = ["n43-n31_0_det", "n43-n31_1_det", "n48-n31_0_det", "n48-n31_1_det", "n32-n31_0_det", "n30-n31_0_det"]
+
 
     #-------------------------------STRATEGO info---------------------------------------
     strategoMasterModel = os.path.join(pathToModels,'lowActivityMiniPro.xml')
     strategoMasterModelGreen = os.path.join(pathToModels,'highActivityPro.xml')
     strategoQuery = os.path.join(pathToModels,'StrategoQuery.q')
     strategoLearningMet = "3"
-    strategoSuccRuns = "40"
+    strategoSuccRuns = "20"
     strategoGoodRuns = "40"
-    strategoMaxRuns = "50"
+    strategoMaxRuns = "20"
     strategoEvalRuns = "10"
     strategoMaxIterations = "150"
     #---------------------------- END ------------------------------
 
     #-------------------- CLASS tls from here ----------------------
     #Declare all the classes
+    tln11 = smartTL('n11',6,n31det,[1,2,3,4],6,'0',8,0,[27,36])
     tln31 = smartTL('n31',6,n31det,[1,2,3,4],6,'0',8,0,[27,36])
-    ListOfTls = [tln31]
+    ListOfTls = [tln31, tln11]
 
     #Set all phases and program ids
     for tls in ListOfTls:
         traci.trafficlight.setProgram(tls.tlID, tls.programID)
         traci.trafficlight.setPhase(tls.tlID, tls.phase)
-    #-------------------------------END OF STRATEGO STUFF-------------------------------------------
+    #-------------------------------END TLS-------------------------------------------
 
     print("Starting simulation expid=" + str(options.expid))
 
@@ -118,12 +122,14 @@ def run(options):
 
         #------------------------- BEGIN STRATEGO CONTROLLER -----------------------------
         if options.controller == "stratego":
-            for tls in ListOfTls:
-                tls.update_tl_state(strategoMasterModel,strategoMasterModelGreen,strategoQuery,
-                                              strategoLearningMet,strategoSuccRuns,
-                                              strategoMaxRuns,strategoGoodRuns,
-                                              strategoEvalRuns,strategoMaxIterations,
-                                              options.expid,step)
+            with concurrent.futures.ThreadPoolExecutor(max_workers=len(ListOfTls)) as executor:
+                for tls in ListOfTls:
+                    future = executor.submit(tls.update_tl_state,strategoMasterModel,strategoMasterModelGreen,strategoQuery,
+                                                        strategoLearningMet,strategoSuccRuns,
+                                                        strategoMaxRuns,strategoGoodRuns,
+                                                        strategoEvalRuns,strategoMaxIterations,
+                                                        options.expid,step)
+                    future.result()
 
             #---------------------------- END -----------------------------
 

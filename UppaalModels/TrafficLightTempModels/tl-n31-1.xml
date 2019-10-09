@@ -86,12 +86,12 @@ false, false, false, false, false, false
  
 //PLACE HOLDERS
 const max_signal_conf_t initialPhase = 0;
-int greenTimer = 110;
-int carsAreal[signal_t] = {0, 9, 1, 1, 11, 11};
-int carsJammed[signal_t] = {0, 5, 0, 0, 11, 9};
+int greenTimer = 80;
+int carsAreal[signal_t] = {2, 8, 0, 0, 12, 12};
+int carsJammed[signal_t] = {0, 1, 0, 0, 12, 12};
 //first delay is dinamic in contrast to the 15 min for the floor heating, a yellow phase has to follow. i.e. fd = delay + yellow
 //HOLDER_FIRST_DELAY
-//SIM_STEP=242</declaration>
+//SIM_STEP=358</declaration>
 	<template>
 		<name x="5" y="5">trafficLights</name>
 		<declaration>// Place local declarations here.
