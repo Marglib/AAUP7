@@ -8,6 +8,8 @@ const int nodes = 57; //number of nodes in the network
 
 int currentCar = 0;
 
+typedef int[0, N-1] id_car;
+
 chan Reroute[N], RouteSet;</declaration>
 	<template>
 		<name x="5" y="5">Controller</name>
@@ -100,12 +102,11 @@ AddRouteWeight()</label>
 	</template>
 	<template>
 		<name>Rerouter</name>
-		<parameter>int id</parameter>
 		<declaration>
-
 void ChooseRoute()
 {
 currentCar ++;
+
 
 }</declaration>
 		<location id="id7" x="-450" y="-59">
@@ -134,6 +135,7 @@ currentCar ++;
 		<transition>
 			<source ref="id7"/>
 			<target ref="id8"/>
+			<label kind="select" x="-433" y="-17">id : id_car</label>
 			<label kind="synchronisation" x="-442" y="-42">Reroute[id]?</label>
 		</transition>
 	</template>
@@ -146,6 +148,8 @@ const int route[N][nodes] = //HOLDER_CAR_ROUTE
 
 
 // List one or more processes to be composed into a system.
+//Rerouters(int[0,N-1] id) = Rerouter(id);
+
 system Controller, Rerouter;
     </system>
 	<queries>
