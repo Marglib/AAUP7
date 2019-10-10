@@ -28,7 +28,7 @@ class smartTL:
         self.nrOfSignals = nrOfSignals
         self.programID = programID
         self.yellow = yellowTime
-        self.binaryPhases, self.binaryPhasesDecimal, self.binaryPhaseIndices = self.get_phases_for_program()
+        self.binaryPhases,self.binaryPhasesDecimal,self.binaryPhaseIndices,self.yellowOnlyPhases = self.get_phases_for_program()
 
         #Initial values for important variables
         self.duration = yellowTime
@@ -75,7 +75,7 @@ class smartTL:
         if self.phaseTimer == 0:
             self.phase = self.nextPhase
             traci.trafficlight.setPhase(self.tlID,self.phase)
-            if ("y" in traci.trafficlight.getRedYellowGreenState(self.tlID)):
+            if (self.phase in self.yellowOnlyPhases):
                 self.inYellow = True
             else:
                 self.inYellow = False
@@ -134,13 +134,15 @@ class smartTL:
 
         #Removing any phases that dont have any green. These are not interesting for the model
         binaryToDecimalPhases = []
+        yellowOnlyPhases = []
         for i in range(0,len(binaryPhases)):
             if(int(binaryPhases[i],2) != 0):
                 binaryToDecimalPhases.append(int(binaryPhases[i],2))
             else:    
                 binaryPhaseIndices.remove(i)
+                yellowOnlyPhases.append(i)
 
-        return binaryPhases, binaryToDecimalPhases, binaryPhaseIndices
+        return binaryPhases, binaryToDecimalPhases, binaryPhaseIndices, yellowOnlyPhases
                                                 
 
     def get_max_green(self):

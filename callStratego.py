@@ -217,8 +217,6 @@ def cStratego(model,query,learningMet,succRuns,maxRuns,goodRuns,evalRuns,maxIter
         if(binaryPhases[i] == signalsInBinary):
             phase = i
 
-    print(signalsInBinary)
-    print(phase)
     """
     if sigEnabled[0]:
         phase = 0
