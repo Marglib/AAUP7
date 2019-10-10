@@ -100,13 +100,12 @@ def mergeDetectors(carsDet,numDetectors):
     merged[3] = merged[3] + int(round((1./4.) * carsDet[5]))
     return merged   
 
-def convertPhase(phase):
-    if phase == 0:
-        return "0"
-    if phase == 2:
-        return "1"
+def convertPhase(phase,binaryPhaseIndices):
+    for i in range(0,len(binaryPhaseIndices)):
+        if phase == binaryPhaseIndices[i]:
+            return str(i)
 
-def createModel(master_model,expId,carsAreal,carsJammed,phase,duration,simStep,nrOfDetectors,binaryPhases,tlID,greenModel,greenTimer):
+def createModel(master_model,expId,carsAreal,carsJammed,phase,duration,simStep,nrOfDetectors,binaryPhasesDecimal,binaryPhaseIndices,tlID,nrOfSignals,yellowTime,greenModel,greenTimer):
     fo = open(master_model, "r+")
     str_model = fo.read()
     fo.close()
@@ -114,13 +113,31 @@ def createModel(master_model,expId,carsAreal,carsJammed,phase,duration,simStep,n
     if greenModel:
         toReplace = "//HOLDER_INITIAL_PHASE"
         value = "const max_signal_conf_t initialPhase = " + \
-          convertPhase(phase) + ";"
+          convertPhase(phase,binaryPhaseIndices) + ";"
         str_model = str.replace(str_model, toReplace, value, 1)
         toReplace = "//HOLDER_GREEN_TIMER"
         value = "int greenTimer = " + \
           str(greenTimer) + ";"
         str_model = str.replace(str_model, toReplace, value, 1)
+
+    #Setting different tl specific variables:
+    toReplace = "//HOLDER_AMOUNT_OF_SIGNALS"
+    value = str(nrOfSignals) + ";"
+    str_model = str.replace(str_model, toReplace, value, 1)
+
+    toReplace = "//HOLDER_SIGNAL_CONFS"
+    value = ""
+    for i in range(0,nrOfSignals):
+        value += "2*"
+    value = value[:-1]
+    value += "-1;"
+    str_model = str.replace(str_model, toReplace, value, 1)
+
+    toReplace = "//HOLDER_COMP_SIGNALS"
+    value = str(len(binaryPhasesDecimal)) + ";"
+    str_model = str.replace(str_model, toReplace, value, 1)    
     
+    #Placeholders in the bottom of the model:
     toReplace = "//HOLDER_CARS_AREAL"
     #due to the disagreement between detectors and lanes we need to merge detectors
     value = "int carsAreal[signal_t] = " + arrayToStratego(carsAreal)    
@@ -137,8 +154,8 @@ def createModel(master_model,expId,carsAreal,carsJammed,phase,duration,simStep,n
 
     toReplace = "//HOLDER_BINARY_PHASES"
     value = ""
-    for i in range (0,len(binaryPhases)):
-        value += str(binaryPhases[i]) + ","
+    for i in range (0,len(binaryPhasesDecimal)):
+        value += str(binaryPhasesDecimal[i]) + ","
     value = value[:-1]
     str_model = str.replace(str_model, toReplace, value, 1)
         
@@ -150,8 +167,9 @@ def createModel(master_model,expId,carsAreal,carsJammed,phase,duration,simStep,n
 
     
 def cStratego(model,query,learningMet,succRuns,maxRuns,goodRuns,evalRuns,maxIterations,expId,
-              carsAreal,carsJammed,phase,duration,simStep,nrOfSignals,nrOfDetectors,binaryPhases,tlID,greenModel=False,greenTimer=0):      
-    newModel = createModel(model,expId,carsAreal,carsJammed,phase,duration,simStep,nrOfDetectors,binaryPhases,tlID,greenModel,greenTimer)
+              carsAreal,carsJammed,phase,duration,simStep,nrOfSignals,nrOfDetectors,binaryPhasesDecimal, 
+              binaryPhases, binaryPhaseIndices,tlID,yellowTime,greenModel=False,greenTimer=0):      
+    newModel = createModel(model,expId,carsAreal,carsJammed,phase,duration,simStep,nrOfDetectors,binaryPhasesDecimal,binaryPhaseIndices,tlID,nrOfSignals,yellowTime,greenModel,greenTimer)
     stratego = VP.veri + " "
     #'time '
     com = stratego
@@ -186,6 +204,22 @@ def cStratego(model,query,learningMet,succRuns,maxRuns,goodRuns,evalRuns,maxIter
     duration = 0
     yellowPhase = 0
     #todo: check if we need yellowPhase
+    signalsInBinary = ""
+    for sig in sigEnabled:
+        if sig:
+            signalsInBinary += "1"
+        else:
+            signalsInBinary += "0"
+
+    signalsInBinary = signalsInBinary[::-1]
+    
+    for i in range(0, len(binaryPhases)):
+        if(binaryPhases[i] == signalsInBinary):
+            phase = i
+
+    print(signalsInBinary)
+    print(phase)
+    """
     if sigEnabled[0]:
         phase = 0
         yellowPhase = 1
@@ -194,6 +228,7 @@ def cStratego(model,query,learningMet,succRuns,maxRuns,goodRuns,evalRuns,maxIter
         phase = 2
         yellowPhase = 4
         duration = sigDuration[5]
+    """
     return phase,duration,yellowPhase
 
             

@@ -7,6 +7,7 @@ import random
 import time
 import math
 import copy
+import re
 
 try:
      tools = os.path.join(os.environ['SUMO_HOME'], "tools")
@@ -20,15 +21,14 @@ import sumolib
 from callStratego import cStratego
 
 class smartTL:
-    def __init__(self, tlID, numDetectors, detectors, phases, nrOfSignals, programID, yellowTime, initPhase, binaryPhases):
+    def __init__(self,tlID,numDetectors,detectors,nrOfSignals,programID,yellowTime,initPhase):
         self.tlID = tlID
         self.numDetectors = numDetectors
         self.detectors = detectors
-        self.phases = phases
         self.nrOfSignals = nrOfSignals
         self.programID = programID
         self.yellow = yellowTime
-        self.binaryPhases = binaryPhases
+        self.binaryPhases, self.binaryPhasesDecimal, self.binaryPhaseIndices = self.get_phases_for_program()
 
         #Initial values for important variables
         self.duration = yellowTime
@@ -52,7 +52,8 @@ class smartTL:
                                             strategoMaxRuns,strategoGoodRuns,
                                             strategoEvalRuns,strategoMaxIterations,
                                             expid,carsAreal,carsJammed,
-                                            self.phase,self.duration,step,self.nrOfSignals,self.numDetectors,self.binaryPhases,self.tlID)
+                                            self.phase,self.duration,step,self.nrOfSignals,
+                                            self.numDetectors,self.binaryPhasesDecimal,self.binaryPhases,self.binaryPhaseIndices,self.tlID,self.yellow)
                 self.duration = 10
                 self.inYellow = False
                 self.strategoGreenTimer = 0
@@ -62,7 +63,9 @@ class smartTL:
                                             strategoMaxRuns,strategoGoodRuns,
                                             strategoEvalRuns,strategoMaxIterations,
                                             expid,carsAreal,carsJammed,
-                                            self.phase,self.duration,step,self.nrOfSignals,self.numDetectors,self.binaryPhases,self.tlID,greenModel=True,
+                                            self.phase,self.duration,step,self.nrOfSignals,self.numDetectors,
+                                            self.binaryPhasesDecimal,self.binaryPhases,self.binaryPhaseIndices,self.tlID,self.yellow,
+                                            greenModel=True,
                                             greenTimer=self.strategoGreenTimer)
                 if self.nextPhase == self.phase:
                     self.duration = 5
@@ -84,7 +87,62 @@ class smartTL:
         self.strategoGreenTimer = self.strategoGreenTimer + 1   
         self.strategoTimer = self.strategoTimer - 1
         self.phaseTimer = self.phaseTimer - 1
+
+    def get_phases_for_program(self):
+        phaseDefiniton = traci.trafficlight.getCompleteRedYellowGreenDefinition(self.tlID)
+        phaseDefiniton = str(phaseDefiniton)
+        phaseList = []
+        connectionsList = []
+
+        #Finding all the relevant phases
+        for match in re.finditer('state',phaseDefiniton):
+            startOfPhase = match.end() + 2
+            endOfPhase = phaseDefiniton.find(',',match.end()) -1
+            phaseList.append(phaseDefiniton[startOfPhase:endOfPhase])
+
+        #Creating the amount of connections from each signal
+        links = traci.trafficlight.getControlledLinks(self.tlID)
+        lastLane = ""
+        currentConnections = 1
+        for i in range(0,len(links)):
+            currLane = links[i][0][0]
+            if(currLane == lastLane):
+                currentConnections = currentConnections + 1
+            elif(lastLane != ""):
+                connectionsList.append(currentConnections)
+                currentConnections = 1
+            if(i == len(links) -1):
+                connectionsList.append(currentConnections)
+
+            lastLane = currLane
+
+        #Creating the binary phases and their indices
+        binaryPhases = []
+        binaryPhaseIndices = []
+        for i in range(0, len(phaseList)):
+            index = 0
+            binaryPhase = ""
+            for j in range (0, len(connectionsList)):
+                signalConf = phaseList[i][index:index + connectionsList[j]]
+                if('G' in signalConf or 'g' in signalConf):
+                    binaryPhase += "1"
+                else:
+                    binaryPhase += "0"
+                index = index + connectionsList[j]
+            binaryPhases.append(binaryPhase)
+            binaryPhaseIndices.append(i)
+
+        #Removing any phases that dont have any green. These are not interesting for the model
+        binaryToDecimalPhases = []
+        for i in range(0,len(binaryPhases)):
+            if(int(binaryPhases[i],2) != 0):
+                binaryToDecimalPhases.append(int(binaryPhases[i],2))
+            else:    
+                binaryPhaseIndices.remove(i)
+
+        return binaryPhases, binaryToDecimalPhases, binaryPhaseIndices
                                                 
+
     def get_max_green(self):
         if self.programID == 'max':
             return 64,40

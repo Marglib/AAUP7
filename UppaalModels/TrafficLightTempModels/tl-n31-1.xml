@@ -34,12 +34,7 @@ int totalJammedCars = 0;
 int curStep = 0;
 
 //CONSTANTS
-const int NrAvenues = 6;
-const int Signals_AV_West = 2;
-const int Signals_AV_North = 1;
-const int Signals_AV_South = 1;
-const int Signals_AV_East = 2; 
-const int NrOfSignals = Signals_AV_West + Signals_AV_North + Signals_AV_South + Signals_AV_East;
+const int NrOfSignals = 6;
 const int NrOfSignalConfs = 2*2*2*2*2*2-1; //2^NS 
 const int NrOfMaxCompSignalConfs = 2; 
 //const int MIN_GREEN = 20, MAX_GREEN = 45;
@@ -91,11 +86,11 @@ int delchoice = 0;
  
 //PLACE HOLDERS
 //HOLDER_INITIAL_PHASE
-int carsAreal[signal_t] = {0, 0, 0, 0, 0, 0};
-int carsJammed[signal_t] = {0, 0, 0, 0, 0, 0};
+int carsAreal[signal_t] = {1, 4, 0, 1, 1, 0};
+int carsJammed[signal_t] = {0, 1, 0, 0, 0, 0};
 //first delay is dinamic in contrast to the 15 min for the floor heating, a yellow phase has to follow. i.e. fd = delay + yellow
 //HOLDER_FIRST_DELAY
-//SIM_STEP=1285
+//SIM_STEP=128
 
 max_signal_conf_t phasechoice;
 
