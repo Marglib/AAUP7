@@ -34,14 +34,9 @@ int totalJammedCars = 0;
 int curStep = 0;
 
 //CONSTANTS
-const int NrAvenues = 6;
-const int Signals_AV_West = 2;
-const int Signals_AV_North = 1;
-const int Signals_AV_South = 1;
-const int Signals_AV_East = 2; 
-const int NrOfSignals = Signals_AV_West + Signals_AV_North + Signals_AV_South + Signals_AV_East;
-const int NrOfSignalConfs = 2*2*2*2*2*2-1; //2^NS 
-const int NrOfMaxCompSignalConfs = 2; 
+const int NrOfSignals = //HOLDER_AMOUNT_OF_SIGNALS
+const int NrOfSignalConfs = //HOLDER_SIGNAL_CONFS //2^NS 
+const int NrOfMaxCompSignalConfs = //HOLDER_COMP_SIGNALS 
 //const int MIN_GREEN = 20, MAX_GREEN = 45;
 const int YELLOW = 6;
 const int Horizon = 90; //90 step simulations = 90 secs

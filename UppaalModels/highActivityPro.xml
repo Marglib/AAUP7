@@ -34,15 +34,10 @@ int curStep = 0;
 clock x;
 
 
-//CONSTANTS
-const int NrAvenues = 6;
-const int Signals_AV_West = 2;
-const int Signals_AV_North = 1;
-const int Signals_AV_South = 1;
-const int Signals_AV_East = 2; 
-const int NrOfSignals = Signals_AV_West + Signals_AV_North + Signals_AV_South + Signals_AV_East;
-const int NrOfSignalConfs = 2*2*2*2*2*2-1; //2^NS 
-const int NrOfMaxCompSignalConfs = 2; 
+//CONSTANTS - SOME are replaced with variables
+const int NrOfSignals = //HOLDER_AMOUNT_OF_SIGNALS
+const int NrOfSignalConfs = //HOLDER_SIGNAL_CONFS //2^NS 
+const int NrOfMaxCompSignalConfs = //HOLDER_COMP_SIGNALS 
 const int YELLOW = 8;
 const int Horizon = 20; //20 step simulations = 20 secs 
 const int stepsToCross = 1; // a car needs to steps (2secs) to cross in average
