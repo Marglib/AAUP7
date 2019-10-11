@@ -48,6 +48,9 @@ def run(options):
     ListOfCarsPlaceholder = []
     networkGraph = preprocess()    
     pathsToFind = 3
+
+    laneList = list(reversed(traci.trafficlight.getControlledLanes("n31")))
+    print(laneList)
     
     #Detectors for each intersection declared here
     n11det = ["n7-n11_0_det","n7-n11_1_det","n12-n11_0_det","n46-n11_0_det","n46-n11_1_det","n10-n31_0_det"]
