@@ -33,7 +33,7 @@ def runStratego(com, args, query):
 
 
 def myGetSubString(mstr, key, greenModel):
-    print("myGetSubstring"+mstr)      
+    #print("myGetSubstring"+mstr)      
     delim = "\n" #Start of next signal line
 
     key_len = len(key)
