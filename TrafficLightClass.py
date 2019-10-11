@@ -161,9 +161,6 @@ class smartTL:
         for deti in range(0,numDet):
             res[deti] = func(dets[deti])
         return res  
-
-    def print_dets_state(msg,dets,res):
-        print(msg + " detectors: " +str(dets) + " values: " + str(res))
     
     def get_lane_func(self, func, tlID):
         controlledLanes = self.get_controlled_lanes(tlID)
