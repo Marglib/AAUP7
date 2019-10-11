@@ -21,10 +21,8 @@ import sumolib
 from callStratego import cStratego
 
 class smartTL:
-    def __init__(self,tlID,numDetectors,detectors,nrOfSignals,programID,yellowTime,initPhase):
+    def __init__(self,tlID,nrOfSignals,programID,yellowTime,initPhase, radius=200):
         self.tlID = tlID
-        self.numDetectors = numDetectors
-        self.detectors = detectors
         self.nrOfSignals = nrOfSignals
         self.programID = programID
         self.yellow = yellowTime
@@ -40,9 +38,11 @@ class smartTL:
         self.strategoTimer = self.phaseTimer - self.strategoRunTime
         self.strategoMaxGreen = 120 #max time in green in one direction
         self.strategoGreenTimer = 0
+        self.radius = radius
 
     def update_tl_state(self,strategoMasterModel,strategoMasterModelGreen,strategoQuery,strategoLearningMet,strategoSuccRuns,strategoMaxRuns,strategoGoodRuns,strategoEvalRuns,strategoMaxIterations,expid,step):
-        carsAreal = self.get_lane_func(traci.lane.getLastStepVehicleNumber, self.tlID)[::-1] #self.get_det_func(traci.areal.getLastStepVehicleNumber,self.detectors)
+        #Old Functions: self.get_lane_func(traci.lane.getLastStepVehicleNumber, self.tlID)[::-1]
+        carsAreal = self.get_cars_areal_in_radius(self.tlID, self.radius)[::-1]
         carsJammed = self.get_lane_func(traci.lane.getLastStepHaltingNumber, self.tlID)[::-1]
         
         if self.strategoTimer == 0:
@@ -53,7 +53,7 @@ class smartTL:
                                             strategoEvalRuns,strategoMaxIterations,
                                             expid,carsAreal,carsJammed,
                                             self.phase,self.duration,step,self.nrOfSignals,
-                                            self.numDetectors,self.binaryPhasesDecimal,self.binaryPhases,self.binaryPhaseIndices,self.tlID,self.yellow)
+                                            self.binaryPhasesDecimal,self.binaryPhases,self.binaryPhaseIndices,self.tlID,self.yellow)
                 self.duration = 10
                 self.inYellow = False
                 self.strategoGreenTimer = 0
@@ -63,7 +63,7 @@ class smartTL:
                                             strategoMaxRuns,strategoGoodRuns,
                                             strategoEvalRuns,strategoMaxIterations,
                                             expid,carsAreal,carsJammed,
-                                            self.phase,self.duration,step,self.nrOfSignals,self.numDetectors,
+                                            self.phase,self.duration,step,self.nrOfSignals,
                                             self.binaryPhasesDecimal,self.binaryPhases,self.binaryPhaseIndices,self.tlID,self.yellow,
                                             greenModel=True,
                                             greenTimer=self.strategoGreenTimer)
@@ -153,17 +153,7 @@ class smartTL:
         if self.programID == 'low':
             return 36,20
         if self.programID == '0':
-            return 54,26
-
-    def get_det_func(self,func,dets):
-        numDet = len(dets)
-        res = [0] * numDet
-        for deti in range(0,numDet):
-            res[deti] = func(dets[deti])
-        return res  
-
-    def print_dets_state(msg,dets,res):
-        print(msg + " detectors: " +str(dets) + " values: " + str(res))
+            return 54,26 
     
     def get_lane_func(self, func, tlID):
         controlledLanes = self.get_controlled_lanes(tlID)
@@ -182,3 +172,20 @@ class smartTL:
                 uniqueControlledLanes.append(lane)
 
         return uniqueControlledLanes
+    
+    def get_cars_areal_in_radius(self, tlID, radius):
+        controlledLanes = self.get_controlled_lanes(tlID)
+        res = [0] * len(controlledLanes)
+        junctionPosition = traci.junction.getPosition(tlID)
+        for i in range (0, len(controlledLanes)):
+            vehicleIDs = traci.lane.getLastStepVehicleIDs(controlledLanes[i])
+            numberOfCars = 0
+            for vehicle in vehicleIDs:
+                vehiclePosition = traci.vehicle.getPosition(vehicle)
+                distance = math.sqrt(sum([(a - b) ** 2 for a, b in zip(junctionPosition, vehiclePosition)]))
+                if(distance < radius):
+                    numberOfCars = numberOfCars + 1
+            
+            res[i] = numberOfCars
+        return res
+

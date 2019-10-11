@@ -33,7 +33,7 @@ def runStratego(com, args, query):
 
 
 def myGetSubString(mstr, key, greenModel):
-    print("myGetSubstring"+mstr)      
+    #print("myGetSubstring"+mstr)      
     delim = "\n" #Start of next signal line
 
     key_len = len(key)
@@ -46,7 +46,7 @@ def myGetSubString(mstr, key, greenModel):
         return mstr[start:end]
     
 def getTuple(mstr, pos):
-    print("getTuple:"+mstr) 
+    #print("getTuple:"+mstr) 
     startKey = "("
     endKey = ")"
     splitKey = ","
@@ -90,22 +90,14 @@ def arrayToStratego(arr):
     arrstr = str(arr)
     arrstr = str.replace(arrstr, "[", "{", 1)
     arrstr = str.replace(arrstr, "]", "};", 1)
-    return arrstr
-
-def mergeDetectors(carsDet,numDetectors):        
-    merged = carsDet[0:2]+carsDet[3:5]+carsDet[6:8]
-    merged[0] = merged[0] + int(round((3./4.) * carsDet[2]))
-    merged[1] = merged[1] + int(round((1./4.) * carsDet[2]))
-    merged[2] = merged[2] + int(round((3./4.) * carsDet[5]))
-    merged[3] = merged[3] + int(round((1./4.) * carsDet[5]))
-    return merged   
+    return arrstr 
 
 def convertPhase(phase,binaryPhaseIndices):
     for i in range(0,len(binaryPhaseIndices)):
         if phase == binaryPhaseIndices[i]:
             return str(i)
 
-def createModel(master_model,expId,carsAreal,carsJammed,phase,duration,simStep,nrOfDetectors,binaryPhasesDecimal,binaryPhaseIndices,tlID,nrOfSignals,yellowTime,greenModel,greenTimer):
+def createModel(master_model,expId,carsAreal,carsJammed,phase,duration,simStep,binaryPhasesDecimal,binaryPhaseIndices,tlID,nrOfSignals,yellowTime,greenModel,greenTimer):
     fo = open(master_model, "r+")
     str_model = fo.read()
     fo.close()
@@ -139,12 +131,10 @@ def createModel(master_model,expId,carsAreal,carsJammed,phase,duration,simStep,n
     
     #Placeholders in the bottom of the model:
     toReplace = "//HOLDER_CARS_AREAL"
-    #due to the disagreement between detectors and lanes we need to merge detectors
     value = "int carsAreal[signal_t] = " + arrayToStratego(carsAreal)    
     str_model = str.replace(str_model, toReplace, value, 1)
 
     toReplace = "//HOLDER_CARS_JAMMED"
-    #due to the disagreement between detectors and lanes we need to merge detectors
     value = "int carsJammed[signal_t] = " + arrayToStratego(carsJammed)
     str_model = str.replace(str_model, toReplace, value, 1)
 
@@ -167,9 +157,9 @@ def createModel(master_model,expId,carsAreal,carsJammed,phase,duration,simStep,n
 
     
 def cStratego(model,query,learningMet,succRuns,maxRuns,goodRuns,evalRuns,maxIterations,expId,
-              carsAreal,carsJammed,phase,duration,simStep,nrOfSignals,nrOfDetectors,binaryPhasesDecimal, 
+              carsAreal,carsJammed,phase,duration,simStep,nrOfSignals,binaryPhasesDecimal, 
               binaryPhases, binaryPhaseIndices,tlID,yellowTime,greenModel=False,greenTimer=0):      
-    newModel = createModel(model,expId,carsAreal,carsJammed,phase,duration,simStep,nrOfDetectors,binaryPhasesDecimal,binaryPhaseIndices,tlID,nrOfSignals,yellowTime,greenModel,greenTimer)
+    newModel = createModel(model,expId,carsAreal,carsJammed,phase,duration,simStep,binaryPhasesDecimal,binaryPhaseIndices,tlID,nrOfSignals,yellowTime,greenModel,greenTimer)
     stratego = VP.veri + " "
     #'time '
     com = stratego
@@ -186,9 +176,9 @@ def cStratego(model,query,learningMet,succRuns,maxRuns,goodRuns,evalRuns,maxIter
     print("Calling stratego for traffic light strategy \n")
     time_avg_sim, out1 = runStratego(com,args,query)
     sigEnabled,sigDuration = getStrategy(out1,greenModel,nrOfSignals)
-    print(out1)
+    #print(out1)
     print(sigEnabled)
-    print(sigDuration)
+    #print(sigDuration)
     #we hardcode the output to the concrete crossing where:
     #signals 1 2 are WE EW and 3 4 are NS SN
     # if no flag --stratego is provided, the programm would be the following:

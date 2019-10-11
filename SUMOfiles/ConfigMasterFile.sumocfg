@@ -5,8 +5,6 @@
     <input>
         <net-file value="MasterNetFile.net.xml"/>
         <route-files value="trip1000-1000.rou.xml"/>
-
-        <additional-files value="MasterDetFile.det.xml"/>
     <gui-settings-file value="GuiFile.set.xml"/>
     </input>
 
