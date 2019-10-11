@@ -42,8 +42,8 @@ class smartTL:
         self.strategoGreenTimer = 0
 
     def update_tl_state(self,strategoMasterModel,strategoMasterModelGreen,strategoQuery,strategoLearningMet,strategoSuccRuns,strategoMaxRuns,strategoGoodRuns,strategoEvalRuns,strategoMaxIterations,expid,step):
-        carsAreal = self.get_det_func(traci.areal.getLastStepVehicleNumber,self.detectors)
-        carsJammed = self.get_det_func(traci.areal.getJamLengthVehicle,self.detectors)
+        carsAreal = self.get_lane_func(traci.lane.getLastStepVehicleNumber, self.tlID)[::-1] #self.get_det_func(traci.areal.getLastStepVehicleNumber,self.detectors)
+        carsJammed = self.get_lane_func(traci.lane.getLastStepHaltingNumber, self.tlID)[::-1]
         
         if self.strategoTimer == 0:
             if self.inYellow:
@@ -164,3 +164,21 @@ class smartTL:
 
     def print_dets_state(msg,dets,res):
         print(msg + " detectors: " +str(dets) + " values: " + str(res))
+    
+    def get_lane_func(self, func, tlID):
+        controlledLanes = self.get_controlled_lanes(tlID)
+        res = [0] * len(controlledLanes)
+
+        for i in range (0,len(controlledLanes)):
+            res[i] = func(controlledLanes[i])
+        return res
+    
+    def get_controlled_lanes(self, tlID):
+        controlledLanesWithDupes = traci.trafficlight.getControlledLanes(tlID)
+        uniqueControlledLanes = []
+
+        for lane in controlledLanesWithDupes:
+            if lane not in uniqueControlledLanes:
+                uniqueControlledLanes.append(lane)
+
+        return uniqueControlledLanes
