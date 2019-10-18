@@ -172,7 +172,7 @@ void AddRouteWeight()
 			<target ref="id2"/>
 			<label kind="guard" x="-518" y="-178">RerouteCar == 0</label>
 		</transition>
-		<transition>
+		<transition controllable="false">
 			<source ref="id6"/>
 			<target ref="id2"/>
 			<label kind="synchronisation" x="-408" y="-272">RouteSet?</label>
@@ -188,12 +188,12 @@ void AddRouteWeight()
 			<target ref="id5"/>
 			<label kind="assignment" x="-730" y="-187">CheckReroute()</label>
 		</transition>
-		<transition>
+		<transition controllable="false">
 			<source ref="id3"/>
 			<target ref="id4"/>
 			<label kind="guard" x="-85" y="-161">CarDone == 1 &amp;&amp; AllCarsDone == 1</label>
 		</transition>
-		<transition>
+		<transition controllable="false">
 			<source ref="id3"/>
 			<target ref="id1"/>
 			<label kind="guard" x="-561" y="-8">CarDone == 1 &amp;&amp; AllCarsDone == 0</label>
@@ -202,14 +202,14 @@ CarDone = 0</label>
 			<nail x="-93" y="17"/>
 			<nail x="-748" y="17"/>
 		</transition>
-		<transition>
+		<transition controllable="false">
 			<source ref="id2"/>
 			<target ref="id3"/>
 			<label kind="assignment" x="-272" y="-178">CarDone = 1,
 RerouteCar = 0,
 AddRouteWeight()</label>
 		</transition>
-		<transition>
+		<transition controllable="false">
 			<source ref="id0"/>
 			<target ref="id1"/>
 			<label kind="assignment" x="-891" y="-187">Constructor()</label>
@@ -218,11 +218,66 @@ AddRouteWeight()</label>
 	<template>
 		<name>Rerouter</name>
 		<declaration>
-void ChooseRoute()
+void ChooseRoute(int strategy)
 {
     int carRoute[nodes] = route[currentCar];
+    int i;
+    int destNode;
 
+    if(strategy == 1)
+    {
+        while (carRoute[i+1] != -1)
+        {            
+            i++;
+        }
 
+        destNode = carRoute[i];
+
+        SimpleRerouting(destNode)
+
+    }
+    else if (strategy == 2)
+    {
+        
+    }
+    else 
+    {
+        
+    }
+}
+
+void SimpleRerouting(int destNode)
+{
+    int carRoute[nodes] = route[currentCar];
+    int rerouting = 0;
+    int i, curNode;
+
+    while (carRoute[i+1] != -1 &amp;&amp; !rerouting)
+    {
+        // ensure that the nodes are not intermediate nodes
+        if(fromNode &gt;= firstIntermediateNode)
+        {
+            fromNode = carRoute[i-1];
+        }
+
+        if(toNode &gt;= firstIntermediateNode)
+        {
+            toNode = carRoute[i+1];
+        }
+
+        edgeId = GetEdgeId(fromNode, toNode);
+
+        edgeWeight = edges[edgeId][0];
+        edgeCriticalWeight = edges[edgeId][1];
+
+        if(edgeWeight &gt; edgeCriticalWeight)
+        {
+            rerouting = 1;
+            curNode = fromNode;
+        }
+            
+        i++;
+    }
 }</declaration>
 		<location id="id7" x="-450" y="-59">
 			<name x="-460" y="-93">InitState</name>
@@ -230,14 +285,47 @@ void ChooseRoute()
 		<location id="id8" x="-280" y="-59">
 			<name x="-331" y="-93">ComputeRoute</name>
 		</location>
-		<location id="id9" x="-119" y="-59">
-			<name x="-129" y="-93">SetRoute</name>
+		<location id="id9" x="-127" y="-59">
+			<name x="-137" y="-93">SetRoute</name>
 		</location>
 		<location id="id10" x="25" y="-59">
 			<name x="15" y="-93">Done</name>
 		</location>
+		<location id="id11" x="-119" y="-153">
+		</location>
+		<location id="id12" x="-119" y="-229">
+		</location>
 		<init ref="id7"/>
+		<transition controllable="false">
+			<source ref="id9"/>
+			<target ref="id10"/>
+			<label kind="synchronisation" x="-109" y="-76">RouteSet!</label>
+		</transition>
+		<transition controllable="false">
+			<source ref="id11"/>
+			<target ref="id10"/>
+			<label kind="synchronisation" x="-101" y="-170">RouteSet!</label>
+			<nail x="-34" y="-153"/>
+		</transition>
+		<transition controllable="false">
+			<source ref="id12"/>
+			<target ref="id10"/>
+			<label kind="synchronisation" x="-101" y="-246">RouteSet!</label>
+			<nail x="25" y="-229"/>
+		</transition>
 		<transition>
+			<source ref="id8"/>
+			<target ref="id12"/>
+			<label kind="assignment" x="-262" y="-229">ChooseRoute(3)</label>
+			<nail x="-280" y="-229"/>
+		</transition>
+		<transition>
+			<source ref="id8"/>
+			<target ref="id11"/>
+			<label kind="assignment" x="-238" y="-144">ChooseRoute(2)</label>
+			<nail x="-229" y="-153"/>
+		</transition>
+		<transition controllable="false">
 			<source ref="id10"/>
 			<target ref="id8"/>
 			<label kind="select" x="-255" y="51">id : id_car</label>
@@ -246,16 +334,11 @@ void ChooseRoute()
 			<nail x="-280" y="76"/>
 		</transition>
 		<transition>
-			<source ref="id9"/>
-			<target ref="id10"/>
-			<label kind="synchronisation" x="-85" y="-42">RouteSet!</label>
-		</transition>
-		<transition>
 			<source ref="id8"/>
 			<target ref="id9"/>
-			<label kind="assignment" x="-255" y="-51">ChooseRoute()</label>
+			<label kind="assignment" x="-255" y="-51">ChooseRoute(1)</label>
 		</transition>
-		<transition>
+		<transition controllable="false">
 			<source ref="id7"/>
 			<target ref="id8"/>
 			<label kind="select" x="-433" y="-17">id : id_car</label>
