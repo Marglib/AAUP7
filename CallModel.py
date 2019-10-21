@@ -41,18 +41,18 @@ def runModel(com, args, query, simStep):
     cpu_log_file.close()
     log_file.close()
     """
-    #f = os.popen(com+args+query) Used for stratego
+    #f = os.popen(com+args+query) #Used for stratego
     #out = f.read()
     return outerror
 
-def modelCaller(model,query,expId,simStep,cars, network_nodes):
-    newModel = createModel(model,expId,simStep,cars, network_nodes)
+def modelCaller(model,query,expId,simStep,cars, network_nodes, nodePositions):
+    newModel = createModel(model,expId,simStep,cars, network_nodes, nodePositions)
     veri = VP.veri
     com = veri +  ' -o 1 -t 0 -u '
     args = "\"" + newModel + "\" "
     #newQuery = createQuery(query, expId, cars) Used for stratego
     out = runModel(com,args,query, simStep)
-    #print(out)
+    print(out)
     #carSpeeds = getStrategy(out, cars)
     
     #' -o 1 -t 0 '
@@ -99,7 +99,7 @@ def standardGetSubString(outStr, key):
     value = (outStr[start:end]).strip()
     return value[1:]
 
-def createModel(master_model,expId,simStep,cars,network_nodes):
+def createModel(master_model,expId,simStep,cars,network_nodes, nodePositions):
     fo = open(master_model, "r+")
     str_model = fo.read()
     fo.close()
@@ -129,9 +129,16 @@ def createModel(master_model,expId,simStep,cars,network_nodes):
     value += "};"
     str_model = str.replace(str_model, toReplace, value, 1)
 
+    toReplace = "//HOLDER_NODE_POSITIONS"
+    value = "const int nodePositions[" + str(len(nodePositions)) + "][3] = {"
+    for i in range (0,len(nodePositions)):
+        value += "\n{" + str(nodePositions[i][0]) + "," + str(int(nodePositions[i][1][0])) + "," + str(int(nodePositions[i][1][1])) + "},"
+    value = value[:-1]
+    value += "};"
+    str_model = str.replace(str_model, toReplace, value, 1)
+
     modelName = os.path.join(pathToModels, 'tempModel' + str(expId) + '.xml')
     text_file = open(modelName, "w")
     text_file.write(str_model)
     text_file.close()
     return modelName
-

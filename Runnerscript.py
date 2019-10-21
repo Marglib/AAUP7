@@ -60,11 +60,16 @@ def run(options):
         #THE MAIN CONTROLLER
         if options.controller == "TrafficNetworkController":
             CarsInNetworkList = traci.vehicle.getIDList()
+            NodeIDs = networkGraph.nodes()
+            
             if len(CarsInNetworkList) > 0:
                 Cars = []
+                networkNodes = []
+                for id in NodeIDs:
+                    networkNodes.append([id[1:], traci.junction.getPosition(id)])
                 for car in CarsInNetworkList:               
                     Cars.append([car, get_route_nodes(car)])
-                modelCaller(mainModel, mainQuery, options.expid, step, Cars, nodes_in_network)
+                modelCaller(mainModel, mainQuery, options.expid, step, Cars, nodes_in_network, networkNodes)
                 
             
 
@@ -150,7 +155,7 @@ def configure_graph_from_network():
 
     net = sumolib.net.readNet(netFileDirectory + netFile)
 
-    #Checks if the note is an internal node in one of the intersections
+    #Checks if the node is an internal node in one of the intersections
     for node in TupleOfNodes:
         if((node[0] == ":") == False):
             ListOfNodes.append(node)
