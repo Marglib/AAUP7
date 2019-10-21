@@ -78,12 +78,33 @@ def run(options):
             traci.trafficlight.setProgram(tls.tlID, tls.programID)
             traci.trafficlight.setPhase(tls.tlID, tls.phase)
     #-------------------------------END TLS-------------------------------------------
+ 
+    #-------------------- Setup list of all edges in network ----------------------
+    tupleOfEdges = traci.edge.getIDList() #SUMO returns a tuple
+    listOfEdges = []
 
+    for edge in tupleOfEdges:
+        if((edge[0] == ":") == False):
+            listOfEdges.append(edge)
+    #-------------------- END -------------------------------------------------------
     print("Starting simulation expid=" + str(options.expid))
 
     while traci.simulation.getMinExpectedNumber() > 0:
         print(">>>simulation step: " + str(step))
-                
+
+        if options.controller == "basicMessoController":
+            dataForStratego = []
+            for edge in listOfEdges:
+                carsOnEdge = traci.edge.getLastStepVehicleIDs(edge)
+                adaptedTT = traci.edge.getTraveltime(edge)
+                carRoutes = []
+
+                for car in carsOnEdge:
+                    route = traci.vehicle.getRoute(car)
+                    carRoutes.append(route)
+
+                dataForStratego.append([edge, adaptedTT, carsOnEdge, carRoutes])
+
         #THE DEFAULT CONTROLLER - doesnt do anything 
         if options.controller == "default":
             CarsInNetworkList = traci.vehicle.getIDList()
