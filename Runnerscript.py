@@ -66,16 +66,17 @@ def run(options):
     # 0 = vertical large intersection
     # 1 = large center intersection
     # 2 = horizontal large intersection
-    tln11 = smartTL('n11','0')
-    tln15 = smartTL('n15','1') #The large tl in the middle
-    tln16 = smartTL('n16','2') 
-    tln31 = smartTL('n31','0')
-    ListOfTls = [tln31,tln11,tln15,tln16]
+    if options.trafficlight == "smart":
+        tln11 = smartTL('n11','0')
+        tln15 = smartTL('n15','1') #The large tl in the middle
+        tln16 = smartTL('n16','2') 
+        tln31 = smartTL('n31','0')
+        ListOfTls = [tln31,tln11,tln15,tln16]
 
-    #Set all phases and program ids
-    for tls in ListOfTls:
-        traci.trafficlight.setProgram(tls.tlID, tls.programID)
-        traci.trafficlight.setPhase(tls.tlID, tls.phase)
+        #Set all phases and program ids
+        for tls in ListOfTls:
+            traci.trafficlight.setProgram(tls.tlID, tls.programID)
+            traci.trafficlight.setPhase(tls.tlID, tls.phase)
     #-------------------------------END TLS-------------------------------------------
 
     print("Starting simulation expid=" + str(options.expid))
@@ -90,9 +91,18 @@ def run(options):
 
         #THE MAIN CONTROLLER
         if options.controller == "TrafficNetworkController":
-            CarsInNetworkList = traci.vehicle.getIDList()
-            for car in CarsInNetworkList:
-                print(traci.vehicle.getRoute(car))
+            #------------------------- SMART TRAFFIC LIGHT -----------------------------
+            if options.trafficlight == "smart":
+                with concurrent.futures.ThreadPoolExecutor(max_workers=len(ListOfTls)) as executor:
+                    for tls in ListOfTls:
+                        future = executor.submit(tls.update_tl_state,strategoMasterModel,strategoMasterModelGreen,strategoQuery,
+                                                            strategoLearningMet,strategoSuccRuns,
+                                                            strategoMaxRuns,strategoGoodRuns,
+                                                            strategoEvalRuns,strategoMaxIterations,
+                                                            options.expid,step)
+                        future.result()
+
+            #---------------------------- END -----------------------------
 
         #Simple rerouting controller
         if options.controller == "SimpleRerouting":
@@ -119,19 +129,6 @@ def run(options):
 
             ListOfCarsPlaceholder = list(CarsInNetworkList)
 
-
-        #------------------------- BEGIN STRATEGO CONTROLLER -----------------------------
-        if options.controller == "stratego":
-            with concurrent.futures.ThreadPoolExecutor(max_workers=len(ListOfTls)) as executor:
-                for tls in ListOfTls:
-                    future = executor.submit(tls.update_tl_state,strategoMasterModel,strategoMasterModelGreen,strategoQuery,
-                                                        strategoLearningMet,strategoSuccRuns,
-                                                        strategoMaxRuns,strategoGoodRuns,
-                                                        strategoEvalRuns,strategoMaxIterations,
-                                                        options.expid,step)
-                    future.result()
-
-            #---------------------------- END -----------------------------
 
         traci.simulationStep()
         step += 1    
@@ -235,7 +232,8 @@ def get_options():
     optParser.add_option("--sumocfg", type="string", dest="sumocfg",
                              default="data/nylandsvejPlain.sumocfg")
     optParser.add_option("--load", type="string", dest="load",default="0")
-    optParser.add_option("--controller", type="string", dest="controller",default="default")    
+    optParser.add_option("--controller", type="string", dest="controller",default="default")
+    optParser.add_option("--trafficlight", type="string", dest="trafficlight",default="traditional")
     options, args = optParser.parse_args()
     return options
 
