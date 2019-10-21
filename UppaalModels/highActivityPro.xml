@@ -36,17 +36,18 @@ clock x;
 
 //CONSTANTS - SOME are replaced with variables
 const int NrOfSignals = //HOLDER_AMOUNT_OF_SIGNALS
-const int NrOfSignalConfs = //HOLDER_SIGNAL_CONFS //2^NS 
+//const int NrOfSignalConfs = //HOLDER_SIGNAL_CONFS //2^NS 
 const int NrOfMaxCompSignalConfs = //HOLDER_COMP_SIGNALS 
 const int YELLOW = 8;
 const int Horizon = 20; //20 step simulations = 20 secs 
 const int stepsToCross = 1; // a car needs to steps (2secs) to cross in average
 const int deconstructJamRate = 1;
 const int MAX_GREEN = 120;
+const int UINT16_MAX    =  65535;
 
 
 //TYPES
-typedef int[0,NrOfSignalConfs] signal_conf_t;
+typedef int[0,UINT16_MAX] signal_conf_t;
 typedef int[1,NrOfSignals] signal_t;
 typedef int[0,NrOfMaxCompSignalConfs-1] max_signal_conf_t;
 typedef int[4,9] del_choice_t; //this means delay \in [MIN_GREEN*delay_multiplier,9*delay]
@@ -64,7 +65,7 @@ const signal_conf_t maximal_comp_comb[max_signal_conf_t] = {
 //ON THE FLY ARGUMENTS
 //signal should be updated on the fly
 bool signal[signal_t] = {
-false, false, false, false, false, false
+//HOLDER_FALSE_TIMES_SIGNALS
 };
 
 //this is the current state of the system, we let if flow for MIN_GREEN

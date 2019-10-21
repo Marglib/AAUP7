@@ -21,12 +21,13 @@ import sumolib
 from callStratego import cStratego
 
 class smartTL:
-    def __init__(self,tlID,nrOfSignals,programID,yellowTime,initPhase, radius=200):
+    def __init__(self,tlID,programID,yellowTime=8,initPhase=0,radius=200):
         self.tlID = tlID
-        self.nrOfSignals = nrOfSignals
         self.programID = programID
         self.yellow = yellowTime
-        self.binaryPhases,self.binaryPhasesDecimal,self.binaryPhaseIndices,self.yellowOnlyPhases = self.get_phases_for_program()
+        self.binaryPhases,self.binaryPhasesDecimal,self.binaryPhaseIndices,self.yellowOnlyPhases,self.nrOfSignals = self.get_phases_for_program()
+        if(self.tlID == 'n15'):
+            print(self.binaryPhases,self.binaryPhasesDecimal,self.binaryPhaseIndices,self.yellowOnlyPhases,self.nrOfSignals)
 
         #Initial values for important variables
         self.duration = yellowTime
@@ -44,6 +45,9 @@ class smartTL:
         #Old Functions: self.get_lane_func(traci.lane.getLastStepVehicleNumber, self.tlID)[::-1]
         carsAreal = self.get_cars_areal_in_radius(self.tlID, self.radius)[::-1]
         carsJammed = self.get_lane_func(traci.lane.getLastStepHaltingNumber, self.tlID)[::-1]
+        if(self.tlID == 'n15'):
+            print(carsAreal)
+            print(carsJammed)
         
         if self.strategoTimer == 0:
             if self.inYellow:
@@ -142,7 +146,8 @@ class smartTL:
                 binaryPhaseIndices.remove(i)
                 yellowOnlyPhases.append(i)
 
-        return binaryPhases, binaryToDecimalPhases, binaryPhaseIndices, yellowOnlyPhases
+        print(len(connectionsList))
+        return binaryPhases, binaryToDecimalPhases, binaryPhaseIndices, yellowOnlyPhases, len(connectionsList)
                                                 
 
     def get_max_green(self):

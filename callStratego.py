@@ -13,7 +13,7 @@ pathToResults = os.path.join(rootDir,'results')
 pathToModels = os.path.join(rootDir,'UppaalModels')
 
 def runStratego(com, args, query):
-    print('calling stratego with command: ' + com + args + query) 
+    #print('calling stratego with command: ' + com + args + query) 
     start_time = time.time()
     f = os.popen(com+args+query)
     out = f.read()
@@ -125,6 +125,13 @@ def createModel(master_model,expId,carsAreal,carsJammed,phase,duration,simStep,b
     value += "-1;"
     str_model = str.replace(str_model, toReplace, value, 1)
 
+    toReplace = "//HOLDER_FALSE_TIMES_SIGNALS"
+    value = ""
+    for i in range(0,nrOfSignals):
+        value += "false,"
+    value = value[:-1]
+    str_model = str.replace(str_model, toReplace, value, 1)
+
     toReplace = "//HOLDER_COMP_SIGNALS"
     value = str(len(binaryPhasesDecimal)) + ";"
     str_model = str.replace(str_model, toReplace, value, 1)    
@@ -155,11 +162,30 @@ def createModel(master_model,expId,carsAreal,carsJammed,phase,duration,simStep,b
     text_file.close()
     return modelName
 
+def createQuery(master_query,nrOfSignals,tlID):
+    fo = open(master_query, "r+")
+    str_query = fo.read()
+    fo.close()
+
+    toReplace = "//HOLDER_QUERY"
+    value = ""
+    for i in range (1,nrOfSignals+1):
+        value += " signal[" + str(i) + "],"
+    value = value[:-1]
+    str_query = str.replace(str_query, toReplace, value, 1)
+
+    queryName = rootDir + "/UppaalModels/TrafficLightTempModels/tempQuery" + str(tlID) + '.q'
+    text_file = open(queryName, "w")
+    text_file.write(str_query)
+    text_file.close()
+    return queryName
+
     
 def cStratego(model,query,learningMet,succRuns,maxRuns,goodRuns,evalRuns,maxIterations,expId,
               carsAreal,carsJammed,phase,duration,simStep,nrOfSignals,binaryPhasesDecimal, 
               binaryPhases, binaryPhaseIndices,tlID,yellowTime,greenModel=False,greenTimer=0):      
     newModel = createModel(model,expId,carsAreal,carsJammed,phase,duration,simStep,binaryPhasesDecimal,binaryPhaseIndices,tlID,nrOfSignals,yellowTime,greenModel,greenTimer)
+    newQuery = createQuery(query,nrOfSignals,tlID)
     stratego = VP.veri + " "
     #'time '
     com = stratego
@@ -171,13 +197,14 @@ def cStratego(model,query,learningMet,succRuns,maxRuns,goodRuns,evalRuns,maxIter
       + ' --eval-runs ' + evalRuns \
       + ' --max-iterations ' + maxIterations \
       + ' --filter 0 '
-    query = "\"" + query + "\""
+    query = "\"" + newQuery + "\""
 
-    print("Calling stratego for traffic light strategy \n")
+    #print("Calling stratego for traffic light strategy \n")
     time_avg_sim, out1 = runStratego(com,args,query)
     sigEnabled,sigDuration = getStrategy(out1,greenModel,nrOfSignals)
-    #print(out1)
-    print(sigEnabled)
+    if(tlID == 'n15'):
+        print(out1)
+        print(sigEnabled)
     #print(sigDuration)
     #we hardcode the output to the concrete crossing where:
     #signals 1 2 are WE EW and 3 4 are NS SN

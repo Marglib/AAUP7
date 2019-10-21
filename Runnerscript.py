@@ -62,10 +62,15 @@ def run(options):
     #---------------------------- END ------------------------------
 
     #-------------------- CLASS tls from here ----------------------
-    #Declare all the classes
-    tln11 = smartTL('n11', 6,'0',8,0)
-    tln31 = smartTL('n31', 6,'0',8,0)
-    ListOfTls = [tln31, tln11]
+    #Declare all the classes - program correspond as following: 
+    # 0 = vertical large intersection
+    # 1 = large center intersection
+    # 2 = horizontal large intersection
+    tln11 = smartTL('n11','0')
+    tln15 = smartTL('n15','1') #The large tl in the middle
+    tln16 = smartTL('n16','2') 
+    tln31 = smartTL('n31','0')
+    ListOfTls = [tln31,tln11,tln15,tln16]
 
     #Set all phases and program ids
     for tls in ListOfTls:

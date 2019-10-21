@@ -35,7 +35,7 @@ int curStep = 0;
 
 //CONSTANTS
 const int NrOfSignals = 6;
-const int NrOfSignalConfs = 2*2*2*2*2*2-1; //2^NS 
+//const int NrOfSignalConfs = 2*2*2*2*2*2-1; //2^NS 
 const int NrOfMaxCompSignalConfs = 2; 
 //const int MIN_GREEN = 20, MAX_GREEN = 45;
 const int YELLOW = 6;
@@ -43,11 +43,12 @@ const int Horizon = 90; //90 step simulations = 90 secs
 const int delayMultiplier = 5; 
 const int stepsToCross = 1; // a car needs to steps (2secs) to cross in average
 const int deconstructJamRate = 1;
+const int UINT16_MAX    =  65535;
 
 
 
 //TYPES
-typedef int[0,NrOfSignalConfs] signal_conf_t;
+typedef int[0,UINT16_MAX] signal_conf_t;
 typedef int[1,NrOfSignals] signal_t;
 typedef int[0,NrOfMaxCompSignalConfs-1] max_signal_conf_t;
 typedef int[4,9] del_choice_t; //this means delay \in [MIN_GREEN*delay_multiplier,9*delay]
@@ -65,15 +66,15 @@ const signal_conf_t maximal_comp_comb[max_signal_conf_t] = {
 //ON THE FLY ARGUMENTS
 //signal should be updated on the fly
 bool signal[signal_t] = {
-false, false, false, false, false, false
+false,false,false,false,false,false
 };
 
 //this is the current state of the system, we let if flow for MIN_GREEN
 
 
-int incommingCars[signal_t] = {
-0, 0, 0, 0, 0, 0
-};
+//int incommingCars[signal_t] = {
+//0, 0, 0, 0, 0, 0
+//};
 
 int delchoice = 0;
 
@@ -86,11 +87,11 @@ int delchoice = 0;
  
 //PLACE HOLDERS
 //HOLDER_INITIAL_PHASE
-int carsAreal[signal_t] = {4, 0, 0, 0, 0, 0};
-int carsJammed[signal_t] = {1, 0, 0, 0, 0, 0};
+int carsAreal[signal_t] = {1, 0, 1, 1, 1, 0};
+int carsJammed[signal_t] = {0, 0, 0, 0, 0, 0};
 //first delay is dinamic in contrast to the 15 min for the floor heating, a yellow phase has to follow. i.e. fd = delay + yellow
 //HOLDER_FIRST_DELAY
-//SIM_STEP=404
+//SIM_STEP=141
 
 max_signal_conf_t phasechoice;
 

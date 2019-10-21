@@ -2373,7 +2373,17 @@
         <phase duration="42" state="rrrrrGGggrrrrrGGgg"/>
         <phase duration="3"  state="rrrrryyyyrrrrryyyy"/>
     </tlLogic>
-    <tlLogic id="n15" type="static" programID="0" offset="0">
+    <tlLogic id="n15" type="static" programID="1" offset="0">
+        <!--These are simple and new configurations-->
+        <phase duration="33" state="GGGgrrrrGGGgrrrr"/>
+        <phase duration="3"  state="yyyyrrrryyyyrrrr"/>
+        <!--<phase duration="10" state="rrrGGrrrrrrGGrrr"/> --><!--Left turn - can be deleted-->
+        <!--<phase duration="3"  state="rrryyrrrrrryyrrr"/>--> <!--Left turn - can be deleted-->
+        <phase duration="33" state="rrrrGGGgrrrrGGGg"/>
+        <phase duration="3"  state="rrrryyyyrrrryyyy"/>
+        <!--<phase duration="10" state="rrrrrrrGGrrrrrGG"/> --><!--Left turn - can be deleted-->
+        <!--<phase duration="10" state="rrrrrrryyrrrrryy"/> --><!--Left turn - can be deleted-->
+        <!-- Below are the standard configurations
         <phase duration="33" state="GGGgrrrrGGGgrrrr"/>
         <phase duration="3"  state="yyygrrrryyygrrrr"/>
         <phase duration="6"  state="rrrGrrrrrrrGrrrr"/>
@@ -2382,8 +2392,9 @@
         <phase duration="3"  state="rrrryyygrrrryyyg"/>
         <phase duration="6"  state="rrrrrrrGrrrrrrrG"/>
         <phase duration="3"  state="rrrrrrryrrrrrrry"/>
+        -->
     </tlLogic>
-    <tlLogic id="n16" type="static" programID="0" offset="0">
+    <tlLogic id="n16" type="static" programID="2" offset="0">
         <phase duration="42" state="GGGggrrrrGGGggrrrr"/>
         <phase duration="3"  state="yyyyyrrrryyyyyrrrr"/>
         <phase duration="42" state="rrrrrGGggrrrrrGGgg"/>
