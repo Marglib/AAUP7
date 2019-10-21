@@ -34,8 +34,8 @@ int totalJammedCars = 0;
 int curStep = 0;
 
 //CONSTANTS
-const int NrOfSignals = 6;
-//const int NrOfSignalConfs = 2*2*2*2*2*2-1; //2^NS 
+const int NrOfSignals = 8;
+//const int NrOfSignalConfs = 2*2*2*2*2*2*2*2-1; //2^NS 
 const int NrOfMaxCompSignalConfs = 2; 
 //const int MIN_GREEN = 20, MAX_GREEN = 45;
 const int YELLOW = 6;
@@ -59,14 +59,14 @@ broadcast chan red[max_signal_conf_t];
 
 
 const signal_conf_t maximal_comp_comb[max_signal_conf_t] = {
-27,36
+119,136
 };
 
 
 //ON THE FLY ARGUMENTS
 //signal should be updated on the fly
 bool signal[signal_t] = {
-false,false,false,false,false,false
+false,false,false,false,false,false,false,false
 };
 
 //this is the current state of the system, we let if flow for MIN_GREEN
@@ -87,11 +87,11 @@ int delchoice = 0;
  
 //PLACE HOLDERS
 //HOLDER_INITIAL_PHASE
-int carsAreal[signal_t] = {1, 0, 1, 1, 1, 0};
-int carsJammed[signal_t] = {0, 0, 0, 0, 0, 0};
+int carsAreal[signal_t] = {0, 0, 0, 0, 0, 0, 0, 0};
+int carsJammed[signal_t] = {0, 0, 0, 0, 0, 0, 0, 0};
 //first delay is dinamic in contrast to the 15 min for the floor heating, a yellow phase has to follow. i.e. fd = delay + yellow
 //HOLDER_FIRST_DELAY
-//SIM_STEP=141
+//SIM_STEP=37
 
 max_signal_conf_t phasechoice;
 

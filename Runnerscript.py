@@ -64,14 +64,25 @@ def run(options):
     #-------------------- CLASS tls from here ----------------------
     #Declare all the classes - program correspond as following: 
     # 0 = vertical large intersection
-    # 1 = large center intersection
-    # 2 = horizontal large intersection
+    # 1 = horizontal large intersection
+    # 2 = large center intersection
     if options.trafficlight == "smart":
+        #Every vertical traffic light:
+        tln3 = smartTL('n3','0')
+        tln7 = smartTL('n7','0')
         tln11 = smartTL('n11','0')
-        tln15 = smartTL('n15','1') #The large tl in the middle
-        tln16 = smartTL('n16','2') 
         tln31 = smartTL('n31','0')
-        ListOfTls = [tln31,tln11,tln15,tln16]
+        
+        #The large center traffic light:
+        tln15 = smartTL('n15','2')
+        
+        #Every horizontal intersection:
+        tln13 = smartTL('n13','1')
+        tln14 = smartTL('n14','1')
+        tln16 = smartTL('n16','1')
+        tln28 = smartTL('n28','1') 
+
+        ListOfTls = [tln3,tln7,tln11,tln13,tln14,tln15,tln16,tln28,tln31] 
 
         #Set all phases and program ids
         for tls in ListOfTls:

@@ -35,8 +35,8 @@ clock x;
 
 
 //CONSTANTS - SOME are replaced with variables
-const int NrOfSignals = 6;
-//const int NrOfSignalConfs = 2*2*2*2*2*2-1; //2^NS 
+const int NrOfSignals = 8;
+//const int NrOfSignalConfs = 2*2*2*2*2*2*2*2-1; //2^NS 
 const int NrOfMaxCompSignalConfs = 2; 
 const int YELLOW = 8;
 const int Horizon = 20; //20 step simulations = 20 secs 
@@ -58,14 +58,14 @@ broadcast chan red[max_signal_conf_t];
 
 
 const signal_conf_t maximal_comp_comb[max_signal_conf_t] = {
-27,36
+119,136
 };
 
 
 //ON THE FLY ARGUMENTS
 //signal should be updated on the fly
 bool signal[signal_t] = {
-false,false,false,false,false,false
+false,false,false,false,false,false,false,false
 };
 
 //this is the current state of the system, we let if flow for MIN_GREEN
@@ -82,12 +82,12 @@ false,false,false,false,false,false
  
 //PLACE HOLDERS
 const max_signal_conf_t initialPhase = 0;
-int greenTimer = 35;
-int carsAreal[signal_t] = {0, 0, 1, 0, 0, 1};
-int carsJammed[signal_t] = {0, 0, 1, 0, 0, 0};
+int greenTimer = 15;
+int carsAreal[signal_t] = {0, 0, 0, 0, 0, 0, 1, 0};
+int carsJammed[signal_t] = {0, 0, 0, 0, 0, 0, 0, 0};
 //first delay is dinamic in contrast to the 15 min for the floor heating, a yellow phase has to follow. i.e. fd = delay + yellow
 //HOLDER_FIRST_DELAY
-//SIM_STEP=142</declaration>
+//SIM_STEP=37</declaration>
 	<template>
 		<name x="5" y="5">trafficLights</name>
 		<declaration>// Place local declarations here.
