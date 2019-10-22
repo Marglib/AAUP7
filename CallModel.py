@@ -158,6 +158,10 @@ def replace_edge_strings(str_model,networkGraph):
 
     return str_model
 
+def replace_time_passed_current_edge(str_model):
+    toReplace = "//HOLDER_TIME_PASSED"
+    
+
 def createModel(master_model,expId,simStep,cars,networkGraph,nodePositions):
     fo = open(master_model, "r+")
     str_model = fo.read()

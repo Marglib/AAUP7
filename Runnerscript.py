@@ -35,6 +35,7 @@ pathToResults = os.path.join(rootDir,'results')
 pathToModels = os.path.join(rootDir,'UppaalModels')
 mainQuery = os.path.join(pathToModels, 'TNC.q')
 mainModel = os.path.join(pathToModels, 'ReroutingController.xml')
+listOfCarTimeLists = []
 
 def run(options):
     """execute the TraCI control loop"""
@@ -54,7 +55,9 @@ def run(options):
         #THE DEFAULT CONTROLLER - doesnt do anything 
         if options.controller == "default":
             CarsInNetworkList = traci.vehicle.getIDList()
-            print(CarsInNetworkList)
+            update_time_on_edge(CarsInNetworkList)
+            for car in CarsInNetworkList:
+                print(get_time_on_edge(car))
 
         #THE MAIN CONTROLLER
         if options.controller == "TrafficNetworkController":
@@ -66,7 +69,8 @@ def run(options):
                 networkNodes = []
                 for id in NodeIDs:
                     networkNodes.append([id[1:], traci.junction.getPosition(id)])
-                for car in CarsInNetworkList:               
+                for car in CarsInNetworkList:
+
                     Cars.append([car, get_route_nodes(car)])
                 modelCaller(mainModel, mainQuery, options.expid, step, Cars, networkGraph, networkNodes)
                 
@@ -191,6 +195,38 @@ def get_route_nodes(car):
     route_nodes += [-1] * (57 - len(route_nodes))  
     
     return route_nodes
+
+def update_time_on_edge(cars):
+    placeHolderList = listOfCarTimeLists.copy()
+    for car in cars:
+        hasEntry = False
+        if listOfCarTimeLists:
+            #print(len(placeHolderList))
+            for elem in placeHolderList:
+                if(elem[0] == car and elem[1] == traci.vehicle.getRoadID(car)):
+                    elem[2] = elem[2] + 1
+                    hasEntry = True
+                elif(elem[0] == car):
+                    hasEntry = True
+                    elem[1] = traci.vehicle.getRoadID(car)
+                    elem[2] = 0
+            if(hasEntry == False):
+                listOfCarTimeLists.append([car, 
+                                    traci.vehicle.getRoadID(car), 
+                                    0])
+        else:
+            listOfCarTimeLists.append([car, 
+                                    traci.vehicle.getRoadID(car), 
+                                    0])
+
+
+
+        
+
+def get_time_on_edge(car):
+    for elem in listOfCarTimeLists:
+        if(elem[0] == car and elem[1] == traci.vehicle.getRoadID(car)):
+            return elem[2]
 
 def get_directory():
     key = "/"
