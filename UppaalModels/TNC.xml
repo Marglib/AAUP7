@@ -21,16 +21,14 @@ int edgeWeights[numEdges] = //HOLDER_EDGE_WEIGHTS
 int edges[numEdges][2]; //could not assign values to array when it had type double
 
 
-int currentCar = 0;
+int curr_car = 0;
 int uniquetest = 0;
 int edgeIds[numEdges];
-int rerouteCars[N];
+int reroute[N];
 int firstIntermediateNode = 46;
 int horizon = 20;
 
 typedef int[0, N-1] id_car;
-
-id_car carsForRerouting = 0;
 
 chan Reroute, DoneRerouting;
 
@@ -204,8 +202,7 @@ void check_reroute()
 
         if(weigth &gt; threshold)
         {
-            rerouteCars[carsForRerouting] = i;
-            carsForRerouting++;
+            reroute[i] = 1;
         }
       
     }
@@ -269,6 +266,35 @@ void check_reroute()
 	</template>
 	<template>
 		<name>Rerouter</name>
+		<declaration>
+
+void choose_route(int strategy)
+{
+    int i = 0;
+    int carRoute[nodes] = route[curr_car];
+    int destNode;
+
+    reroute[curr_car] = 0;   
+
+    while (i &lt; (nodes-1) &amp;&amp; carRoute[i+1] != -1)
+    {            
+        i++;
+    }
+
+    destNode = carRoute[i]; 
+    
+    if(strategy == 1)
+    {
+        i = 0;
+
+        
+    }
+    else if (strategy == 2)
+    {
+        //Keep current route
+    }
+
+}</declaration>
 		<location id="id6" x="-909" y="-195">
 		</location>
 		<location id="id7" x="-714" y="-195">
