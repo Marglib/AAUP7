@@ -24,10 +24,13 @@ int edges[numEdges][2]; //could not assign values to array when it had type doub
 int currentCar = 0;
 int uniquetest = 0;
 int edgeIds[numEdges];
+int rerouteCars[N];
 int firstIntermediateNode = 46;
 int horizon = 20;
 
 typedef int[0, N-1] id_car;
+
+id_car carsForRerouting = 0;
 
 chan Reroute, DoneRerouting;
 
@@ -169,11 +172,44 @@ void update_weights()
     {
         carsOnEdge = get_cars_on_edge(i);
         newWeights = 0;
-
+        //calculate weights
 
     }
+}
 
+void check_reroute()
+{
+    int i = 0, j = 0;
+    int fromNode, toNode;
+    int edgeId;
+    int weigth;
+    int threshold = 10; //TODO: find actual threshold for rerouting
+    
+    carsForRerouting = 0;
 
+    for(i = 0; i &lt; N; i++)
+    {
+        j = 0;
+        fromNode = currentStartNode[i];
+        
+        while(fromNode != route[i][j] &amp;&amp; route[i][j] != -1)
+        {
+            j++;
+        }
+        toNode = route[i][j+1];
+
+        edgeId = getEdgeId(fromNode, toNode);
+
+        weigth = edgeWeights[edgeId];
+
+        if(weigth &gt; threshold)
+        {
+            rerouteCars[carsForRerouting] = i;
+            carsForRerouting++;
+        }
+      
+    }
+       
 }</declaration>
 		<location id="id0" x="-467" y="-127">
 			<name x="-477" y="-161">Init</name>
