@@ -45,8 +45,8 @@ def runModel(com, args, query, simStep):
     #out = f.read()
     return outerror
 
-def modelCaller(model,query,expId,simStep,cars, network_nodes, nodePositions):
-    newModel = createModel(model,expId,simStep,cars, network_nodes, nodePositions)
+def modelCaller(model,query,expId,simStep,cars, networkGraph, nodePositions):
+    newModel = createModel(model,expId,simStep,cars, networkGraph, nodePositions)
     veri = VP.veri
     com = veri +  ' -o 1 -t 0 -u '
     args = "\"" + newModel + "\" "
@@ -99,7 +99,7 @@ def standardGetSubString(outStr, key):
     value = (outStr[start:end]).strip()
     return value[1:]
 
-def createModel(master_model,expId,simStep,cars,network_nodes, nodePositions):
+def createModel(master_model,expId,simStep,cars,networkGraph, nodePositions):
     fo = open(master_model, "r+")
     str_model = fo.read()
     fo.close()
@@ -121,7 +121,7 @@ def createModel(master_model,expId,simStep,cars,network_nodes, nodePositions):
     value = "{"
     for i in range (0,len(cars)):
         value += "\n{"
-        for j in range (0, network_nodes):
+        for j in range (0, len(nodePositions)):
             value += str(cars[i][1][j]) + ","
         value = value[:-1]
         value += "},"
@@ -136,6 +136,15 @@ def createModel(master_model,expId,simStep,cars,network_nodes, nodePositions):
     value = value[:-1]
     value += "};"
     str_model = str.replace(str_model, toReplace, value, 1)
+
+    toReplace = "//HOLDER_NUMBER_OF_NODES"
+    value = str(len(nodePositions)) + ";"
+    str_model = str.replace(str_model, toReplace, value, 1)
+
+    toReplace = "//HOLDER_NUMBER_OF_EDGES"
+    value = str(len(networkGraph.edges())) + ";"
+    str_model = str.replace(str_model, toReplace, value, 1)
+    
 
     modelName = os.path.join(pathToModels, 'tempModel' + str(expId) + '.xml')
     text_file = open(modelName, "w")

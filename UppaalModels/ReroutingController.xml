@@ -2,11 +2,14 @@
 <!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
 <nta>
 	<declaration>// Place global declarations here.
-const int nodes = 57; //number of nodes in the network
+const int nodes = //HOLDER_NUMBER_OF_NODES
+const int numEdges = //HOLDER_NUMBER_OF_EDGES
 //HOLDER_NUMBER_OF_CARS
 const int pid[N] = //HOLDER_CAR_PID 
 const int route[N][nodes] = //HOLDER_CAR_ROUTE 
 //HOLDER_NODE_POSITIONS
+
+typedef int[0,nodes] node_t;
 
 
 int networkEdges[60][2] = {{21,1}, {17,1}, {1,2},{18,2},{2,3},{19,3},{3,4},{20,4},{4,22},{34,22},{22,35},{23,5},{1,5},{5,6},{2,6},{6,7},{3,7},{7,8},
@@ -14,11 +17,11 @@ int networkEdges[60][2] = {{21,1}, {17,1}, {1,2},{18,2},{2,3},{19,3},{3,4},{20,4
                             {9,13},{13,14},{10,14},{14,15},{11,15},{15,16},{12,16},{16,28},{26,28},{28,38},{40,29},{13,29},{29,30},{14,30},{30,31},
                             {15,31},{31,32},{16,32},{32,33},{28,33},{33,39},{29,41},{30,42},{31,43},{32,44},{33,45}};
 
-int edges[120][2]; //could not assign values to array when it had type double
+int edges[numEdges][2]; //could not assign values to array when it had type double
 
 int currentCar = 0;
 int uniquetest = 0;
-int edgeIds[120];
+int edgeIds[numEdges];
 int firstIntermediateNode = 46;
 
 typedef int[0, N-1] id_car;
@@ -45,14 +48,14 @@ int GetEdgeId(int fromNode, int toNode)
     int unique = NodesToUniqueInt(fromNode, toNode);
     int i = 0;
     uniquetest = unique;
-    while(i &lt; 119 &amp;&amp; unique != edgeIds[i])
+    while(i &lt; (numEdges-1) &amp;&amp; unique != edgeIds[i])
     {
         i++;
     }
     return i;
 }</declaration>
 	<template>
-		<name x="5" y="5">Controller</name>
+		<name x="5" y="5">Simulator</name>
 		<declaration>// Place local declarations here.
 
 
@@ -233,7 +236,7 @@ int getNodePosition(int node, int position[2])
 {
     int i = 0;
 
-    while(node != nodePositions[i][0])
+    while(i &lt; (nodes-1) &amp;&amp; node != nodePositions[i][0])
     {
         i++;
     }
@@ -249,6 +252,9 @@ void getConnectingNodes(int node)
     int i = 0;
     int foundNodes = 0;
     int edge[2];
+    connectingNodes[0] = 0;
+    connectingNodes[1] = 0;
+    connectingNodes[2] = 0;
 
     for(i = 0; i &lt; 60; i++)
     {
@@ -275,6 +281,11 @@ void SimpleRerouting(int destNode)
     int i, curNode;
     int toNodeFlag = 0;
     int x = 0; //used to get rid of warning
+    int position[2] = {0,0};
+    int edgeId = 0, edgeWeight = 0, edgeCriticalWeight = 0;
+    int j,y = 0;
+    int bestConnection = 0;
+    int cNodeWeights[3] = {0,0,0};
 
     while (carRoute[i+1] != -1 &amp;&amp; !rerouting)
     {
@@ -318,18 +329,23 @@ void SimpleRerouting(int destNode)
 
     while (curNode != destNode)
     {
-        int position[2];
-        int edgeId, edgeWeight, edgeCriticalWeight;
-        int j;
-        int bestConnection = 0;
-        double cNodeWeights[3];
+        position[0] = 0;
+        position[1] = 0;
+        edgeId = 0;
+        edgeWeight = 0; 
+        edgeCriticalWeight = 0;
+        j = 0;
+        bestConnection = 0;
+        cNodeWeights[0] = 0;
+        cNodeWeights[1] = 0;
+        cNodeWeights[2] = 0;
         getConnectingNodes(curNode);
         
         for (j = 0; j &lt; 3; j++)
         {
-            int y = 0;
+            y = 0;
             y = getNodePosition(connectingNodes[j], position);
-            cNodeWeights[j] = sqrt((pow(destPosition[0] - position[0],2)) + (pow(destPosition[1] - position[1],2)));
+            cNodeWeights[j] = abs(destPosition[0] + position[0]) + abs(destPosition[1] - position[1]);
 
             edgeId = GetEdgeId(curNode, connectingNodes[j]);
 
@@ -344,26 +360,26 @@ void SimpleRerouting(int destNode)
             }
 
         } 
-
-        carRoute[i+1 + toNodeFlag] = connectingNodes[bestConnection];
+        
+        carRoute[i + 1 + toNodeFlag] = connectingNodes[bestConnection];
         curNode = connectingNodes[bestConnection];
         i++;
         
         
     }
-
 }
 
 
 void ChooseRoute(int strategy)
 {
     int carRoute[nodes] = route[currentCar];
-    int i;
+    int i = 0;
     int destNode;
 
     if(strategy == 1)
     {
-        while (carRoute[i+1] != -1)
+        i = 0;
+        while (i &lt; (nodes-1) &amp;&amp; carRoute[i+1] != -1)
         {            
             i++;
         }
@@ -371,7 +387,7 @@ void ChooseRoute(int strategy)
         destNode = carRoute[i];
 
         SimpleRerouting(destNode);
-
+        
     }
     else if (strategy == 2)
     {
@@ -462,7 +478,7 @@ void ChooseRoute(int strategy)
 // List one or more processes to be composed into a system.
 //Rerouters(int[0,N-1] id) = Rerouter(id);
 
-system Controller, Rerouter;
+system Simulator, Rerouter;
     </system>
 	<queries>
 		<query>

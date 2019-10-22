@@ -44,7 +44,6 @@ def run(options):
     ListOfCarsPlaceholder = []
     networkGraph = preprocess()    
     pathsToFind = 3
-    nodes_in_network = 57
 
 
     print("Starting simulation expid=" + str(options.expid))
@@ -69,7 +68,7 @@ def run(options):
                     networkNodes.append([id[1:], traci.junction.getPosition(id)])
                 for car in CarsInNetworkList:               
                     Cars.append([car, get_route_nodes(car)])
-                modelCaller(mainModel, mainQuery, options.expid, step, Cars, nodes_in_network, networkNodes)
+                modelCaller(mainModel, mainQuery, options.expid, step, Cars, networkGraph, networkNodes)
                 
             
 
@@ -179,6 +178,11 @@ def get_route_nodes(car):
     route = traci.vehicle.getRoute(car)
     route_nodes = []
     end_node = -1
+
+    cur_edge_index = traci.vehicle.getRouteIndex(car)
+
+    route[cur_edge_index:]
+
     for edge in route:
         route_nodes.append(edge.split('-')[0][1:])
         end_node = edge.split('-')[1][1:]
