@@ -13,6 +13,7 @@ import math
 import copy
 import networkx as nx
 import matplotlib.pyplot as plt
+import concurrent.futures
 from itertools import islice
 #import pandas as pd
 
@@ -27,6 +28,8 @@ from sumolib import checkBinary
 import traci
 import sumolib
 from CallModel import modelCaller
+from callStratego import cStratego
+from TrafficLightClass import smartTL
 
 # the port used for communicating with your sumo instance
 PORT = 8873
@@ -37,6 +40,7 @@ pathToModels = os.path.join(rootDir,'UppaalModels')
 icavQuery = os.path.join(pathToModels, 'TNC.q')
 icavModel = os.path.join(pathToModels, 'TrafficNetworkController.xml')
 
+
 def run(options):
     """execute the TraCI control loop"""
     print("starting run")
@@ -46,6 +50,55 @@ def run(options):
     networkGraph = preprocess()    
     pathsToFind = 3
 
+    #-------------------------------STRATEGO info---------------------------------------
+    strategoMasterModel = os.path.join(pathToModels,'lowActivityMiniPro.xml')
+    strategoMasterModelGreen = os.path.join(pathToModels,'highActivityPro.xml')
+    strategoQuery = os.path.join(pathToModels,'StrategoQuery.q')
+    strategoLearningMet = "3"
+    strategoSuccRuns = "20"
+    strategoGoodRuns = "40"
+    strategoMaxRuns = "20"
+    strategoEvalRuns = "10"
+    strategoMaxIterations = "150"
+    #---------------------------- END ------------------------------
+
+    #-------------------- CLASS tls from here ----------------------
+    #Declare all the classes - program correspond as following: 
+    # 0 = vertical large intersection
+    # 1 = horizontal large intersection
+    # 2 = large center intersection
+    if options.trafficlight == "smart":
+        #Every vertical traffic light:
+        tln3 = smartTL('n3','0')
+        tln7 = smartTL('n7','0')
+        tln11 = smartTL('n11','0')
+        tln31 = smartTL('n31','0')
+        
+        #The large center traffic light:
+        tln15 = smartTL('n15','2')
+        
+        #Every horizontal intersection:
+        tln13 = smartTL('n13','1')
+        tln14 = smartTL('n14','1')
+        tln16 = smartTL('n16','1')
+        tln28 = smartTL('n28','1') 
+
+        ListOfTls = [tln3,tln7,tln11,tln13,tln14,tln15,tln16,tln28,tln31] 
+
+        #Set all phases and program ids
+        for tls in ListOfTls:
+            traci.trafficlight.setProgram(tls.tlID, tls.programID)
+            traci.trafficlight.setPhase(tls.tlID, tls.phase)
+    #-------------------------------END TLS-------------------------------------------
+ 
+    #-------------------- Setup list of all edges in network ----------------------
+    tupleOfEdges = traci.edge.getIDList() #SUMO returns a tuple
+    listOfEdges = []
+
+    for edge in tupleOfEdges:
+        if((edge[0] == ":") == False):
+            listOfEdges.append(edge)
+    #-------------------- END -------------------------------------------------------
     print("Starting simulation expid=" + str(options.expid))
 
     edgeDF = [] #pd.DataFrame(columns=["roadType", "waitingTime", "traveltime", "density"])
@@ -104,6 +157,20 @@ def run(options):
                 edgeDF.append(d)
         
             """
+
+        if options.controller == "basicMessoController":
+            dataForStratego = []
+            for edge in listOfEdges:
+                carsOnEdge = traci.edge.getLastStepVehicleIDs(edge)
+                adaptedTT = traci.edge.getTraveltime(edge)
+                carRoutes = []
+
+                for car in carsOnEdge:
+                    route = traci.vehicle.getRoute(car)
+                    carRoutes.append(route)
+
+                dataForStratego.append([edge, adaptedTT, carsOnEdge, carRoutes])
+
         #THE DEFAULT CONTROLLER - doesnt do anything 
         if options.controller == "default":
             CarsInNetworkList = traci.vehicle.getIDList()
@@ -111,11 +178,19 @@ def run(options):
 
         #THE MAIN CONTROLLER
         if options.controller == "TrafficNetworkController":
-            CarsInNetworkList = traci.vehicle.getIDList()
-            for car in CarsInNetworkList:
-               traci.vehicle.getRoute(car)
+            #------------------------- SMART TRAFFIC LIGHT -----------------------------
+            if options.trafficlight == "smart":
+                with concurrent.futures.ThreadPoolExecutor(max_workers=len(ListOfTls)) as executor:
+                    for tls in ListOfTls:
+                        future = executor.submit(tls.update_tl_state,strategoMasterModel,strategoMasterModelGreen,strategoQuery,
+                                                            strategoLearningMet,strategoSuccRuns,
+                                                            strategoMaxRuns,strategoGoodRuns,
+                                                            strategoEvalRuns,strategoMaxIterations,
+                                                            options.expid,step)
+                        future.result()
 
-        #Controllers used for experiments from here -------------------
+            #---------------------------- END -----------------------------
+
         #Simple rerouting controller
         if options.controller == "SimpleRerouting":
             CarsInNetworkList = traci.vehicle.getIDList()  
@@ -141,6 +216,7 @@ def run(options):
 
             ListOfCarsPlaceholder = list(CarsInNetworkList)
 
+
         traci.simulationStep()
         step += 1    
     traci.close()
@@ -148,7 +224,6 @@ def run(options):
         edgeDF = pd.DataFrame(flowData)
         edgeDF.to_csv(options.newDataFile)
     sys.stdout.flush()
-
 
 def preprocess():
     network = configure_graph_from_network()
@@ -224,7 +299,8 @@ def get_directory():
     key = "/"
     keyLen = len(key)
     keyLoc = options.sumocfg.rfind(key)
-    return options.sumocfg[:keyLoc+keyLen]        
+    return options.sumocfg[:keyLoc+keyLen]
+
 def update_edgetime(edge):
     if traci.edge.getLastStepOccupancy(edge) > 0.3:
         traci.edge.adaptTraveltime(edge, 1*traci.edge.getLastStepOccupancy(edge))
@@ -245,9 +321,11 @@ def get_options():
     optParser.add_option("--expid", type="int", dest="expid")
     optParser.add_option("--sumocfg", type="string", dest="sumocfg",
                              default="data/nylandsvejPlain.sumocfg")
+
     optParser.add_option("--storeEdgeData" , type="string", dest="newDataFile", default = "", help = "use --storeEdgeData <desiredFilePath>/<desiredFileName>.csv to store information of each edge for each simStep")
-    optParser.add_option("--load", type="string", dest="load",default="reserve")
-    optParser.add_option("--controller", type="string", dest="controller",default="default")    
+    optParser.add_option("--load", type="string", dest="load",default="0")
+    optParser.add_option("--controller", type="string", dest="controller",default="default")
+    optParser.add_option("--trafficlight", type="string", dest="trafficlight",default="traditional")
     options, args = optParser.parse_args()
     return options
 
