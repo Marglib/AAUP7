@@ -1,7 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
 <nta>
-	<declaration>// Place global declarations here.</declaration>
+	<declaration>// Place global declarations here.
+const int nodes = //HOLDER_NUMBER_OF_NODES
+const int numEdges = //HOLDER_NUMBER_OF_EDGES
+//HOLDER_NUMBER_OF_CARS
+const int pid[N] = //HOLDER_CAR_PID 
+const int route[N][nodes] = //HOLDER_CAR_ROUTE 
+//HOLDER_NODE_POSITIONS
+
+typedef int[0,nodes] node_t;
+
+
+int networkEdges[60][2] = {{21,1}, {17,1}, {1,2},{18,2},{2,3},{19,3},{3,4},{20,4},{4,22},{34,22},{22,35},{23,5},{1,5},{5,6},{2,6},{6,7},{3,7},{7,8},
+                            {4,8},{8,24},{22,24},{24,36},{25,9},{5,9},{9,10},{6,10},{10,11},{7,11},{11,12},{8,12},{12,26},{24,26},{26,37},{27,13},
+                            {9,13},{13,14},{10,14},{14,15},{11,15},{15,16},{12,16},{16,28},{26,28},{28,38},{40,29},{13,29},{29,30},{14,30},{30,31},
+                            {15,31},{31,32},{16,32},{32,33},{28,33},{33,39},{29,41},{30,42},{31,43},{32,44},{33,45}};
+
+int edges[numEdges][2]; //could not assign values to array when it had type double
+
+int currentCar = 0;
+int uniquetest = 0;
+int edgeIds[numEdges];
+int firstIntermediateNode = 46;
+int horizon = 20;
+
+typedef int[0, N-1] id_car;
+
+chan Reroute, DoneRerouting;
+
+
+int NodesToUniqueInt(int fromNode, int toNode)
+{
+    int x = 0;
+    if (fromNode &gt;= toNode)
+    {
+        x = fromNode * fromNode + fromNode + toNode;
+    }
+    else
+    {
+        x = fromNode + toNode * toNode;
+    }
+    return x;
+}
+
+int GetEdgeId(int fromNode, int toNode)
+{
+    int unique = NodesToUniqueInt(fromNode, toNode);
+    int i = 0;
+    uniquetest = unique;
+    while(i &lt; (numEdges-1) &amp;&amp; unique != edgeIds[i])
+    {
+        i++;
+    }
+    return i;
+}</declaration>
 	<template>
 		<name x="5" y="5">Simulater</name>
 		<declaration>clock x</declaration>
@@ -18,14 +71,23 @@
 			<name x="432" y="-161">End</name>
 			<urgent/>
 		</location>
+		<location id="id5" x="85" y="59">
+			<urgent/>
+		</location>
 		<init ref="id0"/>
 		<transition controllable="false">
-			<source ref="id4"/>
+			<source ref="id5"/>
 			<target ref="id1"/>
-			<label kind="guard" x="76" y="51">x &lt;= 20</label>
-			<label kind="synchronisation" x="76" y="68">reroute!</label>
-			<nail x="289" y="93"/>
-			<nail x="-93" y="93"/>
+			<label kind="synchronisation" x="-76" y="34">DoneRerouting?</label>
+			<label kind="assignment" x="-76" y="17">x++</label>
+			<nail x="-119" y="59"/>
+		</transition>
+		<transition controllable="false">
+			<source ref="id4"/>
+			<target ref="id5"/>
+			<label kind="guard" x="153" y="34">x &lt;= horizon</label>
+			<label kind="synchronisation" x="170" y="17">Reroute!</label>
+			<nail x="306" y="59"/>
 		</transition>
 		<transition controllable="false">
 			<source ref="id3"/>
@@ -51,60 +113,68 @@
 	</template>
 	<template>
 		<name>Rerouter</name>
-		<location id="id5" x="-909" y="-195">
+		<location id="id6" x="-909" y="-195">
 		</location>
-		<location id="id6" x="-714" y="-195">
+		<location id="id7" x="-714" y="-195">
 		</location>
-		<location id="id7" x="-510" y="-195">
+		<location id="id8" x="-510" y="-195">
 		</location>
-		<location id="id8" x="-323" y="-289">
+		<location id="id9" x="-314" y="-289">
 		</location>
-		<location id="id9" x="-314" y="-110">
+		<location id="id10" x="-314" y="-110">
 		</location>
-		<location id="id10" x="-110" y="-195">
+		<location id="id11" x="-110" y="-195">
 		</location>
-		<init ref="id5"/>
+		<location id="id12" x="59" y="-195">
+		</location>
+		<init ref="id6"/>
 		<transition controllable="false">
-			<source ref="id6"/>
-			<target ref="id10"/>
+			<source ref="id11"/>
+			<target ref="id12"/>
+			<label kind="guard" x="-68" y="-221">curr_car &gt; N</label>
+			<label kind="synchronisation" x="-76" y="-238">DoneRerouting!</label>
+		</transition>
+		<transition controllable="false">
+			<source ref="id7"/>
+			<target ref="id11"/>
 			<label kind="guard" x="-493" y="-399">reroute[curr_car] == 0</label>
 			<nail x="-714" y="-365"/>
 			<nail x="-110" y="-365"/>
 		</transition>
 		<transition controllable="false">
-			<source ref="id10"/>
-			<target ref="id6"/>
+			<source ref="id11"/>
+			<target ref="id7"/>
 			<label kind="assignment" x="-450" y="-17">curr_car++</label>
 			<nail x="-110" y="-25"/>
 			<nail x="-714" y="-25"/>
 		</transition>
 		<transition controllable="false">
-			<source ref="id8"/>
-			<target ref="id10"/>
+			<source ref="id9"/>
+			<target ref="id11"/>
 		</transition>
 		<transition controllable="false">
-			<source ref="id9"/>
-			<target ref="id10"/>
+			<source ref="id10"/>
+			<target ref="id11"/>
 		</transition>
 		<transition>
-			<source ref="id7"/>
-			<target ref="id9"/>
+			<source ref="id8"/>
+			<target ref="id10"/>
 			<label kind="assignment" x="-493" y="-136">choose_route(1)</label>
 		</transition>
 		<transition>
+			<source ref="id8"/>
+			<target ref="id9"/>
+			<label kind="assignment" x="-501" y="-280">choose_route(0)</label>
+		</transition>
+		<transition controllable="false">
 			<source ref="id7"/>
 			<target ref="id8"/>
-			<label kind="assignment" x="-501" y="-280">choose_route(0)</label>
+			<label kind="guard" x="-688" y="-221">reroute[curr_car] == 1</label>
 		</transition>
 		<transition controllable="false">
 			<source ref="id6"/>
 			<target ref="id7"/>
-			<label kind="guard" x="-688" y="-221">reroute[curr_car] == 1</label>
-		</transition>
-		<transition controllable="false">
-			<source ref="id5"/>
-			<target ref="id6"/>
-			<label kind="synchronisation" x="-841" y="-221">reroute?</label>
+			<label kind="synchronisation" x="-841" y="-221">Reroute?</label>
 		</transition>
 	</template>
 	<system>// Place template instantiations here.
