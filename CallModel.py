@@ -99,11 +99,7 @@ def standardGetSubString(outStr, key):
     value = (outStr[start:end]).strip()
     return value[1:]
 
-def createModel(master_model,expId,simStep,cars,networkGraph, nodePositions):
-    fo = open(master_model, "r+")
-    str_model = fo.read()
-    fo.close()
-
+def replace_car_strings(str_model,cars,nodePositions):
     toReplace = "//HOLDER_NUMBER_OF_CARS"
     value = "const int N = " + str(len(cars)) + ";\n"
     str_model = str.replace(str_model, toReplace, value, 1)
@@ -129,6 +125,9 @@ def createModel(master_model,expId,simStep,cars,networkGraph, nodePositions):
     value += "};"
     str_model = str.replace(str_model, toReplace, value, 1)
 
+    return str_model
+
+def replace_node_strings(str_model,nodePositions):
     toReplace = "//HOLDER_NODE_POSITIONS"
     value = "const int nodePositions[" + str(len(nodePositions)) + "][3] = {"
     for i in range (0,len(nodePositions)):
@@ -141,13 +140,36 @@ def createModel(master_model,expId,simStep,cars,networkGraph, nodePositions):
     value = str(len(nodePositions)) + ";"
     str_model = str.replace(str_model, toReplace, value, 1)
 
+    return str_model
+
+def replace_edge_strings(str_model,networkGraph):
     toReplace = "//HOLDER_NUMBER_OF_EDGES"
     value = str(len(networkGraph.edges())) + ";"
     str_model = str.replace(str_model, toReplace, value, 1)
-    
+
+    toReplace = "//HOLDER_EDGES"
+    edges = list(networkGraph.edges)
+    value = "int networkEdges[" + str(len(edges)) + "][2] = {"
+    for i in range(0,len(edges)):
+        value += "{" + str(edges[i][0][1:]) + "," +  str(edges[i][1][1:]) + "},"
+    value = value[:-1]
+    value += "};"
+    str_model = str.replace(str_model, toReplace, value, 1)
+
+    return str_model
+
+def createModel(master_model,expId,simStep,cars,networkGraph,nodePositions):
+    fo = open(master_model, "r+")
+    str_model = fo.read()
+    fo.close()
+
+    str_model = replace_car_strings(str_model,cars,nodePositions)
+    str_model = replace_node_strings(str_model,nodePositions)
+    str_model = replace_edge_strings(str_model,networkGraph)    
 
     modelName = os.path.join(pathToModels, 'tempModel' + str(expId) + '.xml')
     text_file = open(modelName, "w")
     text_file.write(str_model)
     text_file.close()
     return modelName
+
