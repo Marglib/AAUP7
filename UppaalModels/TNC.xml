@@ -15,13 +15,8 @@ typedef int[0,nodes] node_t;
 
 //HOLDER_EDGES
 
-
-int edges[numEdges][2]; //could not assign values to array when it had type double
-
-
 int curr_car = 0;
 int uniquetest = 0;
-int edgeIds[numEdges];
 int reroute[N];
 int firstIntermediateNode = 46;
 int horizon = 20;
@@ -29,33 +24,6 @@ int horizon = 20;
 typedef int[0, N-1] id_car;
 
 chan Reroute, DoneRerouting;
-
-/*
-int NodesToUniqueInt(int fromNode, int toNode)
-{
-    int x = 0;
-    if (fromNode &gt;= toNode)
-    {
-        x = fromNode * fromNode + fromNode + toNode;
-    }
-    else
-    {
-        x = fromNode + toNode * toNode;
-    }
-    return x;
-}
-
-int GetEdgeId(int fromNode, int toNode)
-{
-    int unique = NodesToUniqueInt(fromNode, toNode);
-    int i = 0;
-    uniquetest = unique;
-    while(i &lt; (numEdges-1) &amp;&amp; unique != edgeIds[i])
-    {
-        i++;
-    }
-    return i;
-}*/
 
 int getEdgeIndex(int fromNode, int toNode)
 {
@@ -153,7 +121,7 @@ int get_cars_on_edge(int edgeId)
     return carsOnEdge;
 }
 
-
+//TODO: add better calculation of weights
 void update_weights()
 {
     int i = 0;
@@ -165,8 +133,6 @@ void update_weights()
     {
         carsOnEdge = get_cars_on_edge(i);
         newWeight = networkEdges[i][2] / carsOnEdge;
-        //calculate weights
-
     }
 }
 
