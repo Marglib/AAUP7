@@ -18,7 +18,7 @@ typedef int[0,nodes] node_t;
 int curr_car = 0;
 int uniquetest = 0;
 int reroute[N];
-int firstIntermediateNode = 46;
+int carDone[N];
 int horizon = 20;
 
 typedef int[0, N-1] id_car;
@@ -28,7 +28,7 @@ chan Reroute, DoneRerouting;
 int getEdgeIndex(int fromNode, int toNode)
 {
     int k = 0;
-    while(networkEdges[k][0] != fromNode &amp;&amp; networkEdges[k][1] != toNode)
+    while(networkEdges[k][0] != fromNode || networkEdges[k][1] != toNode)
     {
         k++;
     }
@@ -36,11 +36,19 @@ int getEdgeIndex(int fromNode, int toNode)
 }</declaration>
 	<template>
 		<name x="5" y="5">Simulator</name>
-		<declaration>clock x;
+		<declaration>clock x,y;
+
+
 
 void constructor()
 {
+    int i = 0;
 
+    for(i = 0; i &lt; N; i++)
+    {
+        reroute[i] = 0;
+        carDone[i] = 0;
+    }
 }
 
 int getNextRouteNode(int carId, int node)
@@ -66,39 +74,39 @@ void flow_traffic()
 
     for (i = 0; i &lt; N; i++)
     {
-        timePassedCarI = timePassed[i];
+        if(!carDone[i])
+        {
+            timePassedCarI = timePassed[i];
+            
+            while(route[i][j] != currentStartNode[i] &amp;&amp; route[i][j] != -1)
+            {
+                j++;
+            }
+            fromNode = route[i][j];
+            toNode = route[i][j+1];
+
+            if(toNode == -1)
+            {
+                carDone[i] = 1;
+            }
+            else
+            {
+                edgeId = getEdgeIndex(fromNode, toNode);
         
-        while(route[i][j] != currentStartNode[i] &amp;&amp; route[i][j] != -1)
-        {
-            j++;
+                edgeTT = networkEdges[edgeId][3];
+
+                if(timePassedCarI &gt;= edgeTT)
+                {
+                    currentStartNode[i] = toNode;
+                    timePassed[i] = 0;
+                }
+                else
+                {
+                    //update time passed
+                    timePassed[i] += 1;
+                }
+            }
         }
-        fromNode = route[i][j];
-        toNode = route[i][j+1];
-
-        /*
-        // ensure that the nodes are not intermediate nodes
-        if(fromNode &gt;= firstIntermediateNode)
-        {
-            fromNode = route[i][j-1];
-        }
-
-        if(toNode &gt;= firstIntermediateNode)
-        {
-            toNode = route[i][j+2];
-        }
-        */
-        edgeId = getEdgeIndex(fromNode, toNode);
-
-
-        
-        edgeTT = networkEdges[edgeId][3];
-
-        if(timePassedCarI &gt;= edgeTT)
-        {
-            currentStartNode[i] = toNode;
-            timePassed[i] = 0;
-        }
-        
 
     }
 }
@@ -132,7 +140,7 @@ void update_weights()
     for(i = 0; i &lt; numEdges; i++)
     {
         carsOnEdge = get_cars_on_edge(i);
-        newWeight = networkEdges[i][2] / carsOnEdge;
+        newWeight = carsOnEdge / networkEdges[i][2];
     }
 }
 
@@ -184,14 +192,14 @@ void check_reroute()
 			<urgent/>
 		</location>
 		<location id="id5" x="85" y="59">
-			<urgent/>
+			<label kind="invariant" x="75" y="76">y &lt;= 5</label>
 		</location>
 		<init ref="id0"/>
 		<transition controllable="false">
 			<source ref="id5"/>
 			<target ref="id1"/>
 			<label kind="synchronisation" x="-76" y="34">DoneRerouting?</label>
-			<label kind="assignment" x="-76" y="17">x++</label>
+			<label kind="assignment" x="-76" y="17">y = 0</label>
 			<nail x="-119" y="59"/>
 		</transition>
 		<transition controllable="false">
