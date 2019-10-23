@@ -165,6 +165,19 @@ def replace_edge_strings(str_model,networkGraph):
 
     return str_model
 
+def replace_time_passed_current_edge(str_model, cars):
+    toReplace = "//HOLDER_TIME_PASSED"
+    value = "{"
+    for car in cars:
+        time_on_edge = car[2]
+        value += str(time_on_edge)
+        value += ","
+    value = value [:-1]
+    value += "};"
+    str_model = str.replace(str_model, toReplace, value, 1)
+
+    return str_model
+
 def createModel(master_model,expId,simStep,cars,networkGraph,nodePositions):
     fo = open(master_model, "r+")
     str_model = fo.read()
@@ -172,7 +185,8 @@ def createModel(master_model,expId,simStep,cars,networkGraph,nodePositions):
 
     str_model = replace_car_strings(str_model,cars,nodePositions)
     str_model = replace_node_strings(str_model,nodePositions)
-    str_model = replace_edge_strings(str_model,networkGraph)    
+    str_model = replace_edge_strings(str_model,networkGraph)
+    str_model = replace_time_passed_current_edge(str_model, cars)    
 
     modelName = os.path.join(pathToModels, 'tempModel' + str(expId) + '.xml')
     text_file = open(modelName, "w")
