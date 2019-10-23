@@ -146,9 +146,11 @@ def replace_node_strings(str_model,nodePositions,cars):
     toReplace = "//HOLDER_CURRENT_START_NODE"
     value = "{"
     for i in range(0,len(cars)):
-        edgeId = traci.vehicle.getLaneID(cars[i][0])
-        keyLoc = edgeId.find("-")
-        value += str(edgeId[1:keyLoc]) + ","
+        routeCar = traci.vehicle.getRoute(cars[i][0])
+        routeIndex = traci.vehicle.getRouteIndex(cars[i][0])
+        edge = routeCar[routeIndex]
+        keyLoc = edge.find("-")
+        value += str(edge[1:keyLoc]) + ","
     value = value[:-1]
     value += "};"
     str_model = str.replace(str_model, toReplace, value, 1)
