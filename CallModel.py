@@ -154,8 +154,10 @@ def replace_edge_strings(str_model,networkGraph):
     for i in range(0,len(edges)):
         nrOfLanes = traci.edge.getLaneNumber(edges[i][0] + "-" + edges[i][1])
         weight = networkGraph.get_edge_data(edges[i][0], edges[i][1])
-        print(weight) #Fix dis. Type is "slice"
-        value += "{" + str(edges[i][0][1:]) + "," +  str(edges[i][1][1:]) + str(nrOfLanes) + "},"
+        print(weight.get('weight')) #Fix dis. Type is "slice"
+        value += "{" + str(edges[i][0][1:]) + "," +  str(edges[i][1][1:]) + "," + str(nrOfLanes) + "," + str(int(weight.get('weight'))) +"},"
+        if(i % 20 == 0):
+            value += "\n"
     value = value[:-1]
     value += "};"
     str_model = str.replace(str_model, toReplace, value, 1)
