@@ -128,7 +128,7 @@ def replace_car_strings(str_model,cars,nodePositions):
 
     return str_model
 
-def replace_node_strings(str_model,nodePositions):
+def replace_node_strings(str_model,nodePositions,cars):
     toReplace = "//HOLDER_NODE_POSITIONS"
     value = "const int nodePositions[" + str(len(nodePositions)) + "][3] = {"
     for i in range (0,len(nodePositions)):
@@ -141,6 +141,15 @@ def replace_node_strings(str_model,nodePositions):
     value = str(len(nodePositions)) + ";"
     str_model = str.replace(str_model, toReplace, value, 1)
 
+    toReplace = "//HOLDER_CURRENT_START_NODE"
+    value = "{"
+    for i in range(0,len(cars)):
+        edgeId = traci.vehicle.getLaneID(cars[i][0])
+        keyLoc = edgeId.find("-")
+        value += str(edgeId[:keyLoc]) + ","
+    value = value[:-1]
+    value += "};"
+        
     return str_model
 
 def replace_edge_strings(str_model,networkGraph):
@@ -154,16 +163,12 @@ def replace_edge_strings(str_model,networkGraph):
     for i in range(0,len(edges)):
         nrOfLanes = traci.edge.getLaneNumber(edges[i][0] + "-" + edges[i][1])
         weight = networkGraph.get_edge_data(edges[i][0], edges[i][1])
-        print(weight.get('weight')) #Fix dis. Type is "slice"
         value += "{" + str(edges[i][0][1:]) + "," +  str(edges[i][1][1:]) + "," + str(nrOfLanes) + "," + str(int(weight.get('weight'))) +"},"
         if(i % 20 == 0):
             value += "\n"
     value = value[:-1]
     value += "};"
     str_model = str.replace(str_model, toReplace, value, 1)
-
-    #toReplace = "//HOLDER_INIT_EDGE_WEIGHTS"
-    print(networkGraph.get_edge_data('n1','n17'))
 
     return str_model
 
@@ -186,7 +191,7 @@ def createModel(master_model,expId,simStep,cars,networkGraph,nodePositions):
     fo.close()
 
     str_model = replace_car_strings(str_model,cars,nodePositions)
-    str_model = replace_node_strings(str_model,nodePositions)
+    str_model = replace_node_strings(str_model,nodePositions,cars)
     str_model = replace_edge_strings(str_model,networkGraph)
     str_model = replace_time_passed_current_edge(str_model, cars)    
 
