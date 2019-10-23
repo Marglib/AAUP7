@@ -13,7 +13,6 @@ int timePassed[N] = //HOLDER_TIME_PASSED
 int edgeTravelTime[numEdges] = //HOLDER_TRAVEL_TIME
 int currentStartNode[N] = //HOLDER_CURRENT_START_NODE
 typedef int[0,nodes] node_t;
-int edgeWeights[numEdges] = //HOLDER_EDGE_WEIGHTS
 
 //HOLDER_EDGES
 

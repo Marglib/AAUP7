@@ -34,7 +34,7 @@ rootDir = os.path.abspath(os.getcwd())
 pathToResults = os.path.join(rootDir,'results')
 pathToModels = os.path.join(rootDir,'UppaalModels')
 mainQuery = os.path.join(pathToModels, 'TNC.q')
-mainModel = os.path.join(pathToModels, 'ReroutingController.xml')
+mainModel = os.path.join(pathToModels, 'TNC.xml')
 listOfCarTimeLists = []
 
 def run(options):
