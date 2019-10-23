@@ -7,6 +7,7 @@ import math
 import VerifierPath as VP
 from os.path import expanduser
 from subprocess import Popen, PIPE, STDOUT
+import traci
 
 rootDir = os.path.abspath(os.getcwd())
 pathToResults = os.path.join(rootDir,'results')
@@ -149,12 +150,18 @@ def replace_edge_strings(str_model,networkGraph):
 
     toReplace = "//HOLDER_EDGES"
     edges = list(networkGraph.edges)
-    value = "int networkEdges[" + str(len(edges)) + "][2] = {"
+    value = "int networkEdges[" + str(len(edges)) + "][4] = {"
     for i in range(0,len(edges)):
-        value += "{" + str(edges[i][0][1:]) + "," +  str(edges[i][1][1:]) + "},"
+        nrOfLanes = traci.edge.getLaneNumber(edges[i][0] + "-" + edges[i][1])
+        weight = networkGraph.get_edge_data(edges[i][0], edges[i][1])
+        print(weight) #Fix dis. Type is "slice"
+        value += "{" + str(edges[i][0][1:]) + "," +  str(edges[i][1][1:]) + str(nrOfLanes) + "},"
     value = value[:-1]
     value += "};"
     str_model = str.replace(str_model, toReplace, value, 1)
+
+    #toReplace = "//HOLDER_INIT_EDGE_WEIGHTS"
+    print(networkGraph.get_edge_data('n1','n17'))
 
     return str_model
 

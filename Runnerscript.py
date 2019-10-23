@@ -50,6 +50,11 @@ def run(options):
 
     while traci.simulation.getMinExpectedNumber() > 0:
         print(">>>simulation step: " + str(step))
+
+        #Update graph weights according to current traffic
+        edges = list(networkGraph.edges)
+        for i in range(0,len(edges)):
+            networkGraph[edges[i][0]][edges[i][1]]['weight'] = get_weight(edges[i][0],edges[i][1], "travelTime")
                 
         #THE DEFAULT CONTROLLER - doesnt do anything 
         if options.controller == "default":
@@ -111,9 +116,11 @@ def preprocess():
 def get_weight(node1, node2, measure):
     if(measure == "euclidian"):
         #Find euclidian distance between nodes - node1[1][0] is the x coordinate for node1 as an example
-        return math.sqrt((pow(node1[0] - node2[0],2)) + (pow(node1[1] - node2[1],2)))
+        return math.sqrt((pow(node1[0] - node2[0],2)) + (pow(node1[1] - node2[1],2))) #expects the nodes as a set of coordinates
+    if(measure == "travelTime"):
+        edge = node1 +"-"+ node2
+        return (traci.edge.getLastStepVehicleNumber(edge)/traci.edge.getLaneNumber(edge)) #Borchs experiment should modify this
     
-    return 9999
 
 def find_k_shortest_paths(G, source, target, k):
     return list(islice(nx.shortest_simple_paths(G, source, target, weight='weight'), k))
@@ -163,7 +170,10 @@ def configure_graph_from_network():
     for edge in tupleOfEdges:
         if((edge[0] == ":") == False):
             keyLoc = edge.find("-")
-            EdgeTuple = (edge[:keyLoc], edge[keyLoc + 1:], float(get_weight(net.getNode(edge[:keyLoc]).getCoord(), net.getNode(edge[keyLoc + 1:]).getCoord(), "euclidian")))
+            #EdgeTuple = (edge[:keyLoc], edge[keyLoc + 1:], 
+            #             float(get_weight(net.getNode(edge[:keyLoc]).getCoord(), net.getNode(edge[keyLoc + 1:]).getCoord(), "euclidian")))
+            #This stuff initializes the weight to the euclidian distance between the nodes
+            EdgeTuple = (edge[:keyLoc], edge[keyLoc + 1:], float(get_weight(edge[:keyLoc], edge[keyLoc + 1:], "travelTime"))) #Creates the weights according to traveltime
             ListOfEdges.append(EdgeTuple)
 
     G.add_nodes_from(ListOfNodes)
