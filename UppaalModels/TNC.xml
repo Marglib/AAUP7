@@ -118,13 +118,16 @@ int get_cars_on_edge(int edgeId)
     int carsOnEdge = 0;
     for(i = 0; i &lt; N; i++)
     {
-        fromNode = currentStartNode[i];
-        toNode = getNextRouteNode(i, fromNode);
-
-        if(edgeId == getEdgeIndex(fromNode, toNode))
+        if(!carDone[i])
         {
-            carsOnEdge++;
-        }     
+            fromNode = currentStartNode[i];
+            toNode = getNextRouteNode(i, fromNode);
+
+            if(edgeId == getEdgeIndex(fromNode, toNode))
+            {
+                carsOnEdge++;
+            }     
+        }
     }
     return carsOnEdge;
 }
@@ -154,22 +157,25 @@ void check_reroute()
 
     for(i = 0; i &lt; N; i++)
     {
-        j = 0;
-        fromNode = currentStartNode[i];
+        if(!carDone[i])
+        {
+            j = 0;
+            fromNode = currentStartNode[i];
         
-        while(fromNode != route[i][j] &amp;&amp; route[i][j] != -1)
-        {
-            j++;
-        }
-        toNode = route[i][j+1];
+            while(fromNode != route[i][j] &amp;&amp; route[i][j] != -1)
+            {
+                j++;
+            }
+            toNode = route[i][j+1];
 
-        edgeId = getEdgeIndex(fromNode, toNode);
+            edgeId = getEdgeIndex(fromNode, toNode);
 
-        weight = networkEdges[edgeId][3];
+            weight = networkEdges[edgeId][3];
 
-        if(weight &gt; threshold)
-        {
-            reroute[i] = 1;
+            if(weight &gt; threshold)
+            {
+                reroute[i] = 1;
+            }
         }
       
     }
@@ -241,24 +247,26 @@ void choose_route(int strategy)
     int carRoute[nodes] = route[curr_car];
     int destNode;
 
-    reroute[curr_car] = 0;   
+    if(!carDone[curr_car])
+    {
+        reroute[curr_car] = 0;   
 
-    while (i &lt; (nodes-1) &amp;&amp; carRoute[i+1] != -1)
-    {            
-        i++;
-    }
+        while (i &lt; (nodes-1) &amp;&amp; carRoute[i+1] != -1)
+        {            
+            i++;
+        }
 
-    destNode = carRoute[i]; 
+        destNode = carRoute[i]; 
     
-    if(strategy == 1)
-    {
-        i = 0;
-
+        if(strategy == 1)
+        {
+            i = 0;
         
-    }
-    else if (strategy == 2)
-    {
-        //Keep current route
+        }
+        else if (strategy == 2)
+        {
+            //Keep current route
+        }
     }
 
 }</declaration>
