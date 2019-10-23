@@ -67,11 +67,11 @@ def run(options):
             if len(CarsInNetworkList) > 0:
                 Cars = []
                 networkNodes = []
+                update_time_on_edge(CarsInNetworkList)
                 for id in NodeIDs:
                     networkNodes.append([id[1:], traci.junction.getPosition(id)])
                 for car in CarsInNetworkList:
-
-                    Cars.append([car, get_route_nodes(car)])
+                    Cars.append([car, get_route_nodes(car), get_time_on_edge(car)])
                 modelCaller(mainModel, mainQuery, options.expid, step, Cars, networkGraph, networkNodes)
                 
             
@@ -218,10 +218,6 @@ def update_time_on_edge(cars):
             listOfCarTimeLists.append([car, 
                                     traci.vehicle.getRoadID(car), 
                                     0])
-
-
-
-        
 
 def get_time_on_edge(car):
     for elem in listOfCarTimeLists:
