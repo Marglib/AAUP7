@@ -132,7 +132,9 @@ def replace_node_strings(str_model,nodePositions,cars):
     toReplace = "//HOLDER_NODE_POSITIONS"
     value = "const int nodePositions[" + str(len(nodePositions)) + "][3] = {"
     for i in range (0,len(nodePositions)):
-        value += "\n{" + str(nodePositions[i][0]) + "," + str(int(nodePositions[i][1][0])) + "," + str(int(nodePositions[i][1][1])) + "},"
+        value += "{" + str(nodePositions[i][0]) + "," + str(int(nodePositions[i][1][0])) + "," + str(int(nodePositions[i][1][1])) + "},"
+        if(i % 20 == 0):
+            value += "\n"
     value = value[:-1]
     value += "};"
     str_model = str.replace(str_model, toReplace, value, 1)
@@ -149,7 +151,8 @@ def replace_node_strings(str_model,nodePositions,cars):
         value += str(edgeId[1:keyLoc]) + ","
     value = value[:-1]
     value += "};"
-        
+    str_model = str.replace(str_model, toReplace, value, 1)
+
     return str_model
 
 def replace_edge_strings(str_model,networkGraph):

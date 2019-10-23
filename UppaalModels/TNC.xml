@@ -10,7 +10,7 @@ const int route[N][nodes] = //HOLDER_CAR_ROUTE
 //HOLDER_NODE_POSITIONS
 
 int timePassed[N] = //HOLDER_TIME_PASSED
-//int currentStartNode[N] = //HOLDER_CURRENT_START_NODE
+int currentStartNode[N] = //HOLDER_CURRENT_START_NODE
 typedef int[0,nodes] node_t;
 
 //HOLDER_EDGES
