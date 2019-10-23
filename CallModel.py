@@ -146,7 +146,7 @@ def replace_node_strings(str_model,nodePositions,cars):
     for i in range(0,len(cars)):
         edgeId = traci.vehicle.getLaneID(cars[i][0])
         keyLoc = edgeId.find("-")
-        value += str(edgeId[:keyLoc]) + ","
+        value += str(edgeId[1:keyLoc]) + ","
     value = value[:-1]
     value += "};"
         
