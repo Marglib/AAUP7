@@ -150,7 +150,7 @@ void update_weights()
 void check_reroute()
 {
     int i = 0, j = 0;
-    int fromNode, toNode;
+    int fromNode, nextFromNode, nextToNode;
     int edgeId;
     int weight;
     int threshold = 10; //TODO: find actual threshold for rerouting
@@ -166,15 +166,20 @@ void check_reroute()
             {
                 j++;
             }
-            toNode = route[i][j+1];
 
-            edgeId = getEdgeIndex(fromNode, toNode);
-
-            weight = networkEdges[edgeId][3];
-
-            if(weight &gt; threshold)
+            if(route[i][j+2] != -1)
             {
-                reroute[i] = 1;
+                nextFromNode = route[i][j+1];
+                nextToNode = route[i][j+2];
+
+                edgeId = getEdgeIndex(nextFromNode, nextToNode);
+
+                weight = networkEdges[edgeId][3];
+
+                if(weight &gt; threshold)
+                {
+                    reroute[i] = 1;
+                }
             }
         }
       
@@ -240,6 +245,36 @@ void check_reroute()
 	<template>
 		<name>Rerouter</name>
 		<declaration>
+int manhattanDistance(int node1, int node2)
+{
+    int i = 0, j = 0;
+
+    while(node1 != nodePositions[i][0])
+    {
+        i++;
+    }
+    while(node2 != nodePositions[j][0])
+    {
+        j++;
+    }
+
+    return abs(nodePositions[i][1] - nodePositions[j][1]) + abs(nodePositions[i][2] - nodePositions[j][2]);
+}
+
+void simpleReroute()
+{
+    int carRoute[nodes] = route[curr_car];
+    int i = 0;
+    int destNode;
+    int curNode = currentStartNode[curr_car];
+
+    while (carRoute[i+1] != -1)
+    {            
+        i++;
+    }
+
+    destNode = carRoute[i];
+}
 
 void choose_route(int strategy)
 {
