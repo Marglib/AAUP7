@@ -150,7 +150,7 @@ void check_reroute()
     int fromNode, nextFromNode, nextToNode;
     int edgeId;
     int weight;
-    int threshold = 10; //TODO: find actual threshold for rerouting
+    int threshold = 25; //TODO: find actual threshold for rerouting
 
     for(i = 0; i &lt; N; i++)
     {
@@ -317,15 +317,18 @@ void simpleReroute()
         
         for (j = 0; j &lt; 3; j++)
         {   
-            edgeId = getEdgeIndex(rerouteNode, connectingNodes[j]);
-
-            edgeWeight = networkEdges[edgeId][3];
-
-            edgeWeights[j] = manhattanDistance(connectingNodes[j], destNode) + edgeWeight;
-            
-            if( edgeWeights[j] &lt;  edgeWeights[bestConnection])
+            if(connectingNodes[j] != 0)
             {
-                bestConnection = j;
+                edgeId = getEdgeIndex(rerouteNode, connectingNodes[j]);
+
+                edgeWeight = networkEdges[edgeId][3];
+
+                edgeWeights[j] = manhattanDistance(connectingNodes[j], destNode) + edgeWeight;
+            
+                if( edgeWeights[j] &lt;  edgeWeights[bestConnection])
+                {
+                    bestConnection = j;
+                }
             }
 
         } 
@@ -335,14 +338,7 @@ void simpleReroute()
         i++;          
     }
 
-    //Was not allowed to assign array of routes (error "Left hand side value expected")
     route[curr_car] = carRoute;
-/*
-    for(i = 0; i &lt; nodes; i++)
-    {
-    route[curr_car][i] = carRoute[i];
-    }
-*/
 }
 
 void choose_route(int strategy)
