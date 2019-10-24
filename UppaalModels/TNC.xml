@@ -6,7 +6,7 @@ const int nodes = //HOLDER_NUMBER_OF_NODES
 const int numEdges = //HOLDER_NUMBER_OF_EDGES
 //HOLDER_NUMBER_OF_CARS
 const int pid[N] = //HOLDER_CAR_PID 
-const int route[N][nodes] = //HOLDER_CAR_ROUTE 
+int route[N][nodes] = //HOLDER_CAR_ROUTE 
 //HOLDER_NODE_POSITIONS
 
 int timePassed[N] = //HOLDER_TIME_PASSED
@@ -33,6 +33,16 @@ int getEdgeIndex(int fromNode, int toNode)
         k++;
     }
     return k;
+}
+
+int getNextRouteNode(int carId, int node)
+{
+    int i = 0;
+    while(route[carId][i] != node &amp;&amp; route[carId][i] != -1)
+    {
+        i++;
+    }
+    return route[carId][i+1];
 }</declaration>
 	<template>
 		<name x="5" y="5">Simulator</name>
@@ -51,20 +61,11 @@ void constructor()
     }
 }
 
-int getNextRouteNode(int carId, int node)
-{
-    int i = 0;
-    while(route[carId][i] != node &amp;&amp; route[carId][i] != -1)
-    {
-        i++;
-    }
-    return route[carId][i+1];
-}
 
 //check if cars have changed edge
 void flow_traffic()
 {
-    int i = 0, j = 0, k = 0;
+    int i = 0;
     int currentEdge = 0;
     int timePassedCarI = 0;
     int edgeTT = 0;
@@ -78,12 +79,8 @@ void flow_traffic()
         {
             timePassedCarI = timePassed[i];
             
-            while(route[i][j] != currentStartNode[i] &amp;&amp; route[i][j] != -1)
-            {
-                j++;
-            }
-            fromNode = route[i][j];
-            toNode = route[i][j+1];
+            fromNode = currentStartNode[i];
+            toNode = getNextRouteNode(i, fromNode);
 
             if(toNode == -1)
             {
@@ -143,7 +140,7 @@ void update_weights()
     for(i = 0; i &lt; numEdges; i++)
     {
         carsOnEdge = get_cars_on_edge(i);
-        newWeight = carsOnEdge / networkEdges[i][2];
+        newWeight = 15 + (carsOnEdge / networkEdges[i][2]);
     }
 }
 
@@ -244,7 +241,29 @@ void check_reroute()
 	</template>
 	<template>
 		<name>Rerouter</name>
-		<declaration>
+		<declaration>int connectingNodes[3];
+
+void getConnectingNodes(int node)
+{
+    int i = 0;
+    int foundNodes = 0;
+    int edge[4];
+    connectingNodes[0] = 0;
+    connectingNodes[1] = 0;
+    connectingNodes[2] = 0;
+
+    for(i = 0; i &lt; numEdges; i++)
+    {
+        edge = networkEdges[i];
+        if(edge[0] == node)
+        {
+            connectingNodes[foundNodes] = edge[1];
+            foundNodes++;
+        }
+    }
+
+}
+
 int manhattanDistance(int node1, int node2)
 {
     int i = 0, j = 0;
@@ -264,9 +283,12 @@ int manhattanDistance(int node1, int node2)
 void simpleReroute()
 {
     int carRoute[nodes] = route[curr_car];
-    int i = 0;
+    int i = 0, j = 0;
     int destNode;
     int curNode = currentStartNode[curr_car];
+    int edgeWeights[3];
+    int rerouteNode;
+    int edgeId, edgeWeight, bestConnection;
 
     while (carRoute[i+1] != -1)
     {            
@@ -274,29 +296,64 @@ void simpleReroute()
     }
 
     destNode = carRoute[i];
+
+    rerouteNode = getNextRouteNode(curr_car, curNode);
+
+    i = 0;
+
+    while(rerouteNode != carRoute[i])
+    {
+        i++;
+    }
+
+    while (rerouteNode != destNode)
+    {
+        edgeId = 0;
+        edgeWeight = 0; 
+        j = 0;
+        bestConnection = 0;
+
+        getConnectingNodes(rerouteNode);
+        
+        for (j = 0; j &lt; 3; j++)
+        {   
+            edgeId = getEdgeIndex(rerouteNode, connectingNodes[j]);
+
+            edgeWeight = networkEdges[edgeId][3];
+
+            edgeWeights[j] = manhattanDistance(connectingNodes[j], destNode) + edgeWeight;
+            
+            if( edgeWeights[j] &lt;  edgeWeights[bestConnection])
+            {
+                bestConnection = j;
+            }
+
+        } 
+        
+        carRoute[i + 1] = connectingNodes[bestConnection];
+        rerouteNode = connectingNodes[bestConnection];
+        i++;          
+    }
+
+    //Was not allowed to assign array of routes (error "Left hand side value expected")
+    route[curr_car] = carRoute;
+/*
+    for(i = 0; i &lt; nodes; i++)
+    {
+    route[curr_car][i] = carRoute[i];
+    }
+*/
 }
 
 void choose_route(int strategy)
 {
-    int i = 0;
-    int carRoute[nodes] = route[curr_car];
-    int destNode;
-
     if(!carDone[curr_car])
     {
         reroute[curr_car] = 0;   
-
-        while (i &lt; (nodes-1) &amp;&amp; carRoute[i+1] != -1)
-        {            
-            i++;
-        }
-
-        destNode = carRoute[i]; 
     
         if(strategy == 1)
         {
-            i = 0;
-        
+            simpleReroute();
         }
         else if (strategy == 2)
         {
