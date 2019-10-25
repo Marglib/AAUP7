@@ -105,58 +105,23 @@ def run(options):
     flowData = []
     carDict = {}
     while traci.simulation.getMinExpectedNumber() > 0:
-        print(">>>simulation step: " + str(step))
-        allEdges = traci.edge.getIDList()
+        print(">>>simulation step: " + str(step)) 
         
         if options.newDataFile != "":
 
-            leftMostEdgeNode = "n2"
-            rightMostEdgeNode = "n6"
-            middleEdgeNode =    "n77777777"
-
-            sumOfDistanceTravel = 0
-            CarsInNetworkList = traci.vehicle.getIDList()
-
-            for car in CarsInNetworkList:
-                currentedge = traci.vehicle.getRoadID(car)
-                print(currentedge)
-                if currentedge.split("-")[0] == leftMostEdgeNode or currentedge.split("-")[0] == middleEdgeNode  : #check if the currentEdge is the edge we wanna collect data on
-                    leftxValue = traci.junction.getPosition(leftMostEdgeNode)[0]
-                    if car in carDict:
-                        leftxValue = carDict[car]
-
-                    carPos = traci.vehicle.getPosition(car)
-                    carDict[car] = carPos[0]
-                    distanceTravelledOnEdge = carPos[0] - leftxValue
-                    sumOfDistanceTravel += distanceTravelledOnEdge
-
-            density1 = traci.edge.getLastStepOccupancy("n2-n6")
-            #density2 = traci.edge.getLastStepOccupancy("n55-n7")
-
-            d = {
-                "flow" : round( (sumOfDistanceTravel / (traci.junction.getPosition(rightMostEdgeNode)[0] - traci.junction.getPosition(leftMostEdgeNode)[0])) , 3 ) ,
-                "density" : round(density1 , 3)
-            }
-            flowData.append(d)
-
-                    
-
-            """
-            for edge in allEdges:
-                if traci.edge.getLaneNumber(edge) >= 2:
-                    roadType = "main"
-                else:
-                    roadType = "normal"
+            for edge in listOfEdges:
         
                 d = {
-                   "roadType" :  roadType, 
-                   "waitingTime" :traci.edge.getWaitingTime(edge) , 
-                   "traveltime" :traci.edge.getTraveltime(edge), 
-                   "density" :traci.edge.getLastStepOccupancy(edge)
+                   "edgeID" : edge,
+                   "numberOfLanes" :  traci.edge.getLaneNumber(edge), 
+                   "waitingTime" : traci.edge.getWaitingTime(edge) , 
+                   "traveltime" : traci.edge.getTraveltime(edge), 
+                   "numberOfCars" : traci.edge.getLastStepVehicleNumber(edge),
+                   "roadLength"  : traci.lane.getLength(edge + "_0")
                    }
-                edgeDF.append(d)
+                flowData.append(d)
+
         
-            """
 
         if options.controller == "basicMessoController":
             dataForStratego = []

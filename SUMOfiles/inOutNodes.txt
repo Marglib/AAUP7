@@ -1,5 +1,9 @@
 nodeName,inOut,probability
-"n19","in",20
-"n17","in",39
-"n18","in",39
-"n42","out",99
+"n38","in",10
+"n38","out",10
+"n43","in",10
+"n43","out",10
+"n19","in",10
+"n19","out",10
+"n27","out",10
+"n27","in",10

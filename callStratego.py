@@ -14,6 +14,8 @@ pathToModels = os.path.join(rootDir,'UppaalModels')
 
 def runStratego(com, args, query):
     #print('calling stratego with command: ' + com + args + query) 
+    print(com+args+query)
+
     start_time = time.time()
     f = os.popen(com+args+query)
     out = f.read()
@@ -201,6 +203,7 @@ def cStratego(model,query,learningMet,succRuns,maxRuns,goodRuns,evalRuns,maxIter
 
     #print("Calling stratego for traffic light strategy \n")
     time_avg_sim, out1 = runStratego(com,args,query)
+    print(out1)
     sigEnabled,sigDuration = getStrategy(out1,greenModel,nrOfSignals)
     if(tlID == 'n15'):
         print(out1)
