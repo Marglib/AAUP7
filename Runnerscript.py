@@ -193,10 +193,6 @@ def get_route_nodes(car):
     route_nodes = []
     end_node = -1
 
-    cur_edge_index = traci.vehicle.getRouteIndex(car)
-
-    route[cur_edge_index:]
-
     for edge in route:
         route_nodes.append(edge.split('-')[0][1:])
         end_node = edge.split('-')[1][1:]
