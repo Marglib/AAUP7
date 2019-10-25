@@ -53,7 +53,7 @@ def modelCaller(model,query,expId,simStep,cars, networkGraph, nodePositions):
     args = "\"" + newModel + "\" "
     #newQuery = createQuery(query, expId, cars) Used for stratego
     out = runModel(com,args,query, simStep)
-    print(out)
+    #print(out)
     #carSpeeds = getStrategy(out, cars)
     
     #' -o 1 -t 0 '
