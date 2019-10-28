@@ -56,7 +56,7 @@ def modelCaller(model,query,expId,simStep,cars, networkGraph, nodePositions):
       + ' --runs-pr-state ' + str(70) \
       + ' --eval-runs ' + str(40) \
       + ' --max-iterations ' + str(30) \
-      + ' --filter 0 '
+      + ' --filter 0 -o 1 '
     args = "\"" + newModel + "\" "
     #newQuery = createQuery(query, expId, cars) Used for stratego
     out = runModel(com,args,newQuery, simStep)
@@ -224,8 +224,7 @@ def createQuery(master_query,cars,nodePositions,expId):
         value += " pid[" + str(int(cars[i][0]) + 1000) + "],"
         for j in range(0,len(nodePositions)):
             value += " route[" + str(i) + "][" + str(j) + "],"
-        value += "\n"
-    value = value[:-2]
+    value = value[:-1]
     str_query = str.replace(str_query, toReplace, value, 1)
 
     queryName = rootDir + "/UppaalModels/TNCtempQuery" + str(expId) + '.q'
