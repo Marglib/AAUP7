@@ -23,6 +23,8 @@ const int horizon = 20;
 int Done = 0;
 int totalTravelTime = 0;
 
+int inNodes[20] = {17, 18, 19, 20, 34, 35, 36, 37, 38, 39, 45 ,44, 43,42,41,40,27,25,23,21};
+
 typedef int[0, N-1] id_car;
 
 broadcast chan Reroute, DoneRerouting;
@@ -250,7 +252,7 @@ z &lt;= 1</label>
 		<transition controllable="false">
 			<source ref="id3"/>
 			<target ref="id4"/>
-			<label kind="assignment" x="-187" y="-280">check_reroute()</label>
+			<label kind="assignment" x="-195" y="-280">check_reroute()</label>
 		</transition>
 		<transition controllable="false">
 			<source ref="id0"/>
@@ -278,19 +280,19 @@ z &lt;= 1</label>
 		<name>Rerouter</name>
 		<declaration>int connectingNodes[3];
 
-void getConnectingNodes(int node)
+void getConnectingNodes(int node, int prevNode)
 {
     int i = 0;
     int foundNodes = 0;
     int edge[4];
-    connectingNodes[0] = 0;
-    connectingNodes[1] = 0;
-    connectingNodes[2] = 0;
+    connectingNodes[0] = -1;
+    connectingNodes[1] = -1;
+    connectingNodes[2] = -1;
 
     for(i = 0; i &lt; numEdges; i++)
     {
         edge = networkEdges[i];
-        if(edge[0] == node)
+        if(edge[0] == node &amp;&amp; edge[1] != prevNode)
         {
             connectingNodes[foundNodes] = edge[1];
             foundNodes++;
@@ -318,12 +320,15 @@ int manhattanDistance(int node1, int node2)
 void simpleReroute()
 {
     int carRoute[nodes] = route[curr_car];
-    int i = 0, j = 0;
+    int i = 0, j = 0, k = 0;
     int destNode;
     int curNode = currentStartNode[curr_car];
     int edgeWeights[3];
+    int prevNode = curNode;
     int rerouteNode;
     int edgeId, edgeWeight, bestConnection;
+    int test[1];
+    int illegalInNode = 0;
 
     while (carRoute[i+1] != -1)
     {            
@@ -331,49 +336,70 @@ void simpleReroute()
     }
 
     destNode = carRoute[i];
-
-    rerouteNode = getNextRouteNode(curr_car, curNode);
-
-    i = 0;
-
-    while(rerouteNode != carRoute[i])
+    if (curNode != destNode)
     {
-        i++;
-    }
+        rerouteNode = getNextRouteNode(curr_car, curNode);
+        i = 0;
 
-    while (rerouteNode != destNode)
-    {
-        edgeId = 0;
-        edgeWeight = 0; 
-        j = 0;
-        bestConnection = 0;
+        while(rerouteNode != carRoute[i])
+        {
+            i++;
+        }
 
-        getConnectingNodes(rerouteNode);
+        while (rerouteNode != destNode)
+        {
+            edgeId = 0;
+            edgeWeight = 0; 
+            j = 0;
+            bestConnection = 0;
+
+            getConnectingNodes(rerouteNode, prevNode);
         
-        for (j = 0; j &lt; 3; j++)
-        {   
-            if(connectingNodes[j] != 0)
-            {
-                edgeId = getEdgeIndex(rerouteNode, connectingNodes[j]);
-
-                edgeWeight = networkEdges[edgeId][3];
-
-                edgeWeights[j] = manhattanDistance(connectingNodes[j], destNode) + edgeWeight;
-            
-                if( edgeWeights[j] &lt;  edgeWeights[bestConnection])
+            for (j = 0; j &lt; 3; j++)
+            {   
+                if(connectingNodes[j] != -1)
                 {
-                    bestConnection = j;
+                    edgeId = getEdgeIndex(rerouteNode, connectingNodes[j]);
+
+                    edgeWeight = networkEdges[edgeId][3];
+
+                    edgeWeights[j] = manhattanDistance(connectingNodes[j], destNode);
+
+                    for(k = 0; k &lt; 20; k++)
+                    {
+                        if(connectingNodes[j] == inNodes[k] &amp;&amp; inNodes[k] != destNode)
+                        {
+                            illegalInNode = 1;
+                        }
+                    }
+
+                    if(illegalInNode == 1)
+                    {
+                        edgeWeights[j] = 32000;
+                    }            
+                    if( edgeWeights[j] &lt;  edgeWeights[bestConnection])
+                    {
+                        bestConnection = j;
+                    }
+                    illegalInNode = 0;
                 }
-            }
-
-        } 
+            } 
         
-        carRoute[i + 1] = connectingNodes[bestConnection];
-        rerouteNode = connectingNodes[bestConnection];
-        i++;          
-    }
+            carRoute[i + 1] = connectingNodes[bestConnection];
+            prevNode = rerouteNode;
+            rerouteNode = connectingNodes[bestConnection];
+            i++;        
+        }
 
-    route[curr_car] = carRoute;
+        while(i &lt; (nodes-1))
+        {
+            carRoute[i+1] = -1;
+        }         
+
+        route[curr_car] = carRoute;
+
+    }
+    
 }
 
 void choose_route(int strategy)
@@ -415,6 +441,18 @@ void choose_route(int strategy)
 		</location>
 		<init ref="id7"/>
 		<transition controllable="false">
+			<source ref="id8"/>
+			<target ref="id12"/>
+			<label kind="guard" x="-696" y="-416">reroute[curr_car] == 0</label>
+			<nail x="-714" y="-382"/>
+			<nail x="-110" y="-382"/>
+		</transition>
+		<transition controllable="false">
+			<source ref="id8"/>
+			<target ref="id9"/>
+			<label kind="guard" x="-696" y="-229">reroute[curr_car] == 1</label>
+		</transition>
+		<transition controllable="false">
 			<source ref="id13"/>
 			<target ref="id7"/>
 			<label kind="assignment" x="-408" y="85">curr_car = 0</label>
@@ -426,13 +464,6 @@ void choose_route(int strategy)
 			<target ref="id13"/>
 			<label kind="guard" x="-68" y="-221">curr_car &gt;= (N-1)</label>
 			<label kind="synchronisation" x="-76" y="-238">DoneRerouting!</label>
-		</transition>
-		<transition controllable="false">
-			<source ref="id8"/>
-			<target ref="id12"/>
-			<label kind="guard" x="-493" y="-399">reroute[curr_car] == 0</label>
-			<nail x="-714" y="-365"/>
-			<nail x="-110" y="-365"/>
 		</transition>
 		<transition controllable="false">
 			<source ref="id12"/>
@@ -461,11 +492,6 @@ void choose_route(int strategy)
 			<label kind="assignment" x="-501" y="-280">choose_route(0)</label>
 		</transition>
 		<transition controllable="false">
-			<source ref="id8"/>
-			<target ref="id9"/>
-			<label kind="guard" x="-688" y="-221">reroute[curr_car] == 1</label>
-		</transition>
-		<transition controllable="false">
 			<source ref="id7"/>
 			<target ref="id8"/>
 			<label kind="synchronisation" x="-841" y="-221">Reroute?</label>
@@ -480,6 +506,10 @@ system Simulator, Rerouter;
 	<queries>
 		<query>
 			<formula>E&lt;&gt; Simulator.End</formula>
+			<comment></comment>
+		</query>
+		<query>
+			<formula>strategy Opt =minE (totalTravelTime) [&lt;=horizon]: &lt;&gt; Simulator.End</formula>
 			<comment></comment>
 		</query>
 	</queries>
