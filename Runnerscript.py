@@ -178,12 +178,6 @@ def run(options):
         #THE DEFAULT CONTROLLER - doesnt do anything 
         if options.controller == "default":
             CarsInNetworkList = traci.vehicle.getIDList()  
-            for car in CarsInNetworkList:
-                if(len(traci.vehicle.getRoute(car)) > 0): 
-                    if(not(traci.vehicle.getRoadID(car)[0] == ':')):
-                        newRoute = makeNewRoute('n8-n12', networkGraph, car)
-                        if(not (newRoute == "")):
-                            traci.vehicle.setRoute(car, newRoute)
 
         #THE MAIN CONTROLLER
         if options.controller == "TrafficNetworkController":
@@ -419,33 +413,34 @@ def findNewRoutesForCars(data, carsAtRisk):
     return 0
 
 def makeNewRoute(edgeToAvoid, networkGraph, car):
-    if(not(traci.vehicle.getRoadID(car)[0] == ':')):
-        oldRoute = traci.vehicle.getRoute(car)
-        currEdge = traci.vehicle.getRoadID(car)
-        nextJunction = traci.vehicle.getRoadID(car).split("-")[1]
-        sourceNode = nextJunction
-        targetNode = oldRoute[len(oldRoute)-1].split("-")[1]
+    if(len(traci.vehicle.getRoute(car)) > 0):
+        if(not(traci.vehicle.getRoadID(car)[0] == ':')):
+            oldRoute = traci.vehicle.getRoute(car)
+            currEdge = traci.vehicle.getRoadID(car)
+            nextJunction = traci.vehicle.getRoadID(car).split("-")[1]
+            sourceNode = nextJunction
+            targetNode = oldRoute[len(oldRoute)-1].split("-")[1]
 
-        kShortestPaths = find_k_shortest_paths(networkGraph, sourceNode, targetNode, 5) #5 shortest paths
+            kShortestPaths = find_k_shortest_paths(networkGraph, sourceNode, targetNode, 5) #5 shortest paths
 
-        routeGood = False
-        i = 0
-        candidateRoute = []
-        while(routeGood == False):
-            candidateRoute = nodesToRouteEdges(kShortestPaths[i], currEdge)
-            if(edgeToAvoid in candidateRoute):
-                i = i + 1
-                pass
+            routeGood = False
+            i = 0
+            candidateRoute = []
+            while(routeGood == False):
+                candidateRoute = nodesToRouteEdges(kShortestPaths[i], currEdge)
+                if(edgeToAvoid in candidateRoute):
+                    i = i + 1
+                    pass
+                else:
+                    routeGood = True
+            
+            
+            if(not len(candidateRoute) <= 1):
+                return tuple(candidateRoute)
             else:
-                routeGood = True
-        
-        
-        if(not len(candidateRoute) <= 1):
-            return tuple(candidateRoute)
+                return ""
         else:
             return ""
-    else:
-        return ""
     
      
 def nodesToRouteEdges(nodes, currEdge):
