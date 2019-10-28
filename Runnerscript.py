@@ -177,8 +177,13 @@ def run(options):
         
         #THE DEFAULT CONTROLLER - doesnt do anything 
         if options.controller == "default":
-            CarsInNetworkList = traci.vehicle.getIDList()
-            print(CarsInNetworkList)
+            CarsInNetworkList = traci.vehicle.getIDList()  
+            for car in CarsInNetworkList:
+                if(len(traci.vehicle.getRoute(car)) > 0): 
+                    if(not(traci.vehicle.getRoadID(car)[0] == ':')):
+                        newRoute = makeNewRoute('n8-n12', networkGraph, car)
+                        if(not (newRoute == "")):
+                            traci.vehicle.setRoute(car, newRoute)
 
         #THE MAIN CONTROLLER
         if options.controller == "TrafficNetworkController":
@@ -253,7 +258,6 @@ def assign_random_new_route(car, routes):
     if(not len(newRouteNodes) <= 1):
         traci.vehicle.setRoute(car, newRoute)
         print("new route: " + str(newRoute))
-
 
 def configure_graph_from_network():
     #Initialize empty list of nodes and edges (graph)
@@ -376,10 +380,48 @@ def getNextEdgeForCar(currentEdge, route):
     return "Error"
 
 def findNewRoutesForCars(data, carsAtRisk):
-    
 
     return 0
-           
+
+def makeNewRoute(edgeToAvoid, networkGraph, car):
+    if(not(traci.vehicle.getRoadID(car)[0] == ':')):
+        oldRoute = traci.vehicle.getRoute(car)
+        currEdge = traci.vehicle.getRoadID(car)
+        nextJunction = traci.vehicle.getRoadID(car).split("-")[1]
+        sourceNode = nextJunction
+        targetNode = oldRoute[len(oldRoute)-1].split("-")[1]
+
+        kShortestPaths = find_k_shortest_paths(networkGraph, sourceNode, targetNode, 5) #5 shortest paths
+
+        routeGood = False
+        i = 0
+        candidateRoute = []
+        while(routeGood == False):
+            candidateRoute = nodesToRouteEdges(kShortestPaths[i], currEdge)
+            if(edgeToAvoid in candidateRoute):
+                i = i + 1
+                pass
+            else:
+                routeGood = True
+        
+        
+        if(not len(candidateRoute) <= 1):
+            return tuple(candidateRoute)
+        else:
+            return ""
+    else:
+        return ""
+    
+     
+def nodesToRouteEdges(nodes, currEdge):
+    edges = []
+    edges.append(currEdge)
+    for i in range(0, len(nodes)-1):
+        edge = str(nodes[i]) + "-" + str(nodes[i + 1])
+        edges.append(edge)
+    return edges  
+
+
                   
 # this is the main entry point of this script
 if __name__ == "__main__":
