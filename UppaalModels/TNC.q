@@ -1,10 +1,9 @@
 /*
 
 */
-strategy Opt =minE (totalTravelTime) [<=2*horizon]: <> Simulator.DONE
+strategy Opt =minE (totalTravelTime) [<=horizon]: <> Simulator.End
 /*
 
 */
-E<> Simulator.End under Opt
 
-//simulate 1 [<=2*horizon] { //HOLDER_QUERY } under Opt
+simulate 1 [<=horizon] { totalTravelTime } under Opt

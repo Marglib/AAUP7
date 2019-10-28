@@ -19,12 +19,13 @@ int curr_car = 0;
 int uniquetest = 0;
 int reroute[N];
 int carDone[N];
-int horizon = 20;
+const int horizon = 20;
 int Done = 0;
+int totalTravelTime = 0;
 
 typedef int[0, N-1] id_car;
 
-chan Reroute, DoneRerouting;
+broadcast chan Reroute, DoneRerouting;
 
 int getEdgeIndex(int fromNode, int toNode)
 {
@@ -98,6 +99,7 @@ void flow_traffic()
                 if(timePassedCarI &gt;= edgeTT)
                 {
                     currentStartNode[i] = toNode;
+                    totalTravelTime += timePassedCarI;
                     timePassed[i] = 0;
                 }
                 else
@@ -153,6 +155,7 @@ void update_weights()
     {
         carsOnEdge = get_cars_on_edge(i);
         newWeight = 15 + (carsOnEdge / networkEdges[i][2]);
+        networkEdges[i][3] = newWeight;
     }
 }
 
@@ -216,7 +219,6 @@ z &lt;= 1</label>
 			<name x="279" y="-289">End</name>
 		</location>
 		<location id="id6" x="76" y="-127">
-			<urgent/>
 		</location>
 		<init ref="id2"/>
 		<transition controllable="false">
@@ -451,7 +453,7 @@ void choose_route(int strategy)
 		<transition>
 			<source ref="id9"/>
 			<target ref="id11"/>
-			<label kind="assignment" x="-493" y="-136">choose_route(1)</label>
+			<label kind="assignment" x="-501" y="-127">choose_route(1)</label>
 		</transition>
 		<transition>
 			<source ref="id9"/>

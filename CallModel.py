@@ -17,7 +17,7 @@ def runModel(com, args, query, simStep):
     query = "\"" + query + "\""
     f = Popen(com+args+query, stdout = PIPE, stderr = PIPE, shell=True)
     out, outerror = f.communicate()
-    #print(outerror)
+    print(outerror)
     """
 
     out_string = str(out)
@@ -49,11 +49,17 @@ def runModel(com, args, query, simStep):
 def modelCaller(model,query,expId,simStep,cars, networkGraph, nodePositions):
     newModel = createModel(model,expId,simStep,cars, networkGraph, nodePositions)
     veri = VP.veri
-    com = veri +  ' -o 1 -t 0 -u '
+    com = veri +  '   --learning-method ' + str(3) \
+      + ' --good-runs ' + str(20) \
+      + ' --total-runs ' + str(50) \
+      + ' --runs-pr-state ' + str(70) \
+      + ' --eval-runs ' + str(40) \
+      + ' --max-iterations ' + str(30) \
+      + ' --filter 0 '
     args = "\"" + newModel + "\" "
     #newQuery = createQuery(query, expId, cars) Used for stratego
     out = runModel(com,args,query, simStep)
-    #print(out)
+    print(out)
     #carSpeeds = getStrategy(out, cars)
     
     #' -o 1 -t 0 '
