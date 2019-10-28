@@ -100,6 +100,11 @@ def run(options):
     #-------------------- END -------------------------------------------------------
     print("Starting simulation expid=" + str(options.expid))
 
+    #------------setup for basicConrtoller without uppal-----------------------
+    currentCarInformation = {}
+    currentEdgeInformation = {}
+    #------------END-------------------------
+
     while traci.simulation.getMinExpectedNumber() > 0:
         print(">>>simulation step: " + str(step))
 
@@ -116,6 +121,60 @@ def run(options):
 
                 dataForStratego.append([edge, adaptedTT, carsOnEdge, carRoutes])
 
+
+        #basic controller without uppal
+        if options.controller == "Basic":
+            
+            # ---------------setup/update data -----------------------------------
+            for edge in listOfEdges:
+                currentEdgeInformation[edge] = [traci.edge.getTraveltime(edge), traci.edge.getLastStepVehicleIDs(edge)]
+
+                carsOnEdge = traci.edge.getLastStepVehicleIDs(edge)
+                for car in carsOnEdge:
+                    route = traci.vehicle.getRoute(car)
+                    
+                    if car in currentCarInformation:
+                        if currentCarInformation[car][0] == edge:
+                            pass
+                        else:
+                            currentCarInformation[car] = [edge, step, traci.vehicle.getRoute(car)]
+                    else:
+                        currentCarInformation[car] = [edge, step, traci.vehicle.getRoute(car)]
+
+            #-----------------------END--------------------------------------------------
+
+            simulateTrafficFlow(currentCarInformation, currentCarInformation, step, 200)
+
+
+
+
+
+        """
+            #collect current information from traci
+            dataForController = []
+            for edge in listOfEdges:
+                carsOnEdge = traci.edge.getLastStepVehicleIDs(edge)
+                TT = traci.edge.getTraveltime(edge)
+                carRoutes = []
+
+                for car in carsOnEdge:
+                    route = traci.vehicle.getRoute(car)
+                    carRoutes.append(route)
+
+                dataForController.append([edge, TT, carsOnEdge, carRoutes])
+
+            #find congested edges
+            congestedEdges = getCongestedEdges(dataForController)
+
+            #find all cars that will hit a congested edge later on the route
+            carsToReRoute = findCarsToReroute(dataForController, congestedEdges)
+
+            newRoutesForCars = findNewRoutesForCars(dataForController, carsToReRoute)
+            """
+
+
+
+        
         #THE DEFAULT CONTROLLER - doesnt do anything 
         if options.controller == "default":
             CarsInNetworkList = traci.vehicle.getIDList()
@@ -269,6 +328,58 @@ def get_options():
     options, args = optParser.parse_args()
     return options
 
+def getCongestedEdges(edgeDict):
+    congestedEdges = []
+    for key in edgeDict:
+        if edgeDict[key][1] > 5:
+            congestedEdges.append(key)
+    return congestedEdges
+
+def findCarsToReroute(data, congestedEdges):
+    carsToReRoute = []
+    for line in data:
+        routes = line[3]
+        cars = line[2]
+        for i in range(0, len(line[2])):
+            foundCurrentProgress = False
+            for edge in routes[i]:
+                if not foundCurrentProgress:
+                    #check how far along the car is on it's route
+                    if edge == line[0]: 
+                        foundCurrentProgress = True
+                else:
+                    if edge in congestedEdges:
+                        carsToReRoute.append([cars[i], routes[i], line[0]])
+                        break
+    return carsToReRoute
+
+def simulateTrafficFlow(carData, edgeData, currentStep ,horizon):
+    
+    for i in range (1, horizon):
+        for carKey in carData:
+            singleCarData = carData[carKey]
+            currentEdge = singleCarData[0]
+            enterTime = singleCarData[1]
+            travelTimeForEdge = edgeData[currentEdge][0]
+            timeOnEdge = (currentStep - enterTime) + i
+            
+            if timeOnEdge >= travelTimeForEdge:
+                nextEdge = getNextEdgeForCar(singleCarData[0], singleCarData[2])
+
+def getNextEdgeForCar(currentEdge, route):
+    for i in range(0,len(route)):
+        if route[i] == currentEdge:
+            if i > (len(route) - 2):
+                return route[i+1]
+            else:
+                return "Goal"
+    return "Error"
+
+def findNewRoutesForCars(data, carsAtRisk):
+    
+
+    return 0
+           
                   
 # this is the main entry point of this script
 if __name__ == "__main__":
@@ -289,3 +400,4 @@ if __name__ == "__main__":
                                    stderr=sys.stderr)
     run(options)
     sumoProcess.wait()
+
