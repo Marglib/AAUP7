@@ -48,6 +48,7 @@ def runModel(com, args, query, simStep):
 
 def modelCaller(model,query,expId,simStep,cars, networkGraph, nodePositions):
     newModel = createModel(model,expId,simStep,cars, networkGraph, nodePositions)
+    newQuery = createQuery(query,cars,nodePositions,expId)
     veri = VP.veri
     com = veri +  '   --learning-method ' + str(3) \
       + ' --good-runs ' + str(20) \
@@ -58,7 +59,7 @@ def modelCaller(model,query,expId,simStep,cars, networkGraph, nodePositions):
       + ' --filter 0 '
     args = "\"" + newModel + "\" "
     #newQuery = createQuery(query, expId, cars) Used for stratego
-    out = runModel(com,args,query, simStep)
+    out = runModel(com,args,newQuery, simStep)
     print(out)
     #carSpeeds = getStrategy(out, cars)
     
@@ -114,7 +115,7 @@ def replace_car_strings(str_model,cars,nodePositions):
     toReplace = "//HOLDER_CAR_PID"
     value = "{"
     for i in range (0,len(cars)):
-        value += str(cars[i][0]) + ","
+        value += str(int(cars[i][0]) + 1000) + ","
     value = value[:-1]
     value += "};"
     str_model = str.replace(str_model, toReplace, value, 1)
@@ -212,3 +213,23 @@ def createModel(master_model,expId,simStep,cars,networkGraph,nodePositions):
     text_file.close()
     return modelName
 
+def createQuery(master_query,cars,nodePositions,expId):
+    fo = open(master_query, "r+")
+    str_query = fo.read()
+    fo.close()
+
+    toReplace = "//HOLDER_QUERY"
+    value = ""
+    for i in range(0,len(cars)):
+        value += " pid[" + str(int(cars[i][0]) + 1000) + "],"
+        for j in range(0,len(nodePositions)):
+            value += " route[" + str(i) + "][" + str(j) + "],"
+        value += "\n"
+    value = value[:-2]
+    str_query = str.replace(str_query, toReplace, value, 1)
+
+    queryName = rootDir + "/UppaalModels/TNCtempQuery" + str(expId) + '.q'
+    text_file = open(queryName, "w")
+    text_file.write(str_query)
+    text_file.close()
+    return queryName
