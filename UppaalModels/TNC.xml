@@ -145,19 +145,34 @@ int get_cars_on_edge(int edgeId)
     return carsOnEdge;
 }
 
-//TODO: add better calculation of weights
 void update_weights()
 {
     int i = 0;
     int carsOnEdge = 0;
     int toNode, fromNode;
-    int newWeight = 0;
+    double newWeight = 0.0;
     
     for(i = 0; i &lt; numEdges; i++)
     {
         carsOnEdge = get_cars_on_edge(i);
-        newWeight = 15 + (carsOnEdge / networkEdges[i][2]);
-        networkEdges[i][3] = newWeight;
+        if(networkEdges[i][2] == 1)
+        {
+            newWeight = 13.73 + 1.54 * carsOnEdge;
+        }
+        else if (networkEdges[i][2] == 2)
+        {
+            newWeight = 7.37 + 0.17 * carsOnEdge;
+        }
+        else if (networkEdges[i][2] == 3)
+        {
+            newWeight = 6.46 + 0.44 * carsOnEdge;
+        }
+        else if (networkEdges[i][2] == 4)
+        {
+            newWeight = 5.69 + 0.84 * carsOnEdge;
+        }
+        
+        networkEdges[i][3] = fint(newWeight);
     }
 }
 
