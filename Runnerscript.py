@@ -110,6 +110,18 @@ def run(options):
     while traci.simulation.getMinExpectedNumber() > 0:
         print(">>>simulation step: " + str(step))
 
+        #------------------------- SMART TRAFFIC LIGHT -----------------------------
+        if options.trafficlight == "smart":
+            with concurrent.futures.ThreadPoolExecutor(max_workers=len(ListOfTls)) as executor:
+                for tls in ListOfTls:
+                    future = executor.submit(tls.update_tl_state,strategoMasterModel,strategoMasterModelGreen,strategoQuery,
+                                                        strategoLearningMet,strategoSuccRuns,
+                                                        strategoMaxRuns,strategoGoodRuns,
+                                                        strategoEvalRuns,strategoMaxIterations,
+                                                        options.expid,step)
+                    future.result()
+        #---------------------------- END -----------------------------
+
         if options.controller == "basicMessoController":
             dataForStratego = []
             for edge in listOfEdges:
@@ -178,18 +190,7 @@ def run(options):
 
         #THE MAIN CONTROLLER
         if options.controller == "TrafficNetworkController":
-            #------------------------- SMART TRAFFIC LIGHT -----------------------------
-            if options.trafficlight == "smart":
-                with concurrent.futures.ThreadPoolExecutor(max_workers=len(ListOfTls)) as executor:
-                    for tls in ListOfTls:
-                        future = executor.submit(tls.update_tl_state,strategoMasterModel,strategoMasterModelGreen,strategoQuery,
-                                                            strategoLearningMet,strategoSuccRuns,
-                                                            strategoMaxRuns,strategoGoodRuns,
-                                                            strategoEvalRuns,strategoMaxIterations,
-                                                            options.expid,step)
-                        future.result()
-
-            #---------------------------- END -----------------------------
+            Cars = traci.vehicle.getIDList()
 
         #Simple rerouting controller
         if options.controller == "SimpleRerouting":
