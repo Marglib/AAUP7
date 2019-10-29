@@ -171,11 +171,11 @@ def replace_edge_strings(str_model,networkGraph):
 
     toReplace = "//HOLDER_EDGES"
     edges = list(networkGraph.edges)
-    value = "int networkEdges[" + str(len(edges)) + "][4] = {"
+    value = "int networkEdges[" + str(len(edges)) + "][5] = {"
     for i in range(0,len(edges)):
         nrOfLanes = traci.edge.getLaneNumber(edges[i][0] + "-" + edges[i][1])
         weight = networkGraph.get_edge_data(edges[i][0], edges[i][1])
-        value += "{" + str(edges[i][0][1:]) + "," +  str(edges[i][1][1:]) + "," + str(nrOfLanes) + "," + str(int(weight.get('weight'))) +"},"
+        value += "{" + str(edges[i][0][1:]) + "," +  str(edges[i][1][1:]) + "," + str(nrOfLanes) + "," + str(int(weight.get('weight'))) + "," + str(len(traci.edge.getLastStepVehicleIDs(edges[i][0] + "-" + edges[i][1]))) + "},"
         if(i % 20 == 0):
             value += "\n"
     value = value[:-1]
@@ -205,7 +205,7 @@ def createModel(master_model,expId,simStep,cars,networkGraph,nodePositions):
     str_model = replace_car_strings(str_model,cars,nodePositions)
     str_model = replace_node_strings(str_model,nodePositions,cars)
     str_model = replace_edge_strings(str_model,networkGraph)
-    str_model = replace_time_passed_current_edge(str_model, cars)    
+    str_model = replace_time_passed_current_edge(str_model,cars)    
 
     modelName = os.path.join(pathToModels, 'tempModel' + str(expId) + '.xml')
     text_file = open(modelName, "w")
