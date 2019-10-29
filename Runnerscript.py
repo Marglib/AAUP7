@@ -41,7 +41,6 @@ pathToModels = os.path.join(rootDir,'UppaalModels')
 icavQuery = os.path.join(pathToModels, 'TNC.q')
 icavModel = os.path.join(pathToModels, 'TrafficNetworkController.xml')
 
-
 def run(options):
     """execute the TraCI control loop"""
     print("starting run")
@@ -135,7 +134,6 @@ def run(options):
 
                 dataForStratego.append([edge, adaptedTT, carsOnEdge, carRoutes])
 
-
         #basic controller without uppal
         if options.controller == "Basic":
             
@@ -181,9 +179,7 @@ def run(options):
                                     traci.vehicle.setRoute(car, newRoute)
                                 except:
                                     pass
-                               
-                
-        
+                                    
         #THE DEFAULT CONTROLLER - doesnt do anything 
         if options.controller == "default":
             CarsInNetworkList = traci.vehicle.getIDList()  
@@ -216,8 +212,6 @@ def run(options):
                 assign_random_new_route(car, kShortestPaths)
 
             ListOfCarsPlaceholder = list(CarsInNetworkList)
-
-
         traci.simulationStep()
         step += 1    
     traci.close()
@@ -386,7 +380,6 @@ def simulateTrafficFlow(carData, edgeData, currentStep ,horizon):
                             congestedEdges.append(nextEdge)
         for key in keysToDelete:
             del carData[key]
-        
 
         simulationData[i] = [copy.deepcopy(carData), copy.deepcopy(edgeData), congestedEdges.copy(), currentStep + i]
 
@@ -411,10 +404,6 @@ def getNextEdgeForCar(currentEdge, route):
             else:
                 return "Goal"
     return "Error"
-
-def findNewRoutesForCars(data, carsAtRisk):
-
-    return 0
 
 def makeNewRoute(edgeToAvoid, networkGraph, car):
     if(len(traci.vehicle.getRoute(car)) > 0):
@@ -441,8 +430,6 @@ def makeNewRoute(edgeToAvoid, networkGraph, car):
                 else:
                     break
                 
-            
-            
             if(not len(candidateRoute) <= 1):
                 return tuple(candidateRoute)
             else:
