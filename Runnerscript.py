@@ -418,13 +418,14 @@ def findNewRoutesForCars(data, carsAtRisk):
 def makeNewRoute(edgeToAvoid, networkGraph, car):
     if(len(traci.vehicle.getRoute(car)) > 0):
         if(not(traci.vehicle.getRoadID(car)[0] == ':')):
+            k = 5
             oldRoute = traci.vehicle.getRoute(car)
             currEdge = traci.vehicle.getRoadID(car)
             nextJunction = traci.vehicle.getRoadID(car).split("-")[1]
             sourceNode = nextJunction
             targetNode = oldRoute[len(oldRoute)-1].split("-")[1]
 
-            kShortestPaths = find_k_shortest_paths(networkGraph, sourceNode, targetNode, 5) #5 shortest paths
+            kShortestPaths = find_k_shortest_paths(networkGraph, sourceNode, targetNode, k) #5 shortest paths
 
             routeGood = False
             i = 0
@@ -433,9 +434,10 @@ def makeNewRoute(edgeToAvoid, networkGraph, car):
                 candidateRoute = nodesToRouteEdges(kShortestPaths[i], currEdge)
                 if(edgeToAvoid in candidateRoute):
                     i = i + 1
-                    pass
                 else:
                     routeGood = True
+                if(i == k - 1):
+                    break
             
             
             if(not len(candidateRoute) <= 1):
@@ -444,6 +446,8 @@ def makeNewRoute(edgeToAvoid, networkGraph, car):
                 return ""
         else:
             return ""
+    else:
+        return ""
     
      
 def nodesToRouteEdges(nodes, currEdge):
