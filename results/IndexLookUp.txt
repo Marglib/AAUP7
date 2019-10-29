@@ -12,6 +12,16 @@ The indeces for the different experiments:
 
 #400 - Smart traffic lights and simple Uppaal implementation
 
+#500 - Smart traffic light and simple implementation without Uppaal
+    500-509: No reroute, with STL
+    510-519: reroute with STL
+    520-529: No STL, No reroute
+    530-539: No STL, with reroute
+
+    #1: trips500-time1000
+    #2: trips750-time1000
+    #3: trips1000-time1000
+
 
 
     
