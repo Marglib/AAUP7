@@ -13,6 +13,7 @@ int timePassed[N] = //HOLDER_TIME_PASSED
 int currentStartNode[N] = //HOLDER_CURRENT_START_NODE
 typedef int[0,nodes] node_t;
 
+//networkEdges constains touples of the form (fromNodeId, toNodeId, lanes, edgeweight, carsOnEdge)
 //HOLDER_EDGES
 
 int curr_car = 0;
@@ -103,6 +104,10 @@ void flow_traffic()
                     currentStartNode[i] = toNode;
                     totalTravelTime += timePassedCarI;
                     timePassed[i] = 0;
+                    networkEdges[edgeId][4] = networkEdges[edgeId][4] - 1;
+                    
+                    edgeId = getEdgeIndex(toNode, getNextRouteNode(i, toNode));
+                    networkEdges[edgeId][4] = networkEdges[edgeId][4] - 1;
                 }
                 else
                 {
@@ -120,6 +125,7 @@ void flow_traffic()
 
 }
 
+/*
 int get_cars_on_edge(int edgeId)
 {
     int i = 0, j = 0;
@@ -144,7 +150,7 @@ int get_cars_on_edge(int edgeId)
     }
     return carsOnEdge;
 }
-
+*/
 void update_weights()
 {
     int i = 0;
@@ -154,7 +160,7 @@ void update_weights()
     
     for(i = 0; i &lt; numEdges; i++)
     {
-        carsOnEdge = get_cars_on_edge(i);
+        carsOnEdge = networkEdges[i][4];
         if(networkEdges[i][2] == 1)
         {
             newWeight = 13.73 + 1.54 * carsOnEdge;
@@ -215,80 +221,67 @@ void check_reroute()
     }
        
 }</declaration>
-		<location id="id0" x="-246" y="-17">
-			<label kind="invariant" x="-314" y="0">y &lt;= 5 &amp;&amp;
-z &lt;= 1</label>
+		<location id="id0" x="-501" y="-246">
+			<label kind="invariant" x="-654" y="-255">y &lt;= 5 &amp;&amp; z &lt;= 1</label>
 		</location>
-		<location id="id1" x="-17" y="-17">
-			<label kind="invariant" x="-34" y="0">z &lt;= 1</label>
-		</location>
-		<location id="id2" x="-518" y="-255">
-			<name x="-528" y="-289">Init</name>
+		<location id="id1" x="-773" y="-433">
+			<name x="-783" y="-467">Init</name>
 			<committed/>
 		</location>
-		<location id="id3" x="-246" y="-255">
+		<location id="id2" x="-501" y="-433">
 			<urgent/>
 		</location>
-		<location id="id4" x="-9" y="-255">
+		<location id="id3" x="-264" y="-433">
 			<urgent/>
 		</location>
-		<location id="id5" x="289" y="-255">
-			<name x="279" y="-289">End</name>
+		<location id="id4" x="34" y="-433">
+			<name x="24" y="-467">End</name>
 		</location>
-		<location id="id6" x="76" y="-127">
+		<location id="id5" x="-179" y="-305">
+			<urgent/>
 		</location>
-		<init ref="id2"/>
+		<init ref="id1"/>
 		<transition controllable="false">
-			<source ref="id6"/>
-			<target ref="id1"/>
-			<label kind="synchronisation" x="68" y="-51">DoneRerouting?</label>
-			<nail x="76" y="-68"/>
-		</transition>
-		<transition controllable="false">
-			<source ref="id4"/>
-			<target ref="id6"/>
-			<label kind="guard" x="93" y="-212">x &lt; horizon &amp;&amp; Done == 0</label>
-			<label kind="synchronisation" x="93" y="-195">Reroute!</label>
-			<nail x="76" y="-195"/>
-		</transition>
-		<transition controllable="false">
-			<source ref="id4"/>
-			<target ref="id5"/>
-			<label kind="guard" x="34" y="-280">x &gt;= horizon || Done == 1</label>
+			<source ref="id0"/>
+			<target ref="id2"/>
+			<label kind="guard" x="-569" y="-374">y == 5</label>
+			<label kind="assignment" x="-476" y="-374">y = 0</label>
 		</transition>
 		<transition controllable="false">
 			<source ref="id0"/>
-			<target ref="id3"/>
-			<label kind="guard" x="-399" y="-153">y == 5</label>
-			<label kind="assignment" x="-391" y="-119">y = 0</label>
-			<nail x="-331" y="-76"/>
-			<nail x="-331" y="-178"/>
+			<target ref="id0"/>
+			<label kind="guard" x="-544" y="-136">y &lt; 5 &amp;&amp; z == 1</label>
+			<label kind="assignment" x="-603" y="-119">z = 0, flow_traffic(), update_weights()</label>
+			<nail x="-382" y="-136"/>
+			<nail x="-595" y="-136"/>
+		</transition>
+		<transition controllable="false">
+			<source ref="id5"/>
+			<target ref="id0"/>
+			<label kind="synchronisation" x="-306" y="-212">DoneRerouting?</label>
+			<nail x="-179" y="-246"/>
+		</transition>
+		<transition controllable="false">
+			<source ref="id3"/>
+			<target ref="id5"/>
+			<label kind="guard" x="-162" y="-390">x &lt; horizon &amp;&amp; Done == 0</label>
+			<label kind="synchronisation" x="-162" y="-373">Reroute!</label>
+			<nail x="-179" y="-373"/>
 		</transition>
 		<transition controllable="false">
 			<source ref="id3"/>
 			<target ref="id4"/>
-			<label kind="assignment" x="-195" y="-280">check_reroute()</label>
-		</transition>
-		<transition controllable="false">
-			<source ref="id0"/>
-			<target ref="id1"/>
-			<label kind="guard" x="-170" y="43">z == 1 &amp;&amp; y &lt; 5</label>
-			<label kind="assignment" x="-170" y="26">z = 0</label>
-			<nail x="-195" y="17"/>
-			<nail x="-68" y="17"/>
-		</transition>
-		<transition controllable="false">
-			<source ref="id1"/>
-			<target ref="id0"/>
-			<label kind="guard" x="-170" y="-76">z == 1</label>
-			<label kind="assignment" x="-238" y="-93">flow_traffic(), update_weights()</label>
-			<nail x="-68" y="-51"/>
-			<nail x="-195" y="-51"/>
+			<label kind="guard" x="-221" y="-458">x &gt;= horizon || Done == 1</label>
 		</transition>
 		<transition controllable="false">
 			<source ref="id2"/>
 			<target ref="id3"/>
-			<label kind="assignment" x="-442" y="-280">constructor()</label>
+			<label kind="assignment" x="-450" y="-458">check_reroute()</label>
+		</transition>
+		<transition controllable="false">
+			<source ref="id1"/>
+			<target ref="id2"/>
+			<label kind="assignment" x="-697" y="-458">constructor()</label>
 		</transition>
 	</template>
 	<template>
@@ -299,7 +292,7 @@ void getConnectingNodes(int node, int prevNode)
 {
     int i = 0;
     int foundNodes = 0;
-    int edge[4];
+    int edge[5];
     connectingNodes[0] = -1;
     connectingNodes[1] = -1;
     connectingNodes[2] = -1;
@@ -434,81 +427,81 @@ void choose_route(int strategy)
     }
 
 }</declaration>
-		<location id="id7" x="-909" y="-195">
+		<location id="id6" x="-909" y="-195">
 		</location>
-		<location id="id8" x="-714" y="-195">
+		<location id="id7" x="-714" y="-195">
 			<urgent/>
 		</location>
-		<location id="id9" x="-510" y="-195">
+		<location id="id8" x="-510" y="-195">
 			<urgent/>
 		</location>
-		<location id="id10" x="-314" y="-289">
+		<location id="id9" x="-314" y="-289">
 			<urgent/>
 		</location>
-		<location id="id11" x="-314" y="-110">
+		<location id="id10" x="-314" y="-110">
 			<urgent/>
 		</location>
-		<location id="id12" x="-110" y="-195">
+		<location id="id11" x="-110" y="-195">
 			<urgent/>
 		</location>
-		<location id="id13" x="59" y="-195">
+		<location id="id12" x="59" y="-195">
 			<committed/>
 		</location>
-		<init ref="id7"/>
+		<init ref="id6"/>
 		<transition controllable="false">
-			<source ref="id8"/>
-			<target ref="id12"/>
+			<source ref="id7"/>
+			<target ref="id11"/>
 			<label kind="guard" x="-696" y="-416">reroute[curr_car] == 0</label>
 			<nail x="-714" y="-382"/>
 			<nail x="-110" y="-382"/>
 		</transition>
 		<transition controllable="false">
-			<source ref="id8"/>
-			<target ref="id9"/>
+			<source ref="id7"/>
+			<target ref="id8"/>
 			<label kind="guard" x="-696" y="-229">reroute[curr_car] == 1</label>
 		</transition>
 		<transition controllable="false">
-			<source ref="id13"/>
-			<target ref="id7"/>
+			<source ref="id12"/>
+			<target ref="id6"/>
 			<label kind="assignment" x="-408" y="85">curr_car = 0</label>
 			<nail x="59" y="76"/>
 			<nail x="-909" y="76"/>
 		</transition>
 		<transition controllable="false">
-			<source ref="id12"/>
-			<target ref="id13"/>
+			<source ref="id11"/>
+			<target ref="id12"/>
 			<label kind="guard" x="-68" y="-221">curr_car &gt;= (N-1)</label>
 			<label kind="synchronisation" x="-76" y="-238">DoneRerouting!</label>
 		</transition>
 		<transition controllable="false">
-			<source ref="id12"/>
-			<target ref="id8"/>
+			<source ref="id11"/>
+			<target ref="id7"/>
 			<label kind="guard" x="-450" y="8">curr_car &lt; (N-1)</label>
 			<label kind="assignment" x="-450" y="-17">curr_car++</label>
 			<nail x="-110" y="-25"/>
 			<nail x="-714" y="-25"/>
 		</transition>
 		<transition controllable="false">
-			<source ref="id10"/>
-			<target ref="id12"/>
-		</transition>
-		<transition controllable="false">
-			<source ref="id11"/>
-			<target ref="id12"/>
-		</transition>
-		<transition>
 			<source ref="id9"/>
 			<target ref="id11"/>
+		</transition>
+		<transition controllable="false">
+			<source ref="id10"/>
+			<target ref="id11"/>
+		</transition>
+		<transition>
+			<source ref="id8"/>
+			<target ref="id10"/>
 			<label kind="assignment" x="-501" y="-127">choose_route(1)</label>
 		</transition>
 		<transition>
-			<source ref="id9"/>
-			<target ref="id10"/>
+			<source ref="id8"/>
+			<target ref="id9"/>
 			<label kind="assignment" x="-501" y="-280">choose_route(0)</label>
 		</transition>
 		<transition controllable="false">
-			<source ref="id7"/>
-			<target ref="id8"/>
+			<source ref="id6"/>
+			<target ref="id7"/>
 			<label kind="synchronisation" x="-841" y="-221">Reroute?</label>
 		</transition>
 	</template>
