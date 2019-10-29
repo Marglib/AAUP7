@@ -148,8 +148,9 @@ def run(options):
                         currentCarInformation[car] = [edge, step, traci.vehicle.getRoute(car)]
 
             #-----------------------END--------------------------------------------------
-
-            simData = simulateTrafficFlow(currentCarInformation, currentEdgeInformation, step, 200)
+           
+            #simulate the flow of traffic
+            simData = simulateTrafficFlow(currentCarInformation, currentEdgeInformation, step, 100)
             
             for key in simData:
                 #[carData, edgeData, congestedEdges, currentStep + i]
@@ -157,12 +158,19 @@ def run(options):
                 simEdgeData = simData[key][1]
                 simCongestedEdges = simData[key][2]
                 simStep = simData[key][3]
-
                 for edge in simCongestedEdges:
                     carsAtRisk = simEdgeData[edge][1]
-                    
-
-
+                    if len(carsAtRisk) > 0:     
+                        carsAtRisk = random.sample(carsAtRisk, int(len(carsAtRisk)/2))
+                        for car in carsAtRisk:
+                            newRoute = makeNewRoute(edge, networkGraph, car)
+                            if newRoute != "":
+                                try:
+                                    traci.vehicle.setRoute(car, newRoute)
+                                except:
+                                    pass
+                               
+                
         
         #THE DEFAULT CONTROLLER - doesnt do anything 
         if options.controller == "default":
@@ -372,7 +380,7 @@ def simulateTrafficFlow(carData, edgeData, currentStep ,horizon):
 
                     edgeData.update ({currentEdge : [edgeData[currentEdge][0], newCarsOnCurrentEdge]}) #TODO NEED TO UPDATE TRAVEL TIME HERE
                     edgeData.update({nextEdge : [ edgeData[nextEdge][0], newCarsOnNewEdge]}) #TODO NEED TO UPDATE TRAVELTIME HERE
-                    if  isEdgeCongested( edgeData[nextEdge] ):
+                    if  isEdgeCongested( edgeData[nextEdge], nextEdge):
                         if nextEdge not in congestedEdges:
                             congestedEdges.append(nextEdge)
         for key in keysToDelete:
@@ -384,8 +392,11 @@ def simulateTrafficFlow(carData, edgeData, currentStep ,horizon):
     return simulationData
                         
             
-def isEdgeCongested(singleEdgeData):
-    if len(singleEdgeData[1]) >= 6:
+def isEdgeCongested(singleEdgeData, edgeID):
+    value = 10
+    if traci.edge.getLaneNumber(edgeID) >= 2:
+        value = 20
+    if len(singleEdgeData[1]) > value:
         return True
     else:
         return False
@@ -420,13 +431,15 @@ def makeNewRoute(edgeToAvoid, networkGraph, car):
             i = 0
             candidateRoute = []
             while(routeGood == False):
-                candidateRoute = nodesToRouteEdges(kShortestPaths[i], currEdge)
-                if(edgeToAvoid in candidateRoute):
-                    i = i + 1
+                if i <= len(kShortestPaths) - 1: 
+                    candidateRoute = nodesToRouteEdges(kShortestPaths[i], currEdge)
+                    if(edgeToAvoid in candidateRoute):
+                        i = i + 1
+                    else:
+                        routeGood = True
                 else:
-                    routeGood = True
-                if(i == k - 1):
                     break
+                
             
             
             if(not len(candidateRoute) <= 1):

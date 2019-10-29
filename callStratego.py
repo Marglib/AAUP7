@@ -46,7 +46,7 @@ def myGetSubString(mstr, key, greenModel):
         return mstr[start:end]
     
 def getTuple(mstr, pos):
-    #print("getTuple:"+mstr) 
+    print("getTuple:"+mstr) 
     startKey = "("
     endKey = ")"
     splitKey = ","
