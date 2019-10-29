@@ -8,6 +8,8 @@ import optparse
 import subprocess
 import random
 import time
+import copy
+import pdb
 import math
 import copy
 import networkx as nx
@@ -127,8 +129,12 @@ def run(options):
             
             # ---------------setup/update data -----------------------------------
             for edge in listOfEdges:
-                currentEdgeInformation[edge] = [traci.edge.getTraveltime(edge), len(traci.edge.getLastStepVehicleIDs(edge))]
 
+                if edge in currentEdgeInformation:
+                    currentEdgeInformation.update({edge : [traci.edge.getTraveltime(edge), [x for x in traci.edge.getLastStepVehicleIDs(edge)]]})
+                else:
+                    currentEdgeInformation[edge] = [traci.edge.getTraveltime(edge), [x for x in traci.edge.getLastStepVehicleIDs(edge)]]
+                
                 carsOnEdge = traci.edge.getLastStepVehicleIDs(edge)
                 for car in carsOnEdge:
                     route = traci.vehicle.getRoute(car)
@@ -137,41 +143,27 @@ def run(options):
                         if currentCarInformation[car][0] == edge:
                             pass
                         else:
-                            currentCarInformation[car] = [edge, step, traci.vehicle.getRoute(car)]
+                            currentCarInformation.update({car : [edge, step, traci.vehicle.getRoute(car)] })
                     else:
                         currentCarInformation[car] = [edge, step, traci.vehicle.getRoute(car)]
 
             #-----------------------END--------------------------------------------------
 
-            simulateTrafficFlow(currentCarInformation, currentEdgeInformation, step, 200)
+            simData = simulateTrafficFlow(currentCarInformation, currentEdgeInformation, step, 200)
+            
+            for key in simData:
+                #[carData, edgeData, congestedEdges, currentStep + i]
+                simCarData = simData[key][0]
+                simEdgeData = simData[key][1]
+                simCongestedEdges = simData[key][2]
+                simStep = simData[key][3]
 
-
-
-
-
-        """
-            #collect current information from traci
-            dataForController = []
-            for edge in listOfEdges:
-                carsOnEdge = traci.edge.getLastStepVehicleIDs(edge)
-                TT = traci.edge.getTraveltime(edge)
-                carRoutes = []
-
-                for car in carsOnEdge:
-                    route = traci.vehicle.getRoute(car)
-                    carRoutes.append(route)
-
-                dataForController.append([edge, TT, carsOnEdge, carRoutes])
-
-            #find congested edges
-            congestedEdges = getCongestedEdges(dataForController)
-
-            #find all cars that will hit a congested edge later on the route
-            carsToReRoute = findCarsToReroute(dataForController, congestedEdges)
-
-            newRoutesForCars = findNewRoutesForCars(dataForController, carsToReRoute)
-            """
-
+                for edge in simCongestedEdges:
+                    carsAtRisk = simEdgeData[edge][1]
+                    if len(carsAtRisk) < 2:
+                        print(simEdgeData[edge])
+                        print(edge , key, carsAtRisk)
+                    #print(edge, "will be congested by cars:", carsAtRisk)
 
 
         
@@ -353,8 +345,8 @@ def findCarsToReroute(data, congestedEdges):
 
 def simulateTrafficFlow(carData, edgeData, currentStep ,horizon):
     simulationData = {}
-    
-    for i in range (1, horizon):
+
+    for i in range(1, horizon):
         congestedEdges = []
         keysToDelete = []
 
@@ -374,26 +366,37 @@ def simulateTrafficFlow(carData, edgeData, currentStep ,horizon):
                     print("-an error occured-" * 200)
                     keysToDelete.append(carKey)
                 else:
-                    carData[carKey] = [nextEdge, currentStep + i, singleCarData[2]]
+                    carData.update({carKey : [nextEdge, currentStep + i, singleCarData[2]]})
                     newCarsOnCurrentEdge = edgeData[currentEdge][1]
-                    
+                    if carKey in newCarsOnCurrentEdge:
+                        newCarsOnCurrentEdge.remove(carKey)
                     newCarsOnNewEdge = edgeData[nextEdge][1]
-                    edgeData[currentEdge] = [edgeData[currentEdge][0], newCarsOnCurrentEdge - 1]
-                    edgeData[nextEdge] = [ edgeData[nextEdge][0], newCarsOnNewEdge + 1]
+                    newCarsOnNewEdge.append(carKey)
 
+                    edgeData.update ({currentEdge : [edgeData[currentEdge][0], newCarsOnCurrentEdge]})
+                    edgeData.update({nextEdge : [ edgeData[nextEdge][0], newCarsOnNewEdge]})
                     if  isEdgeCongested( edgeData[nextEdge] ):
-                        congestedEdges.append(nextEdge)
+                        if nextEdge not in congestedEdges:
+                            congestedEdges.append(nextEdge)
         for key in keysToDelete:
             del carData[key]
-        simulationData[i] = [carData, edgeData, congestedEdges, currentStep + i]
         
-        for element in congestedEdges:
-            print(element, "WILL BE CONGESTED IN STEP", currentStep + i)
-        return simulationData
+
+        simulationData[i] = [copy.deepcopy(carData), copy.deepcopy(edgeData), congestedEdges.copy(), currentStep + i]
+        simCarData = simulationData[i][0]
+        simEdgeData = simulationData[i][1]
+        simCongestedEdges = simulationData[i][2]
+        simStep = simulationData[i][3]
+
+        for edge in simCongestedEdges:
+            carsAtRisk = simEdgeData[edge][1]
+            print(edge, i , "will be congested by cars:", carsAtRisk)
+
+    return simulationData
                         
             
 def isEdgeCongested(singleEdgeData):
-    if singleEdgeData[1] >= 5:
+    if len(singleEdgeData[1]) >= 6:
         return True
     else:
         return False
