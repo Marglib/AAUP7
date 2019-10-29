@@ -4,7 +4,7 @@
 
     <input>
         <net-file value="MasterNetFile.net.xml"/>
-        <route-files value="trip1000-1000.rou.xml"/>
+        <route-files value="trip1000time1000.rou.xml"/>
     <gui-settings-file value="GuiFile.set.xml"/>
     </input>
 

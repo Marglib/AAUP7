@@ -26,8 +26,8 @@ class smartTL:
         self.programID = programID
         self.yellow = yellowTime
         self.binaryPhases,self.binaryPhasesDecimal,self.binaryPhaseIndices,self.yellowOnlyPhases,self.nrOfSignals = self.get_phases_for_program()
-        if(self.tlID == 'n15'):
-            print(self.binaryPhases,self.binaryPhasesDecimal,self.binaryPhaseIndices,self.yellowOnlyPhases,self.nrOfSignals)
+        #if(self.tlID == 'n15'):
+            #print(self.binaryPhases,self.binaryPhasesDecimal,self.binaryPhaseIndices,self.yellowOnlyPhases,self.nrOfSignals)
 
         #Initial values for important variables
         self.duration = yellowTime
@@ -45,9 +45,9 @@ class smartTL:
         #Old Functions: self.get_lane_func(traci.lane.getLastStepVehicleNumber, self.tlID)[::-1]
         carsAreal = self.get_cars_areal_in_radius(self.tlID, self.radius)[::-1]
         carsJammed = self.get_lane_func(traci.lane.getLastStepHaltingNumber, self.tlID)[::-1]
-        if(self.tlID == 'n15'):
-            print(carsAreal)
-            print(carsJammed)
+        #if(self.tlID == 'n15'):
+            #print(carsAreal)
+            #print(carsJammed)
         
         if self.strategoTimer == 0:
             if self.inYellow:
@@ -146,7 +146,7 @@ class smartTL:
                 binaryPhaseIndices.remove(i)
                 yellowOnlyPhases.append(i)
 
-        print(len(connectionsList))
+        #print(len(connectionsList))
         return binaryPhases, binaryToDecimalPhases, binaryPhaseIndices, yellowOnlyPhases, len(connectionsList)
                                                 
 
