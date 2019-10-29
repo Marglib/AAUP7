@@ -160,10 +160,7 @@ def run(options):
 
                 for edge in simCongestedEdges:
                     carsAtRisk = simEdgeData[edge][1]
-                    if len(carsAtRisk) < 2:
-                        print(simEdgeData[edge])
-                        print(edge , key, carsAtRisk)
-                    #print(edge, "will be congested by cars:", carsAtRisk)
+                    
 
 
         
@@ -373,8 +370,8 @@ def simulateTrafficFlow(carData, edgeData, currentStep ,horizon):
                     newCarsOnNewEdge = edgeData[nextEdge][1]
                     newCarsOnNewEdge.append(carKey)
 
-                    edgeData.update ({currentEdge : [edgeData[currentEdge][0], newCarsOnCurrentEdge]})
-                    edgeData.update({nextEdge : [ edgeData[nextEdge][0], newCarsOnNewEdge]})
+                    edgeData.update ({currentEdge : [edgeData[currentEdge][0], newCarsOnCurrentEdge]}) #TODO NEED TO UPDATE TRAVEL TIME HERE
+                    edgeData.update({nextEdge : [ edgeData[nextEdge][0], newCarsOnNewEdge]}) #TODO NEED TO UPDATE TRAVELTIME HERE
                     if  isEdgeCongested( edgeData[nextEdge] ):
                         if nextEdge not in congestedEdges:
                             congestedEdges.append(nextEdge)
@@ -383,14 +380,6 @@ def simulateTrafficFlow(carData, edgeData, currentStep ,horizon):
         
 
         simulationData[i] = [copy.deepcopy(carData), copy.deepcopy(edgeData), congestedEdges.copy(), currentStep + i]
-        simCarData = simulationData[i][0]
-        simEdgeData = simulationData[i][1]
-        simCongestedEdges = simulationData[i][2]
-        simStep = simulationData[i][3]
-
-        for edge in simCongestedEdges:
-            carsAtRisk = simEdgeData[edge][1]
-            print(edge, i , "will be congested by cars:", carsAtRisk)
 
     return simulationData
                         
