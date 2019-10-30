@@ -44,6 +44,7 @@ const int stepsToCross = 1; // a car needs to steps (2secs) to cross in average
 const int deconstructJamRate = 1;
 const int MAX_GREEN = 120;
 const int UINT16_MAX    =  65535;
+int checkGreenTimer = 0;
 
 
 //TYPES
@@ -111,10 +112,20 @@ void complementPhase(max_signal_conf_t ms_conf) {
 
 void initialize() {
     selectPhase(initialPhase);
-    if (signal[1] &amp;&amp; carsAreal[5]==0 &amp;&amp; carsAreal[6]==0)
-        greenTimer = 0;        
-    if (signal[5] &amp;&amp; carsAreal[1]==0 &amp;&amp; carsAreal[2]==0 &amp;&amp; carsAreal[3]==0 &amp;&amp; carsAreal[4]==0)
-        greenTimer = 0;        
+
+    for (i:signal_t) {
+        if(signal[i] &amp;&amp; carsAreal[i]==0){
+            checkGreenTimer = 1;
+        }
+    } 
+    if(checkGreenTimer){
+        greenTimer = 0;
+    }
+    
+    //if (signal[1] &amp;&amp; carsAreal[5]==0 &amp;&amp; carsAreal[6]==0)
+    //    greenTimer = 0;        
+    //if (signal[5] &amp;&amp; carsAreal[1]==0 &amp;&amp; carsAreal[2]==0 &amp;&amp; carsAreal[3]==0 &amp;&amp; carsAreal[4]==0)
+    //    greenTimer = 0;        
 }
 
 

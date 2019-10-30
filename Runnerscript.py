@@ -67,6 +67,7 @@ def run(options):
     # 0 = vertical large intersection
     # 1 = horizontal large intersection
     # 2 = large center intersection
+    # 3 = small intersection
     if options.trafficlight == "smart":
         #Every vertical traffic light:
         tln3 = smartTL('n3','0')
@@ -83,7 +84,26 @@ def run(options):
         tln16 = smartTL('n16','1')
         tln28 = smartTL('n28','1') 
 
-        ListOfTls = [tln3,tln7,tln11,tln13,tln14,tln15,tln16,tln28,tln31] 
+        #Every small intersection:
+        tln1 = smartTL('n1','3')
+        tln2 = smartTL('n2','3')
+        tln4 = smartTL('n4','3')
+        tln5 = smartTL('n5','3')
+        tln6 = smartTL('n6','3')
+        tln8 = smartTL('n8','3')
+        tln9 = smartTL('n9','3')
+        tln10 = smartTL('n10','3')
+        tln12 = smartTL('n12','3')
+        tln22 = smartTL('n22','3')
+        tln24 = smartTL('n24','3')
+        tln26 = smartTL('n26','3')
+        tln29 = smartTL('n29','3')
+        tln30 = smartTL('n30','3')
+        tln32 = smartTL('n32','3')
+        tln33 = smartTL('n33','3')
+
+        ListOfTls = [tln1,tln2,tln3,tln4,tln5,tln6,tln7,tln8,tln9,tln10,tln11,tln12,tln13,tln14,tln15,tln16,tln22,tln24,tln26,tln28,tln29,tln30,tln31,tln32,tln33] 
+        #ListOfTls = [tln3,tln7,tln11,tln13,tln14,tln15,tln16,tln28,tln31] 
 
         #Set all phases and program ids
         for tls in ListOfTls:

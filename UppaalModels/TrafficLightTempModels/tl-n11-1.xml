@@ -44,7 +44,7 @@ const int stepsToCross = 1; // a car needs to steps (2secs) to cross in average
 const int deconstructJamRate = 1;
 const int MAX_GREEN = 120;
 const int UINT16_MAX    =  65535;
-
+int checkGreenTimer = 0;
 
 //TYPES
 typedef int[0,UINT16_MAX] signal_conf_t;
@@ -111,10 +111,27 @@ void complementPhase(max_signal_conf_t ms_conf) {
 
 void initialize() {
     selectPhase(initialPhase);
+<<<<<<< HEAD
     if (signal[1] &amp;&amp; carsAreal[5]==0 &amp;&amp; carsAreal[6]==0)
         greenTimer = 0;        
     if (signal[5] &amp;&amp; carsAreal[1]==0 &amp;&amp; carsAreal[2]==0 &amp;&amp; carsAreal[3]==0 &amp;&amp; carsAreal[4]==0)
         greenTimer = 0;        
+=======
+
+    for (i:signal_t) {
+        if(signal[i] &amp;&amp; carsAreal[i]==0){
+            checkGreenTimer = 1;
+        }
+    } 
+    if(checkGreenTimer){
+        greenTimer = 0;
+    }
+    
+    //if (signal[1] &amp;&amp; carsAreal[5]==0 &amp;&amp; carsAreal[6]==0)
+    //    greenTimer = 0;        
+    //if (signal[5] &amp;&amp; carsAreal[1]==0 &amp;&amp; carsAreal[2]==0 &amp;&amp; carsAreal[3]==0 &amp;&amp; carsAreal[4]==0)
+    //    greenTimer = 0;        
+>>>>>>> origin/master
 }
 
 
@@ -158,6 +175,8 @@ void goYellow(int delaySteps) {
     for (i:signal_t) {
         carsJammed[i] = carsJammed[i] + carsAreal[i]; 
         carsAreal[i] = 0;       
+<<<<<<< HEAD
+=======
     }
     for (j=curStep; j&lt;=upperStep; j++) {
         for (i:signal_t) {
@@ -174,9 +193,29 @@ void goGreen() {
         }
         carsJammed[i] = carsJammed[i] + carsAreal[i]; 
         carsAreal[i] = 0;
+>>>>>>> origin/master
+    }
+    for (j=curStep; j&lt;=upperStep; j++) {
+        for (i:signal_t) {
+            totalJammedCars = totalJammedCars + carsJammed[i];
+        }    
+        curStep++;
+    }    
+}
+
+<<<<<<< HEAD
+void goGreen() {
+    for (i:signal_t) {
+        if (signal[i]) {
+            carsAreal[i] = 0;
+        }
+        carsJammed[i] = carsJammed[i] + carsAreal[i]; 
+        carsAreal[i] = 0;
     }
 }
 
+=======
+>>>>>>> origin/master
   
 void resetUnneeded() {
 //    delchoice = 0;
