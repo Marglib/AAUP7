@@ -44,7 +44,7 @@ def runModel(com, args, query, simStep):
     """
     #f = os.popen(com+args+query) #Used for stratego
     #out = f.read()
-    return outerror
+    return out
 
 def modelCaller(model,query,expId,simStep,cars, networkGraph, nodePositions):
     newModel = createModel(model,expId,simStep,cars, networkGraph, nodePositions)
@@ -61,7 +61,8 @@ def modelCaller(model,query,expId,simStep,cars, networkGraph, nodePositions):
     #newQuery = createQuery(query, expId, cars) Used for stratego
     out = runModel(com,args,newQuery, simStep)
     print(out)
-    reroutes = getStrategy(out, cars)
+    newRoutes = get_strategy(str(out), cars)
+    print(newRoutes)
     
     #' -o 1 -t 0 '
     """
@@ -77,18 +78,37 @@ def modelCaller(model,query,expId,simStep,cars, networkGraph, nodePositions):
     #return carSpeeds
     print("Done")
 
-def getStrategy(outStr, cars):
+def get_strategy(outStr, cars):
     newRoutes = []
 
     for i in range (0,len(cars)):
-        strStart = "pid" + str(int(cars[i][0]) + 1000)
-        newRoutes.append(getSubString(outStr,strStart))
+        strStart = "pid[" + str(int(cars[i][0]) + 1000) + "]"
+        strEnd = "route[" + str(i) + "][48]"
+        pid = str(int(cars[i][0]) + 1000)
+        strategyUnformated = get_sub_string(outStr,strStart,strEnd)
+        strategyFormated = extract_strategy(strategyUnformated,pid)
+        newRoutes.append(strategyFormated)
  
     return newRoutes
 
-def getSubString(outStr,key):
+def extract_strategy(strat,pid):
+    delim = "(0,0)"
+    value = ""
+
+    for i in range(0,48):
+        curr = "route[" + pid + "][" + str(i) + "]"
+        start = strat.find(curr)
+        end = strat.find(delim, start)
+        if(strat.find("\\r",end,(end+5)) != -1):
+            value = strat[start:(end+5)]
+    return value
+
+def get_sub_string(outStr,key,end):
     keyLoc = outStr.find(key)
-    endOfKey = outStr.find("\n")
+    endOfKey = outStr.find(end, keyLoc)
+    print(keyLoc,endOfKey)
+    value = outStr[keyLoc:endOfKey + 20]
+    return value
 
 def strategoGetSubString(outStr, key):
     speedLoc = "(1,"
