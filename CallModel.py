@@ -61,7 +61,7 @@ def modelCaller(model,query,expId,simStep,cars, networkGraph, nodePositions):
     #newQuery = createQuery(query, expId, cars) Used for stratego
     out = runModel(com,args,newQuery, simStep)
     print(out)
-    #carSpeeds = getStrategy(out, cars)
+    reroutes = getStrategy(out, cars)
     
     #' -o 1 -t 0 '
     """
@@ -78,15 +78,13 @@ def modelCaller(model,query,expId,simStep,cars, networkGraph, nodePositions):
     print("Done")
 
 def getStrategy(outStr, cars):
-    carSpeeds = []
+    newRoutes = []
 
     for i in range (0,len(cars)):
-        strStart = "Cars(" + str(i) + ").newSpeed"
-        #carSpeeds.append(float(strategoGetSubString(outStr,strStart)))
+        strStart = "pid" + str(int(cars[i][0]) + 1000)
 
-    print("\nNew speeds:" + str(carSpeeds) +"\n")
  
-    return carSpeeds
+    return newRoutes
 
 def strategoGetSubString(outStr, key):
     speedLoc = "(1,"
