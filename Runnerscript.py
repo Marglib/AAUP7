@@ -77,7 +77,8 @@ def run(options):
                     networkNodes.append([id[1:], traci.junction.getPosition(id)])
                 for car in CarsInNetworkList:
                     Cars.append([car, get_route_nodes(car), get_time_on_edge(car)])
-                modelCaller(mainModel, mainQuery, options.expid, step, Cars, networkGraph, networkNodes)
+                if (step % 5 == 0):
+                    modelCaller(mainModel, mainQuery, options.expid, step, Cars, networkGraph, networkNodes)
                 
             
 
@@ -123,7 +124,15 @@ def get_weight(node1, node2, measure):
         return math.sqrt((pow(node1[0] - node2[0],2)) + (pow(node1[1] - node2[1],2))) #expects the nodes as a set of coordinates
     if(measure == "travelTime"):
         edge = node1 +"-"+ node2
-        return (traci.edge.getLastStepVehicleNumber(edge)/traci.edge.getLaneNumber(edge)) #Borchs experiment should modify this
+        if(traci.edge.getLaneNumber(edge) == 1):
+            return 13.73 + 1.54 * traci.edge.getLastStepVehicleNumber(edge)
+        elif(traci.edge.getLaneNumber(edge) == 2):
+            return 7.37 + 0.17 * traci.edge.getLastStepVehicleNumber(edge)
+        elif(traci.edge.getLaneNumber(edge) == 3):
+            return 6.46 + 0.44 * traci.edge.getLastStepVehicleNumber(edge)
+        elif(traci.edge.getLaneNumber(edge) == 4):
+            return 5.69 + 0.84 * traci.edge.getLastStepVehicleNumber(edge)
+        
     
 
 def find_k_shortest_paths(G, source, target, k):

@@ -51,7 +51,7 @@ int getNextRouteNode(int carId, int node)
 }</declaration>
 	<template>
 		<name x="5" y="5">Simulator</name>
-		<declaration>clock x,y,z;
+		<declaration>clock x,y;
 
 
 
@@ -75,7 +75,7 @@ void flow_traffic()
     int timePassedCarI = 0;
     int edgeTT = 0;
     int edgeId;
-    int fromNode, toNode;    
+    int fromNode, toNode, nextToNode;    
     int allDone = 0;
 
 
@@ -105,14 +105,18 @@ void flow_traffic()
                     totalTravelTime += timePassedCarI;
                     timePassed[i] = 0;
                     networkEdges[edgeId][4] = networkEdges[edgeId][4] - 1;
-                    
-                    edgeId = getEdgeIndex(toNode, getNextRouteNode(i, toNode));
-                    networkEdges[edgeId][4] = networkEdges[edgeId][4] - 1;
+                    nextToNode = getNextRouteNode(i, toNode);
+
+                    if(nextToNode != -1)
+                    {
+                        edgeId = getEdgeIndex(toNode, nextToNode);
+                        networkEdges[edgeId][4] = networkEdges[edgeId][4] + 1;
+                    }
                 }
                 else
                 {
                     //update time passed
-                    timePassed[i] += 1;
+                    timePassed[i] += 5;
                 }
             }
         }
@@ -182,6 +186,7 @@ void update_weights()
     }
 }
 
+//TODO: ensure that cars with congested out edges are not added for rerouting
 void check_reroute()
 {
     int i = 0, j = 0;
@@ -201,8 +206,8 @@ void check_reroute()
             {
                 j++;
             }
-
-            if(route[i][j+2] != -1)
+            //check route[i][j+3] != -1 to ensure we are not rerouting for the outnode
+            if(route[i][j+3] != -1)
             {
                 nextFromNode = route[i][j+1];
                 nextToNode = route[i][j+2];
@@ -222,7 +227,7 @@ void check_reroute()
        
 }</declaration>
 		<location id="id0" x="-501" y="-246">
-			<label kind="invariant" x="-654" y="-255">y &lt;= 5 &amp;&amp; z &lt;= 1</label>
+			<label kind="invariant" x="-511" y="-229">y &lt;= 5</label>
 		</location>
 		<location id="id1" x="-773" y="-433">
 			<name x="-783" y="-467">Init</name>
@@ -244,16 +249,8 @@ void check_reroute()
 		<transition controllable="false">
 			<source ref="id0"/>
 			<target ref="id2"/>
-			<label kind="guard" x="-569" y="-374">y == 5</label>
-			<label kind="assignment" x="-476" y="-374">y = 0</label>
-		</transition>
-		<transition controllable="false">
-			<source ref="id0"/>
-			<target ref="id0"/>
-			<label kind="guard" x="-544" y="-136">y &lt; 5 &amp;&amp; z == 1</label>
-			<label kind="assignment" x="-603" y="-119">z = 0, flow_traffic(), update_weights()</label>
-			<nail x="-382" y="-136"/>
-			<nail x="-595" y="-136"/>
+			<label kind="guard" x="-484" y="-314">y == 5</label>
+			<label kind="assignment" x="-501" y="-339">flow_traffic(), update_weights(), y = 0</label>
 		</transition>
 		<transition controllable="false">
 			<source ref="id5"/>
@@ -402,6 +399,7 @@ void simpleReroute()
         while(i &lt; (nodes-1))
         {
             carRoute[i+1] = -1;
+            i++;
         }         
 
         route[curr_car] = carRoute;
