@@ -82,9 +82,13 @@ def getStrategy(outStr, cars):
 
     for i in range (0,len(cars)):
         strStart = "pid" + str(int(cars[i][0]) + 1000)
-
+        newRoutes.append(getSubString(outStr,strStart))
  
     return newRoutes
+
+def getSubString(outStr,key):
+    keyLoc = outStr.find(key)
+    endOfKey = outStr.find("\n")
 
 def strategoGetSubString(outStr, key):
     speedLoc = "(1,"
