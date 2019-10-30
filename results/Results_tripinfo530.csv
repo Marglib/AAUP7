@@ -1,0 +1,2 @@
+AverageDuration,AverageTimeLoss,AverageWaitingTime,AverageQueueLength,AverageQueueLengthExp,maxDuration,maxTimeLoss,maxWaitingTime,maxQueueLength,maxQueueLengthExp,95thPercentileLength,95thPercentileLengthExp
+176.208,76.16590000000004,48.642,7.9991494819434505,8.779231968614852,382.0,252.8,189.0,51.04,51.22,21.0,21.0
