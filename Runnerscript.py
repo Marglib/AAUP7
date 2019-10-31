@@ -31,6 +31,7 @@ import sumolib
 from CallModel import modelCaller
 from callStratego import cStratego
 from TrafficLightClass import smartTL
+from PythonSimulator import callSimulator
 
 # the port used for communicating with your sumo instance
 PORT = 8873
@@ -121,11 +122,6 @@ def run(options):
     #-------------------- END -------------------------------------------------------
     print("Starting simulation expid=" + str(options.expid))
 
-    #------------setup for basicConrtoller without uppal-----------------------
-    currentCarInformation = {}
-    currentEdgeInformation = {}
-    #------------END-------------------------
-
     while traci.simulation.getMinExpectedNumber() > 0:
         print(">>>simulation step: " + str(step))
 
@@ -156,49 +152,8 @@ def run(options):
 
         #basic controller without uppal
         if options.controller == "Basic":
-            
-            # ---------------setup/update data -----------------------------------
-            for edge in listOfEdges:
-
-                if edge in currentEdgeInformation:
-                    currentEdgeInformation.update({edge : [traci.edge.getTraveltime(edge), [x for x in traci.edge.getLastStepVehicleIDs(edge)]]})
-                else:
-                    currentEdgeInformation[edge] = [traci.edge.getTraveltime(edge), [x for x in traci.edge.getLastStepVehicleIDs(edge)]]
-                
-                carsOnEdge = traci.edge.getLastStepVehicleIDs(edge)
-                for car in carsOnEdge:
-                    route = traci.vehicle.getRoute(car)
-                    
-                    if car in currentCarInformation:
-                        if currentCarInformation[car][0] == edge:
-                            pass
-                        else:
-                            currentCarInformation.update({car : [edge, step, traci.vehicle.getRoute(car)] })
-                    else:
-                        currentCarInformation[car] = [edge, step, traci.vehicle.getRoute(car)]
-
-            #-----------------------END--------------------------------------------------
-           
-            #simulate the flow of traffic
-            simData = simulateTrafficFlow(currentCarInformation, currentEdgeInformation, step, 100)
-            
-            for key in simData:
-                #[carData, edgeData, congestedEdges, currentStep + i]
-                simCarData = simData[key][0]
-                simEdgeData = simData[key][1]
-                simCongestedEdges = simData[key][2]
-                simStep = simData[key][3]
-                for edge in simCongestedEdges:
-                    carsAtRisk = simEdgeData[edge][1]
-                    if len(carsAtRisk) > 0:     
-                        carsAtRisk = random.sample(carsAtRisk, int(len(carsAtRisk)/2))
-                        for car in carsAtRisk:
-                            newRoute = makeNewRoute(edge, networkGraph, car)
-                            if newRoute != "":
-                                try:
-                                    traci.vehicle.setRoute(car, newRoute)
-                                except:
-                                    pass
+            callSimulator(networkGraph, listOfEdges, step)
+        
                                     
         #THE DEFAULT CONTROLLER - doesnt do anything 
         if options.controller == "default":
@@ -338,135 +293,9 @@ def get_options():
     options, args = optParser.parse_args()
     return options
 
-def getCongestedEdges(edgeDict):
-    congestedEdges = []
-    for key in edgeDict:
-        if edgeDict[key][1] > 5:
-            congestedEdges.append(key)
-    return congestedEdges
-
-def findCarsToReroute(data, congestedEdges):
-    carsToReRoute = []
-    for line in data:
-        routes = line[3]
-        cars = line[2]
-        for i in range(0, len(line[2])):
-            foundCurrentProgress = False
-            for edge in routes[i]:
-                if not foundCurrentProgress:
-                    #check how far along the car is on it's route
-                    if edge == line[0]: 
-                        foundCurrentProgress = True
-                else:
-                    if edge in congestedEdges:
-                        carsToReRoute.append([cars[i], routes[i], line[0]])
-                        break
-    return carsToReRoute
-
-def simulateTrafficFlow(carData, edgeData, currentStep ,horizon):
-    simulationData = {}
-
-    for i in range(1, horizon):
-        congestedEdges = []
-        keysToDelete = []
-
-        for carKey in carData:
-            singleCarData = carData[carKey]
-            currentEdge = singleCarData[0]
-            enterTime = singleCarData[1]
-            travelTimeForEdge = edgeData[currentEdge][0]
-            timeOnEdge = (currentStep - enterTime) + i
-            
-            if timeOnEdge >= travelTimeForEdge:
-                nextEdge = getNextEdgeForCar(singleCarData[0], singleCarData[2])
-
-                if nextEdge == "Goal":
-                   keysToDelete.append(carKey)
-                elif nextEdge == "Error":
-                    print("-an error occured-" * 200)
-                    keysToDelete.append(carKey)
-                else:
-                    carData.update({carKey : [nextEdge, currentStep + i, singleCarData[2]]})
-                    newCarsOnCurrentEdge = edgeData[currentEdge][1]
-                    if carKey in newCarsOnCurrentEdge:
-                        newCarsOnCurrentEdge.remove(carKey)
-                    newCarsOnNewEdge = edgeData[nextEdge][1]
-                    newCarsOnNewEdge.append(carKey)
-
-                    edgeData.update ({currentEdge : [edgeData[currentEdge][0], newCarsOnCurrentEdge]}) #TODO NEED TO UPDATE TRAVEL TIME HERE
-                    edgeData.update({nextEdge : [ edgeData[nextEdge][0], newCarsOnNewEdge]}) #TODO NEED TO UPDATE TRAVELTIME HERE
-                    if  isEdgeCongested( edgeData[nextEdge], nextEdge):
-                        if nextEdge not in congestedEdges:
-                            congestedEdges.append(nextEdge)
-        for key in keysToDelete:
-            del carData[key]
-
-        simulationData[i] = [copy.deepcopy(carData), copy.deepcopy(edgeData), congestedEdges.copy(), currentStep + i]
-
-    return simulationData
-                        
-            
-def isEdgeCongested(singleEdgeData, edgeID):
-    value = 10
-    if traci.edge.getLaneNumber(edgeID) >= 2:
-        value = 20
-    if len(singleEdgeData[1]) > value:
-        return True
-    else:
-        return False
 
 
-def getNextEdgeForCar(currentEdge, route):
-    for i in range(0,len(route)):
-        if route[i] == currentEdge:
-            if i <= (len(route) - 2):
-                return route[i+1]
-            else:
-                return "Goal"
-    return "Error"
-
-def makeNewRoute(edgeToAvoid, networkGraph, car):
-    if(len(traci.vehicle.getRoute(car)) > 0):
-        if(not(traci.vehicle.getRoadID(car)[0] == ':')):
-            k = 5
-            oldRoute = traci.vehicle.getRoute(car)
-            currEdge = traci.vehicle.getRoadID(car)
-            nextJunction = traci.vehicle.getRoadID(car).split("-")[1]
-            sourceNode = nextJunction
-            targetNode = oldRoute[len(oldRoute)-1].split("-")[1]
-
-            kShortestPaths = find_k_shortest_paths(networkGraph, sourceNode, targetNode, k) #5 shortest paths
-
-            routeGood = False
-            i = 0
-            candidateRoute = []
-            while(routeGood == False):
-                if i <= len(kShortestPaths) - 1: 
-                    candidateRoute = nodesToRouteEdges(kShortestPaths[i], currEdge)
-                    if(edgeToAvoid in candidateRoute):
-                        i = i + 1
-                    else:
-                        routeGood = True
-                else:
-                    break
-                
-            if(not len(candidateRoute) <= 1):
-                return tuple(candidateRoute)
-            else:
-                return ""
-        else:
-            return ""
-    else:
-        return ""
-    
-     
-def nodesToRouteEdges(nodes, currEdge):
-    edges = []
-    edges.append(currEdge)
-    for i in range(0, len(nodes)-1):
-        edge = str(nodes[i]) + "-" + str(nodes[i + 1])
-        edges.append(edge)
-    return edges  
+  
 
 
                   
