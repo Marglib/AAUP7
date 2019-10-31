@@ -105,6 +105,9 @@ def extract_strategy(strat,numCar):
         listOfValues.append(value )
 
     print("VALUES FOR CAR: " + numCar)
+    for i in range(0,len(listOfValues)):
+        if(len(listOfValues[i]) > 7):
+            print("ROUTE NODE " + str(i) + "=" + listOfValues[i])
     print(listOfValues)
     return listOfValues
 
@@ -112,7 +115,6 @@ def get_sub_string(outStr,key,end):
     keyLoc = outStr.find(key)
     endOfKey = outStr.find(end, keyLoc)
     value = outStr[keyLoc:endOfKey + 20]
-    print(value)
     return value
 
 def strategoGetSubString(outStr, key):
