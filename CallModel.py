@@ -92,15 +92,16 @@ def get_strategy(outStr, cars):
     return newRoutes
 
 def extract_strategy(strat,pid):
-    delim = "(0,0)"
+    endOfStr = "\n"
     value = ""
 
     for i in range(0,48):
         curr = "route[" + pid + "][" + str(i) + "]"
+        currLen = len(curr)
         start = strat.find(curr)
-        end = strat.find(delim, start)
-        if(strat.find("\\r",end,(end+5)) != -1):
-            value = strat[start:(end+5)]
+        end = strat.find(endOfStr, start+currLen)
+        value = strat[start+currLen:end]
+
     return value
 
 def get_sub_string(outStr,key,end):
