@@ -121,7 +121,7 @@ def clean_strategy(stratString):
     node = 0
 
     start = stratString.find(delim)
-    split = stratString[delim:].split(",")
+    split = stratString[start:].split(",")
     timestep = split[0][-1:]
     node = split[1][:-1]
     print(timestep,node)
