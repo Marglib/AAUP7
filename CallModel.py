@@ -62,7 +62,7 @@ def modelCaller(model,query,expId,simStep,cars, networkGraph, nodePositions):
     out = runModel(com,args,newQuery, simStep)
     print(out)
     newRoutes = get_strategy(str(out), cars)
-    print(newRoutes)
+    #print(newRoutes)
     
     #' -o 1 -t 0 '
     """
@@ -84,33 +84,35 @@ def get_strategy(outStr, cars):
     for i in range (0,len(cars)):
         strStart = "pid[" + str(int(cars[i][0]) + 1000) + "]"
         strEnd = "route[" + str(i) + "][48]"
-        pid = str(int(cars[i][0]) + 1000)
+        numCar = str(i)
         strategyUnformated = get_sub_string(outStr,strStart,strEnd)
-        strategyFormated = extract_strategy(strategyUnformated,pid)
+        strategyFormated = extract_strategy(strategyUnformated,numCar)
         newRoutes.append(strategyFormated)
  
     return newRoutes
 
-def extract_strategy(strat,pid):
-    endOfStr = "\n"
+def extract_strategy(strat,numCar):
+    endOfStr = "\\n"
     listOfValues = []
 
     for i in range(0,48):
         value = ""
-        curr = "route[" + pid + "][" + str(i) + "]:\\n[0]:"
+        curr = "route[" + numCar + "][" + str(i) + "]:\\n[0]:"
         currLen = len(curr)
         start = strat.find(curr)
         end = strat.find(endOfStr, start+currLen)
         value = strat[start+currLen:end]
-        listOfValues.append(value)
+        listOfValues.append(value )
 
+    print("VALUES FOR CAR: " + numCar)
+    print(listOfValues)
     return listOfValues
 
 def get_sub_string(outStr,key,end):
     keyLoc = outStr.find(key)
     endOfKey = outStr.find(end, keyLoc)
-    print(keyLoc,endOfKey)
     value = outStr[keyLoc:endOfKey + 20]
+    print(value)
     return value
 
 def strategoGetSubString(outStr, key):
