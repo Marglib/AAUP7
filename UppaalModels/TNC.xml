@@ -10,7 +10,7 @@ int route[N][nodes] = //HOLDER_CAR_ROUTE
 //HOLDER_NODE_POSITIONS
 
 int timePassed[N] = //HOLDER_TIME_PASSED
-int currentStartNode[N] = //HOLDER_CURRENT_START_NODE
+int currentStartNode[N][2] = //HOLDER_CURRENT_START_NODE
 typedef int[0,nodes] node_t;
 
 //networkEdges constains touples of the form (fromNodeId, toNodeId, lanes, edgeweight, carsOnEdge)
@@ -86,7 +86,7 @@ void flow_traffic()
         {
             timePassedCarI = timePassed[i];
             
-            fromNode = currentStartNode[i];
+            fromNode = currentStartNode[i][1];
             toNode = getNextRouteNode(i, fromNode);
 
             if(toNode == -1)
@@ -101,7 +101,7 @@ void flow_traffic()
 
                 if(timePassedCarI &gt;= edgeTT)
                 {
-                    currentStartNode[i] = toNode;
+                    currentStartNode[i][1] = toNode;
                     totalTravelTime += timePassedCarI;
                     timePassed[i] = 0;
                     networkEdges[edgeId][4] = networkEdges[edgeId][4] - 1;
@@ -189,18 +189,20 @@ void update_weights()
 //TODO: ensure that cars with congested out edges are not added for rerouting
 void check_reroute()
 {
-    int i = 0, j = 0;
+    int i = 0, j = 0, k = 0;
     int fromNode, nextFromNode, nextToNode;
     int edgeId;
     int weight;
-    int threshold = 25; //TODO: find actual threshold for rerouting
+    int outNode = 0;
+    int threshold = 15; //TODO: find actual threshold for rerouting
 
     for(i = 0; i &lt; N; i++)
     {
         if(!carDone[i])
         {
             j = 0;
-            fromNode = currentStartNode[i];
+            outNode = 0;
+            fromNode = currentStartNode[i][1];
         
             while(fromNode != route[i][j] &amp;&amp; route[i][j] != -1)
             {
@@ -211,12 +213,19 @@ void check_reroute()
             {
                 nextFromNode = route[i][j+1];
                 nextToNode = route[i][j+2];
+                for(k = 0; k &lt; 20; k++)
+                {
+                    if(nextToNode == inNodes[k])
+                    {
+                        outNode = 1;
+                    }
+                }
 
                 edgeId = getEdgeIndex(nextFromNode, nextToNode);
 
                 weight = networkEdges[edgeId][3];
 
-                if(weight &gt; threshold)
+                if(weight &gt; threshold &amp;&amp; outNode != 1)
                 {
                     reroute[i] = 1;
                 }
@@ -327,7 +336,7 @@ void simpleReroute()
     int carRoute[nodes] = route[curr_car];
     int i = 0, j = 0, k = 0;
     int destNode;
-    int curNode = currentStartNode[curr_car];
+    int curNode = currentStartNode[curr_car][1];
     int edgeWeights[3];
     int prevNode = curNode;
     int rerouteNode;
@@ -396,10 +405,10 @@ void simpleReroute()
             i++;        
         }
 
-        while(i &lt; (nodes-1))
+        while(i &lt; (nodes-2))
         {
             carRoute[i+1] = -1;
-            i++;
+            i ++;
         }         
 
         route[curr_car] = carRoute;
@@ -418,7 +427,7 @@ void choose_route(int strategy)
         {
             simpleReroute();
         }
-        else if (strategy == 2)
+        else if (strategy == 0)
         {
             //Keep current route
         }
