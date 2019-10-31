@@ -17,7 +17,6 @@ def runModel(com, args, query, simStep):
     query = "\"" + query + "\""
     f = Popen(com+args+query, stdout = PIPE, stderr = PIPE, shell=True)
     out, outerror = f.communicate()
-    print(out)
     """
 
     out_string = str(out)
@@ -60,7 +59,6 @@ def modelCaller(model,query,expId,simStep,cars, networkGraph, nodePositions):
     args = "\"" + newModel + "\" "
     #newQuery = createQuery(query, expId, cars) Used for stratego
     out = runModel(com,args,newQuery, simStep)
-    print(out)
     newRoutes = get_strategy(str(out), cars)
     #print(newRoutes)
     
@@ -108,7 +106,6 @@ def extract_strategy(strat,numCar):
     for i in range(0,len(listOfValues)):
         if(len(listOfValues[i]) > 7):
             print("ROUTE NODE " + str(i) + "=" + listOfValues[i])
-    print(listOfValues)
     return listOfValues
 
 def get_sub_string(outStr,key,end):
@@ -116,25 +113,6 @@ def get_sub_string(outStr,key,end):
     endOfKey = outStr.find(end, keyLoc)
     value = outStr[keyLoc:endOfKey + 20]
     return value
-
-def strategoGetSubString(outStr, key):
-    speedLoc = "(1,"
-    key_len = len(key)
-    found = outStr.find(key)
-    start = found + key_len + 11
-    end = outStr.find(speedLoc, start) + len(speedLoc) + 3
-    value = (outStr[start:end]).strip()
-    return value[:-1]
-
-def standardGetSubString(outStr, key):
-    delim = "="
-    key_len = len(key)
-    outStr = str(outStr)
-    found = outStr.rfind(key)
-    start = found + key_len
-    end = outStr.find(delim, start) + len(delim) + 3
-    value = (outStr[start:end]).strip()
-    return value[1:]
 
 def replace_car_strings(str_model,cars,nodePositions):
     toReplace = "//HOLDER_NUMBER_OF_CARS"
