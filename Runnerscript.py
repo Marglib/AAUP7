@@ -36,6 +36,8 @@ pathToModels = os.path.join(rootDir,'UppaalModels')
 mainQuery = os.path.join(pathToModels, 'TNC.q')
 mainModel = os.path.join(pathToModels, 'TNC.xml')
 listOfCarTimeLists = []
+newRoutes = []
+
 
 def run(options):
     """execute the TraCI control loop"""
@@ -78,7 +80,7 @@ def run(options):
                 for car in CarsInNetworkList:
                     Cars.append([car, get_route_nodes(car), get_time_on_edge(car)])
                 if (step % 5 == 0):
-                    modelCaller(mainModel, mainQuery, options.expid, step, Cars, networkGraph, networkNodes)
+                    newRoutes = modelCaller(mainModel, mainQuery, options.expid, step, Cars, networkGraph, networkNodes)
                 
             
 
