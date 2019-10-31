@@ -39,7 +39,7 @@ int getEdgeIndex(int fromNode, int toNode)
     }
     return k;
 }
-
+/*
 int getNextRouteNode(int carId, int node)
 {
     int i = 0;
@@ -48,7 +48,7 @@ int getNextRouteNode(int carId, int node)
         i++;
     }
     return route[carId][i+1];
-}</declaration>
+}*/</declaration>
 	<template>
 		<name x="5" y="5">Simulator</name>
 		<declaration>clock x,y;
@@ -75,7 +75,8 @@ void flow_traffic()
     int timePassedCarI = 0;
     int edgeTT = 0;
     int edgeId;
-    int fromNode, toNode, nextToNode;    
+    int fromNode, toNode, nextToNode;  
+    int fromIndex;  
     int allDone = 0;
 
 
@@ -86,8 +87,9 @@ void flow_traffic()
         {
             timePassedCarI = timePassed[i];
             
-            fromNode = currentStartNode[i][1];
-            toNode = getNextRouteNode(i, fromNode);
+            fromNode = currentStartNode[i][0];
+            fromIndex = currentStartNode[i][1];
+            toNode = route[i][fromIndex+1];
 
             if(toNode == -1)
             {
@@ -101,11 +103,12 @@ void flow_traffic()
 
                 if(timePassedCarI &gt;= edgeTT)
                 {
-                    currentStartNode[i][1] = toNode;
+                    currentStartNode[i][0] = toNode;
+                    currentStartNode[i][1]++;
                     totalTravelTime += timePassedCarI;
                     timePassed[i] = 0;
                     networkEdges[edgeId][4] = networkEdges[edgeId][4] - 1;
-                    nextToNode = getNextRouteNode(i, toNode);
+                    nextToNode = route[i][fromIndex+2];
 
                     if(nextToNode != -1)
                     {
@@ -189,8 +192,8 @@ void update_weights()
 //TODO: ensure that cars with congested out edges are not added for rerouting
 void check_reroute()
 {
-    int i = 0, j = 0, k = 0;
-    int fromNode, nextFromNode, nextToNode;
+    int i = 0, j = 0;
+    int fromIndex, nextFromNode, nextToNode;
     int edgeId;
     int weight;
     int outNode = 0;
@@ -202,20 +205,17 @@ void check_reroute()
         {
             j = 0;
             outNode = 0;
-            fromNode = currentStartNode[i][1];
-        
-            while(fromNode != route[i][j] &amp;&amp; route[i][j] != -1)
+            fromIndex = currentStartNode[i][1];
+
+
+            //check route[i][fromIndex+3] != -1 to ensure we are not rerouting for the outnode
+            if(route[i][fromIndex+3] != -1)
             {
-                j++;
-            }
-            //check route[i][j+3] != -1 to ensure we are not rerouting for the outnode
-            if(route[i][j+3] != -1)
-            {
-                nextFromNode = route[i][j+1];
-                nextToNode = route[i][j+2];
-                for(k = 0; k &lt; 20; k++)
+                nextFromNode = route[i][fromIndex+1];
+                nextToNode = route[i][fromIndex+2];
+                for(j = 0; j &lt; 20; j++)
                 {
-                    if(nextToNode == inNodes[k])
+                    if(nextToNode == inNodes[j])
                     {
                         outNode = 1;
                     }
@@ -336,7 +336,8 @@ void simpleReroute()
     int carRoute[nodes] = route[curr_car];
     int i = 0, j = 0, k = 0;
     int destNode;
-    int curNode = currentStartNode[curr_car][1];
+    int curNode = currentStartNode[curr_car][0];
+    int curIndex = currentStartNode[curr_car][1];
     int edgeWeights[3];
     int prevNode = curNode;
     int rerouteNode;
@@ -344,6 +345,8 @@ void simpleReroute()
     int test[1];
     int illegalInNode = 0;
 
+
+    i = curIndex;
     while (carRoute[i+1] != -1)
     {            
         i++;
@@ -352,13 +355,8 @@ void simpleReroute()
     destNode = carRoute[i];
     if (curNode != destNode)
     {
-        rerouteNode = getNextRouteNode(curr_car, curNode);
-        i = 0;
-
-        while(rerouteNode != carRoute[i])
-        {
-            i++;
-        }
+        curIndex++;
+        rerouteNode = route[curr_car][curIndex];
 
         while (rerouteNode != destNode)
         {
@@ -399,16 +397,16 @@ void simpleReroute()
                 }
             } 
         
-            carRoute[i + 1] = connectingNodes[bestConnection];
+            carRoute[curIndex + 1] = connectingNodes[bestConnection];
             prevNode = rerouteNode;
             rerouteNode = connectingNodes[bestConnection];
-            i++;        
+            curIndex++;        
         }
 
-        while(i &lt; (nodes-2))
+        while(curIndex &lt; (nodes-1))
         {
-            carRoute[i+1] = -1;
-            i ++;
+            carRoute[curIndex+1] = -1;
+            curIndex++;
         }         
 
         route[curr_car] = carRoute;
