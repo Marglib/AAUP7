@@ -82,24 +82,6 @@ def setupInformation(listOfEdges, step):
             else:
                 currentCarInformation[car] = [edge, step, route]
 
-def findCarsToReroute(data, congestedEdges):
-    carsToReRoute = []
-    for line in data:
-        routes = line[3]
-        cars = line[2]
-        for i in range(0, len(line[2])):
-            foundCurrentProgress = False
-            for edge in routes[i]:
-                if not foundCurrentProgress:
-                    #check how far along the car is on it's route
-                    if edge == line[0]: 
-                        foundCurrentProgress = True
-                else:
-                    if edge in congestedEdges:
-                        carsToReRoute.append([cars[i], routes[i], line[0]])
-                        break
-    return carsToReRoute
-
 def simulateTrafficFlow(carData, edgeData, currentStep ,horizon):
     simulationData = {}
 
