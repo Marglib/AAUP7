@@ -79,7 +79,7 @@ def run(options):
                     networkNodes.append([id[1:], traci.junction.getPosition(id)])
                 for car in CarsInNetworkList:
                     Cars.append([car, get_route_nodes(car), get_time_on_edge(car)])
-                if (step % 5 == 0):
+                if (step % 5 == 0 and step > 165):
                     newRoutes = modelCaller(mainModel, mainQuery, options.expid, step, Cars, networkGraph, networkNodes)
                 
             

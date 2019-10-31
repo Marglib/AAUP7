@@ -59,6 +59,7 @@ def modelCaller(model,query,expId,simStep,cars, networkGraph, nodePositions):
     args = "\"" + newModel + "\" "
     #newQuery = createQuery(query, expId, cars) Used for stratego
     out = runModel(com,args,newQuery, simStep)
+    #print(out)
     newRoutes = get_strategy(str(out), cars)
     #print(newRoutes)
     
@@ -108,23 +109,26 @@ def extract_strategy(strat,numCar,pid):
 
     print("VALUES FOR CAR: " + numCar)
     for i in range(0,len(listOfValues)):
-        if(len(listOfValues[i]) > 7):
-            print("ROUTE NODE " + str(i) + "=" + listOfValues[i])
+        if(listOfValues[i].find("\\r") != -1):
+            listOfValues[i] = listOfValues[i].replace("\\r","")
+        if(len(listOfValues[i]) > 3):
+            print("ROUTE NODE " + str(i) + "= " + listOfValues[i])
             rerouteTuple = (pid,i,clean_strategy(listOfValues[i]))
             reroutes.append(rerouteTuple)
     
     return reroutes
 
 def clean_strategy(stratString):
-    delim = "(0,0)"
+    delim = "0,0)"
     timestep = 0
     node = 0
 
     start = stratString.find(delim)
-    split = stratString[delim:].split(",")
-    timestep = split[0][-1:]
-    node = split[1][:-1]
-    print(timestep,node)
+    keyLen = len(delim)
+    split = stratString[start+keyLen:].split(",")
+    #print(split)
+    #timestep = split[0][-1:]
+    #node = split[1][:-1]
 
     return (timestep,node)
 
