@@ -97,7 +97,7 @@ def extract_strategy(strat,pid):
 
     for i in range(0,48):
         value = ""
-        curr = "route[" + pid + "][" + str(i) + "]"
+        curr = "route[" + pid + "][" + str(i) + "]:\\n[0]:"
         currLen = len(curr)
         start = strat.find(curr)
         end = strat.find(endOfStr, start+currLen)
