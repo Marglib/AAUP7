@@ -75,6 +75,7 @@ def modelCaller(model,query,expId,simStep,cars, networkGraph, nodePositions):
     
     #return carSpeeds
     print("Done")
+    return newRoutes
 
 def get_strategy(outStr, cars):
     newRoutes = []
@@ -82,14 +83,15 @@ def get_strategy(outStr, cars):
     for i in range (0,len(cars)):
         strStart = "pid[" + str(int(cars[i][0]) + 1000) + "]"
         strEnd = "route[" + str(i) + "][48]"
+        pid = str(int(cars[i][0]))
         numCar = str(i)
         strategyUnformated = get_sub_string(outStr,strStart,strEnd)
-        strategyFormated = extract_strategy(strategyUnformated,numCar)
+        strategyFormated = extract_strategy(strategyUnformated,numCar,pid)
         newRoutes.append(strategyFormated)
  
     return newRoutes
 
-def extract_strategy(strat,numCar):
+def extract_strategy(strat,numCar,pid):
     endOfStr = "\\n"
     listOfValues = []
     reroutes = []
@@ -102,16 +104,29 @@ def extract_strategy(strat,numCar):
         start = strat.find(curr)
         end = strat.find(endOfStr, start+currLen)
         value = strat[start+currLen:end]
-        listOfValues.append(value )
+        listOfValues.append(value)
 
     print("VALUES FOR CAR: " + numCar)
     for i in range(0,len(listOfValues)):
         if(len(listOfValues[i]) > 7):
             print("ROUTE NODE " + str(i) + "=" + listOfValues[i])
-            rerouteTuple = (i,listOfValues[i])
+            rerouteTuple = (pid,i,clean_strategy(listOfValues[i]))
             reroutes.append(rerouteTuple)
     
     return reroutes
+
+def clean_strategy(stratString):
+    delim = "(0,0)"
+    timestep = 0
+    node = 0
+
+    start = stratString.find(delim)
+    split = stratString[delim:].split(",")
+    timestep = split[0][-1:]
+    node = split[1][:-1]
+    print(timestep,node)
+
+    return (timestep,node)
 
 def get_sub_string(outStr,key,end):
     keyLoc = outStr.find(key)
