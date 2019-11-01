@@ -48,6 +48,7 @@ def callSimulator(networkGraph, listOfEdges, currStep):
         #TODO change so we stop trying this branch in the tree if it does not look like it is getting better
         simData, totalCongestedEdges = simulateTrafficFlow(currentCarInformation, currentEdgeInformation, currStep, 100) 
         changeRoutes(simData, networkGraph)
+        print(totalCongestedEdges, fewestTotalCongestedEdges)
         if(totalCongestedEdges < fewestTotalCongestedEdges): #fewestTotalCongestedEdges  decides which try is best
             fewestTotalCongestedEdges = totalCongestedEdges
             bestTry = currentCarInformation
@@ -132,7 +133,7 @@ def simulateTrafficFlow(carData, edgeData, currentStep ,horizon):
                         if nextEdge not in congestedEdges:
                             congestedEdges.append(nextEdge)
                             #Used to see which simulation is best
-                            totalCongestedEdges = totalCongestedEdges + 1
+                            totalCongestedEdges += 1
         for key in keysToDelete:
             del carData[key]
 
@@ -142,9 +143,9 @@ def simulateTrafficFlow(carData, edgeData, currentStep ,horizon):
                         
             
 def isEdgeCongested(singleEdgeData, edgeID):
-    value = 10
+    value = 2
     if traci.edge.getLaneNumber(edgeID) >= 2:
-        value = 20
+        value = 2
     if len(singleEdgeData[1]) > value:
         return True
     else:
