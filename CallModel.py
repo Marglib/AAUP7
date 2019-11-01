@@ -107,11 +107,11 @@ def extract_strategy(strat,numCar,pid):
         value = strat[start+currLen:end]
         listOfValues.append(value)
 
-    print("VALUES FOR CAR: " + numCar)
     for i in range(0,len(listOfValues)):
         if(listOfValues[i].find("\\r") != -1):
             listOfValues[i] = listOfValues[i].replace("\\r","")
-        if(len(listOfValues[i]) > 3):
+        if(len(listOfValues[i]) > 7):
+            print("VALUES FOR CAR: " + numCar)
             print("ROUTE NODE " + str(i) + "= " + listOfValues[i])
             rerouteTuple = (pid,i,clean_strategy(listOfValues[i]))
             reroutes.append(rerouteTuple)
@@ -126,7 +126,7 @@ def clean_strategy(stratString):
     start = stratString.find(delim)
     keyLen = len(delim)
     split = stratString[start+keyLen:].split(",")
-    #print(split)
+    print(split)
     #timestep = split[0][-1:]
     #node = split[1][:-1]
 
