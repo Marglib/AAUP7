@@ -71,6 +71,7 @@ def run(options):
             CarsInNetworkList = traci.vehicle.getIDList()
             NodeIDs = networkGraph.nodes()
             routeChanges = []
+            carChangedIds = []
             
             if len(CarsInNetworkList) > 0:
                 Cars = []
@@ -82,12 +83,15 @@ def run(options):
                     Cars.append([car, get_route_nodes(car), get_time_on_edge(car)])
                 if (step % 5 == 0 and step > 165):
                     routeChanges = modelCaller(mainModel, mainQuery, options.expid, step, Cars, networkGraph, networkNodes)
-            
+                    for car in routeChanges:
+                        carChangedIds.append(car.pid)
+                    
+                newRoutes = [x for x in newRoutes if car.pid not in carChangedIds]
+                newRoutes = newRoutes + routeChanges
+        
             for car in newRoutes:
                 car.update_route()
-
             
-        #Controllers used for experiments from here -------------------
         #Simple rerouting controller
         if options.controller == "SimpleRerouting":
             CarsInNetworkList = traci.vehicle.getIDList()  
