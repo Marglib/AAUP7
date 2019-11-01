@@ -63,8 +63,10 @@ def modelCaller(model,query,expId,simStep,cars, networkGraph, nodePositions):
     #print(out)
     newRoutes = get_strategy(str(out), cars)
     newRoutes = [x for x in newRoutes if x != []] #Removes all empty lists from the list
-    print(newRoutes)
-    
+
+    for car in newRoutes:
+        car.to_string()
+
     print("Done")
     return newRoutes
 
@@ -104,11 +106,13 @@ def extract_strategy(strat,numCar,pid,route):
         if(len(listOfValues[i]) > 7):
             #print("VALUES FOR CAR: " + numCar)
             #print("ROUTE NODE " + str(i) + "= " + listOfValues[i])
-            time,node = clean_strategy(i,listOfValues[i])
+            time,node = clean_strategy(listOfValues[i])
             rerouteTuple = (i,time,node)
             reroutes.append(rerouteTuple)
-    
-    return car(pid,reroutes,route)
+    if(reroutes != []):
+        return car(pid,reroutes,route)
+    else:
+        return []
 
 def clean_strategy(stratString):
     stratString = stratString.strip()

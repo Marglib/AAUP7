@@ -23,7 +23,6 @@ class car:
             if(self.listOfReroutes[i][1] == 0):
                 newRoute = currRoute 
                 newRoute[self.listOfReroutes[i][0]] = self.listOfReroutes[i][2]
-                print(newRoute)
                 #traci.vehicle.setRoute(...)
             else:
                 listOfReroutes[i][1] -= 1
@@ -35,3 +34,8 @@ class car:
             edge = str(nodes[i]) + "-" + str(nodes[i + 1])
             edges.append(edge)
         return edges
+
+    def to_string(self):
+        print("pid:" + str(self.pid) +"\n")
+        print("reroutes:" + str(self.listOfReroutes) +"\n")
+        print("currRoute:" + str(self.currRoute) +"\n")
