@@ -55,26 +55,15 @@ def modelCaller(model,query,expId,simStep,cars, networkGraph, nodePositions):
       + ' --runs-pr-state ' + str(70) \
       + ' --eval-runs ' + str(40) \
       + ' --max-iterations ' + str(30) \
-      + ' --filter 0 -o 1 '
+      + ' --filter 0 -o 1 --discrete-representation 1 '
     args = "\"" + newModel + "\" "
     #newQuery = createQuery(query, expId, cars) Used for stratego
     out = runModel(com,args,newQuery, simStep)
     #print(out)
     newRoutes = get_strategy(str(out), cars)
+    newRoutes = [x for x in newRoutes if x != []] #Removes all empty lists from the list
     print(newRoutes)
     
-    #' -o 1 -t 0 '
-    """
-    ' --learning-method ' + str(3) \
-      + ' --good-runs ' + str(20) \
-      + ' --total-runs ' + str(20) \
-      + ' --runs-pr-state ' + str(30) \
-      + ' --eval-runs ' + str(10) \
-      + ' --max-iterations ' + str(10) \
-      + ' --filter 0 '
-    """
-    
-    #return carSpeeds
     print("Done")
     return newRoutes
 
@@ -127,7 +116,6 @@ def clean_strategy(stratString):
     start = stratString.find(delim)
     keyLen = len(delim)
     split = stratString[start+keyLen:].split(",")
-    print(split)
     timestep = int(split[0][-1:])
     node = int(split[1][:-1])
 
