@@ -70,6 +70,7 @@ def run(options):
         if options.controller == "TrafficNetworkController":
             CarsInNetworkList = traci.vehicle.getIDList()
             NodeIDs = networkGraph.nodes()
+            routeChanges = []
             
             if len(CarsInNetworkList) > 0:
                 Cars = []
@@ -80,7 +81,20 @@ def run(options):
                 for car in CarsInNetworkList:
                     Cars.append([car, get_route_nodes(car), get_time_on_edge(car)])
                 if (step % 5 == 0 and step > 165):
-                    newRoutes = modelCaller(mainModel, mainQuery, options.expid, step, Cars, networkGraph, networkNodes)
+                    routeChanges = modelCaller(mainModel, mainQuery, options.expid, step, Cars, networkGraph, networkNodes)
+            
+            for i in range(0,len(newRoutes)):
+                for j in range(0,len(newRoutes[i])):
+                    routeInfo = newRoutes[i][j]
+                    #first changing according to the latest model call
+                    
+
+                    if(routeInfo[3][0] == 0):
+                        traci.vehicle.setRoute #routeInfo[3][1])
+                    else:
+                        routeInfo[3][0] -= 1 #Decreasing the time step to change by 1
+            
+            
                 
             
 
