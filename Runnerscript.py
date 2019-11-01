@@ -83,21 +83,10 @@ def run(options):
                 if (step % 5 == 0 and step > 165):
                     routeChanges = modelCaller(mainModel, mainQuery, options.expid, step, Cars, networkGraph, networkNodes)
             
-            for i in range(0,len(newRoutes)):
-                for j in range(0,len(newRoutes[i])):
-                    routeInfo = newRoutes[i][j]
-                    #first changing according to the latest model call
-                    
+            for car in newRoutes:
+                car.update_route()
 
-                    if(routeInfo[3][0] == 0):
-                        traci.vehicle.setRoute #routeInfo[3][1])
-                    else:
-                        routeInfo[3][0] -= 1 #Decreasing the time step to change by 1
             
-            
-                
-            
-
         #Controllers used for experiments from here -------------------
         #Simple rerouting controller
         if options.controller == "SimpleRerouting":

@@ -8,6 +8,7 @@ import VerifierPath as VP
 from os.path import expanduser
 from subprocess import Popen, PIPE, STDOUT
 import traci
+from CarClass import car
 
 rootDir = os.path.abspath(os.getcwd())
 pathToResults = os.path.join(rootDir,'results')
@@ -74,14 +75,15 @@ def get_strategy(outStr, cars):
         strStart = "pid[" + str(int(cars[i][0]) + 1000) + "]"
         strEnd = "route[" + str(i) + "][48]"
         pid = str(int(cars[i][0]))
+        route = cars[i][1]
         numCar = str(i)
         strategyUnformated = get_sub_string(outStr,strStart,strEnd)
-        strategyFormated = extract_strategy(strategyUnformated,numCar,pid)
-        newRoutes.append(strategyFormated)
+        carStrat = extract_strategy(strategyUnformated,numCar,pid,route)
+        newRoutes.append(carStrat)
  
     return newRoutes
 
-def extract_strategy(strat,numCar,pid):
+def extract_strategy(strat,numCar,pid,route):
     endOfStr = "\\n"
     listOfValues = []
     reroutes = []
@@ -96,18 +98,17 @@ def extract_strategy(strat,numCar,pid):
         value = strat[start+currLen:end]
         listOfValues.append(value)
     
-    reroutes.append(pid)
-
     for i in range(0,len(listOfValues)):
         if(listOfValues[i].find("\\r") != -1):
             listOfValues[i] = listOfValues[i].replace("\\r","")
         if(len(listOfValues[i]) > 7):
             #print("VALUES FOR CAR: " + numCar)
             #print("ROUTE NODE " + str(i) + "= " + listOfValues[i])
-            rerouteTuple = clean_strategy(i,listOfValues[i])
+            time,node = clean_strategy(i,listOfValues[i])
+            rerouteTuple = (i,time,node)
             reroutes.append(rerouteTuple)
     
-    return reroutes
+    return car(pid,reroutes,route)
 
 def clean_strategy(stratString):
     stratString = stratString.strip()
@@ -121,7 +122,7 @@ def clean_strategy(stratString):
     timestep = int(split[0][-1:])
     node = int(split[1][:-1])
 
-    return (timestep,node)
+    return timestep,node
 
 def get_sub_string(outStr,key,end):
     keyLoc = outStr.find(key)
