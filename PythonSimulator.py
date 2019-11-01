@@ -36,14 +36,27 @@ from TrafficLightClass import smartTL
 currentCarInformation = {}
 currentEdgeInformation = {}
 listOfEdges = []
+tryRuns = 50
 #------------END-------------------------
 
 def callSimulator(networkGraph, listOfEdges, currStep):
-    setupInformation(listOfEdges, currStep)
-    simData = simulateTrafficFlow(currentCarInformation, currentEdgeInformation, currStep, 100)
-    tryRoute(simData, networkGraph)
+    bestTry = {}
+    bestTryRun = 0
+    fewestTotalCongestedEdges = float("inf")   #we start at highest possible so the first sim is always smaller than this
+    for i in range(0, tryRuns):
+        setupInformation(listOfEdges, currStep)
+        #TODO change so we stop trying this branch in the tree if it does not look like it is getting better
+        simData, totalCongestedEdges = simulateTrafficFlow(currentCarInformation, currentEdgeInformation, currStep, 100) 
+        changeRoutes(simData, networkGraph)
+        if(totalCongestedEdges < fewestTotalCongestedEdges): #fewestTotalCongestedEdges  decides which try is best
+            fewestTotalCongestedEdges = totalCongestedEdges
+            bestTry = currentCarInformation
+            bestTryRun = i
+    setRoutesToBestTry(bestTry)
+    print(bestTryRun)
+        
 
-def tryRoute(simData, networkGraph):
+def changeRoutes(simData, networkGraph):
     for key in simData:
         #[carData, edgeData, congestedEdges, currentStep + i]
         simCarData = simData[key][0]
@@ -53,9 +66,9 @@ def tryRoute(simData, networkGraph):
         for edge in simCongestedEdges:
             carsAtRisk = simEdgeData[edge][1]
             if len(carsAtRisk) > 0:     
-                carsAtRisk = random.sample(carsAtRisk, int(len(carsAtRisk)/2))
+                carsAtRisk = random.sample(carsAtRisk, int(len(carsAtRisk)/2)) #TODO NEED BETTER WAY TO CHOOSE
                 for car in carsAtRisk:
-                    newRoute = makeNewRoute(edge, networkGraph, car)
+                    newRoute = makeNewRoute(edge, networkGraph, car) #TODO NEED BETTER WAY TO REROUTE
                     if newRoute != "":
                         try:
                             traci.vehicle.setRoute(car, newRoute)
@@ -84,6 +97,7 @@ def setupInformation(listOfEdges, step):
 
 def simulateTrafficFlow(carData, edgeData, currentStep ,horizon):
     simulationData = {}
+    totalCongestedEdges = 0
 
     for i in range(1, horizon):
         congestedEdges = []
@@ -117,12 +131,14 @@ def simulateTrafficFlow(carData, edgeData, currentStep ,horizon):
                     if  isEdgeCongested( edgeData[nextEdge], nextEdge):
                         if nextEdge not in congestedEdges:
                             congestedEdges.append(nextEdge)
+                            #Used to see which simulation is best
+                            totalCongestedEdges = totalCongestedEdges + 1
         for key in keysToDelete:
             del carData[key]
 
         simulationData[i] = [copy.deepcopy(carData), copy.deepcopy(edgeData), congestedEdges.copy(), currentStep + i]
 
-    return simulationData
+    return simulationData, totalCongestedEdges
                         
             
 def isEdgeCongested(singleEdgeData, edgeID):
@@ -196,3 +212,23 @@ def getCongestedEdges(edgeDict):
 
 def find_k_shortest_paths(G, source, target, k):
     return list(islice(nx.shortest_simple_paths(G, source, target, weight='weight'), k))
+
+def setRoutesToBestTry(bestTryCarData):
+    i = 0
+    j = 0
+    for car in bestTryCarData:
+        if(traci.vehicle.getRoute(car) != bestTryCarData[car][2]):
+            try:
+                print("--------------------------------------------------------------------------------------")
+                print(car)
+                print(traci.vehicle.getRoute(car))
+                print(bestTryCarData[car][2])
+                i = i  + 1
+                traci.vehicle.setRoute(car, bestTryCarData[car][2])
+            except:
+                j = j + 1
+                print(traci.vehicle.getRoute(car))
+                print(bestTryCarData[car][2])
+                print(traci.vehicle.getRoadID(car))
+                pass
+    print(i>j)
