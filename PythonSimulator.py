@@ -51,7 +51,7 @@ def callSimulator(networkGraph, listOfEdges, currStep):
         print(totalCongestedEdges, fewestTotalCongestedEdges)
         if(totalCongestedEdges < fewestTotalCongestedEdges): #fewestTotalCongestedEdges  decides which try is best
             fewestTotalCongestedEdges = totalCongestedEdges
-            bestTry = currentCarInformation
+            bestTry = copy.deepcopy(currentCarInformation)
             bestTryRun = i
     setRoutesToBestTry(bestTry)
     print(bestTryRun)
