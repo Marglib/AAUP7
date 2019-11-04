@@ -188,7 +188,7 @@ void check_reroute()
     int edgeId;
     int weight;
     int outNode = 0;
-    int threshold = 15; //TODO: find actual threshold for rerouting
+    int threshold = 30; //TODO: find actual threshold for rerouting
 
     for(i = 0; i &lt; N; i++)
     {

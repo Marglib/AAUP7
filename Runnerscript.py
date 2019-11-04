@@ -80,15 +80,14 @@ def run(options):
                     networkNodes.append([id[1:], traci.junction.getPosition(id)])
                 for car in CarsInNetworkList:
                     Cars.append([car, get_route_nodes(car), get_time_on_edge(car)])
-                if (step % 5 == 0 and step > 165):
+                if (step % 10 == 0 and step > 200):
                     newRoutes = modelCaller(mainModel, mainQuery, options.expid, step, Cars, networkGraph, networkNodes)
                     print(newRoutes)
 
-                for i in range(0,len(newRoutes)):
-                    newRoutes[i].update_route()
-                    print("FIAIIISISISISISISISISSKSKSKSK")
-                    newRoutes[i].kill()
-                    newRoutes.remove(newRoutes[i])
+                for car in newRoutes:
+                    car.update_route()
+                    car.kill()
+                    newRoutes.remove(car)
             
         #Simple rerouting controller
         if options.controller == "SimpleRerouting":
