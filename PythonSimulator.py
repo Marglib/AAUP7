@@ -164,9 +164,9 @@ def simulateTrafficFlow(carData, edgeData, currentStep ,horizon):
                         newCarsOnCurrentEdge.remove(carKey)
                     newCarsOnNewEdge = edgeData[nextEdge][1]
                     newCarsOnNewEdge.append(carKey)
-
-                    edgeData.update ({currentEdge : [edgeData[currentEdge][0], newCarsOnCurrentEdge]}) #TODO NEED TO UPDATE TRAVEL TIME HERE
-                    edgeData.update({nextEdge : [ edgeData[nextEdge][0], newCarsOnNewEdge]}) #TODO NEED TO UPDATE TRAVELTIME HERE
+                   
+                    edgeData.update ({currentEdge : [edgeData[currentEdge][0] -  getTravelTimeCoefficient(currentEdge), newCarsOnCurrentEdge]}) 
+                    edgeData.update({nextEdge : [ edgeData[nextEdge][0] + getTravelTimeCoefficient(nextEdge), newCarsOnNewEdge]})
                     if  isEdgeCongested( edgeData[nextEdge], nextEdge):
                         if nextEdge not in congestedEdges:
                             congestedEdges.append(nextEdge)
