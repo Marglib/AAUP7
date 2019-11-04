@@ -30,7 +30,7 @@ class car:
             traci.vehicle.setRoute(self.pid,newRouteAsEdges)
             print("new route: " + str(newRouteAsEdges))
         except:
-            pass
+            pass      
 
     def nodes_to_edges(self, nodes):
         edges = []

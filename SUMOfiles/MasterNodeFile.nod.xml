@@ -30,6 +30,14 @@
     <node id="n47" x="1000" y="900" type="unregulated"/>
     <node id="n48" x="1100" y="800" type="unregulated"/>
     <node id="n49" x="1000" y="700" type="unregulated"/>
+    <node id="n50" x="1000" y="500" type="unregulated"/>
+    <node id="n51" x="1000" y="300" type="unregulated"/>
+    <node id="n52" x="1000" y="1100" type="unregulated"/>
+    <node id="n53" x="1000" y="1300" type="unregulated"/>
+    <node id="n54" x="300" y="800" type="unregulated"/>
+    <node id="n55" x="500" y="800" type="unregulated"/>
+    <node id="n56" x="700" y="800" type="unregulated"/>
+    <node id="n57" x="1300" y="800" type="unregulated"/>
 
     <!--Entry nodes-->
     <node id="n17" x="0" y="400" type="unregulated"/>
