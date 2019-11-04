@@ -26,9 +26,11 @@ class car:
             newRoute[self.listOfReroutes[i][0]] = self.listOfReroutes[i][1]
         
         newRouteAsEdges = self.nodes_to_edges(newRoute[traci.vehicle.getRouteIndex(self.pid):])
-        traci.vehicle.setRoute(self.pid,newRouteAsEdges)
-        print("new route: " + str(newRouteAsEdges))
-                  
+        try:
+            traci.vehicle.setRoute(self.pid,newRouteAsEdges)
+            print("new route: " + str(newRouteAsEdges))
+        except:
+            pass
 
     def nodes_to_edges(self, nodes):
         edges = []
