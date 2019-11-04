@@ -46,16 +46,54 @@ def callSimulator(networkGraph, listOfEdges, currStep):
     for i in range(0, tryRuns):
         setupInformation(listOfEdges, currStep)
         #TODO change so we stop trying this branch in the tree if it does not look like it is getting better
-        simData, totalCongestedEdges = simulateTrafficFlow(currentCarInformation, currentEdgeInformation, currStep, 100) 
+        simData, totalCongestedEdges = simulateTrafficFlow(currentCarInformation, currentEdgeInformation, currStep, 100)
+        ttt = getTotalTravelTime(simData)
         changeRoutes(simData, networkGraph)
-        print(totalCongestedEdges, fewestTotalCongestedEdges)
+        #print(totalCongestedEdges, fewestTotalCongestedEdges)
         if(totalCongestedEdges < fewestTotalCongestedEdges): #fewestTotalCongestedEdges  decides which try is best
             fewestTotalCongestedEdges = totalCongestedEdges
             bestTry = copy.deepcopy(currentCarInformation)
             bestTryRun = i
     setRoutesToBestTry(bestTry)
     print(bestTryRun)
-        
+
+def getTotalTravelTime (simData):
+    result = 0
+    #car : [edge, step, route] 
+    initialCarData = simData[1][0]
+    initialEdgeData = simData[1][1]
+    for car in initialCarData:
+        travelTimeForCar = 0
+        currentEdge = initialCarData[car][0]
+        stepOfEntry = initialCarData[car][1]
+        carRoute = initialCarData[car][2]
+
+        firstEdgeTT = initialEdgeData[currentEdge][0] - stepOfEntry
+        travelTimeForCar += firstEdgeTT
+
+        nextStepToLookUp = firstEdgeTT
+        foundCurrentEdge = False
+        for edge in carRoute:
+            if edge == currentEdge:
+                foundCurrentEdge = True
+            
+            if foundCurrentEdge:
+                nextEdge = getNextEdgeForCar(currentEdge, initialCarData[car][2])
+                currentEdge = nextEdge
+                if nextEdge != "Goal" and nextEdge != "Error":
+                    if nextStepToLookUp in simData:
+                        edgeData = simData[nextStepToLookUp][1]
+                        edgeTT = edgeData[nextEdge][0]
+                        nextStepToLookUp += edgeTT
+                        travelTimeForCar += edgeTT
+                    else:
+                        #just look on edged from initial data as we are out of bounds for our simulation
+                        edgeData = initialEdgeData
+                        edgeTT = edgeData[nextEdge][0]
+                        nextStepToLookUp += edgeTT
+                        travelTimeForCar += edgeTT
+        result += travelTimeForCar
+    return result
 
 def changeRoutes(simData, networkGraph):
     for key in simData:
@@ -126,9 +164,9 @@ def simulateTrafficFlow(carData, edgeData, currentStep ,horizon):
                         newCarsOnCurrentEdge.remove(carKey)
                     newCarsOnNewEdge = edgeData[nextEdge][1]
                     newCarsOnNewEdge.append(carKey)
-
-                    edgeData.update ({currentEdge : [edgeData[currentEdge][0], newCarsOnCurrentEdge]}) #TODO NEED TO UPDATE TRAVEL TIME HERE
-                    edgeData.update({nextEdge : [ edgeData[nextEdge][0], newCarsOnNewEdge]}) #TODO NEED TO UPDATE TRAVELTIME HERE
+                   
+                    edgeData.update ({currentEdge : [edgeData[currentEdge][0] -  getTravelTimeCoefficient(currentEdge), newCarsOnCurrentEdge]}) 
+                    edgeData.update({nextEdge : [ edgeData[nextEdge][0] + getTravelTimeCoefficient(nextEdge), newCarsOnNewEdge]})
                     if  isEdgeCongested( edgeData[nextEdge], nextEdge):
                         if nextEdge not in congestedEdges:
                             congestedEdges.append(nextEdge)
@@ -143,9 +181,9 @@ def simulateTrafficFlow(carData, edgeData, currentStep ,horizon):
                         
             
 def isEdgeCongested(singleEdgeData, edgeID):
-    value = 2
+    value = 10
     if traci.edge.getLaneNumber(edgeID) >= 2:
-        value = 2
+        value = 20
     if len(singleEdgeData[1]) > value:
         return True
     else:
