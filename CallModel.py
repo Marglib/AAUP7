@@ -18,6 +18,7 @@ def runModel(com, args, query, simStep):
     query = "\"" + query + "\""
     f = Popen(com+args+query, stdout = PIPE, stderr = PIPE, shell=True)
     out, outerror = f.communicate()
+    print(outerror)
     """
 
     out_string = str(out)
@@ -142,7 +143,12 @@ def replace_car_strings(str_model,cars,nodePositions):
     value = "{"
     for i in range (0,len(cars)):
         value += str(int(cars[i][0]) + 1000) + ","
-    value = value[:-1]
+        if(i % 50 == 0):
+            value += "\n"    
+    if(value.endswith("\n")):
+        value = value[:-2]
+    else:
+        value = value[:-1]
     value += "};"
     str_model = str.replace(str_model, toReplace, value, 1)
 
@@ -151,7 +157,7 @@ def replace_car_strings(str_model,cars,nodePositions):
     value = "{"
     for i in range (0,len(cars)):
         value += "\n{"
-        for j in range (0, len(nodePositions)):
+        for j in range (0, 25):
             value += str(cars[i][1][j]) + ","
         value = value[:-1]
         value += "},"
@@ -166,9 +172,12 @@ def replace_node_strings(str_model,nodePositions,cars):
     value = "const int nodePositions[" + str(len(nodePositions)) + "][3] = {"
     for i in range (0,len(nodePositions)):
         value += "{" + str(nodePositions[i][0]) + "," + str(int(nodePositions[i][1][0])) + "," + str(int(nodePositions[i][1][1])) + "},"
-        if(i % 20 == 0):
-            value += "\n"
-    value = value[:-1]
+        if(i % 50 == 0):
+            value += "\n"    
+    if(value.endswith("\n")):
+        value = value[:-2]
+    else:
+        value = value[:-1]
     value += "};"
     str_model = str.replace(str_model, toReplace, value, 1)
 
@@ -184,9 +193,12 @@ def replace_node_strings(str_model,nodePositions,cars):
         edge = routeCar[routeIndex]
         keyLoc = edge.find("-")
         value += "{" + str(edge[1:keyLoc]) + "," + str(routeIndex) + "},"
-        if(i % 20 == 0):
-            value += "\n"
-    value = value[:-1]
+        if(i % 50 == 0):
+            value += "\n"    
+    if(value.endswith("\n")):
+        value = value[:-2]
+    else:
+        value = value[:-1]
     value += "};"
     str_model = str.replace(str_model, toReplace, value, 1)
 
@@ -203,11 +215,14 @@ def replace_edge_strings(str_model,networkGraph):
     for i in range(0,len(edges)):
         nrOfLanes = traci.edge.getLaneNumber(edges[i][0] + "-" + edges[i][1])
         weight = networkGraph.get_edge_data(edges[i][0], edges[i][1])
-        length = traci.lane.getLength(edges[i][0] + "-" + edges[i][1] + "_0")
-        value += "{" + str(edges[i][0][1:]) + "," +  str(edges[i][1][1:]) + "," + str(nrOfLanes) + "," + str(int(weight.get('weight'))) + "," + str(len(traci.edge.getLastStepVehicleIDs(edges[i][0] + "-" + edges[i][1]))) + "," + length + "},"
-        if(i % 20 == 0):
-            value += "\n"
-    value = value[:-1]
+        length = round(traci.lane.getLength(edges[i][0] + "-" + edges[i][1] + "_0"))
+        value += "{" + str(edges[i][0][1:]) + "," +  str(edges[i][1][1:]) + "," + str(nrOfLanes) + "," + str(int(weight.get('weight'))) + "," + str(len(traci.edge.getLastStepVehicleIDs(edges[i][0] + "-" + edges[i][1]))) + "," + str(length) + "},"
+        if(i % 50 == 0):
+            value += "\n"    
+    if(value.endswith("\n")):
+        value = value[:-2]
+    else:
+        value = value[:-1]
     value += "};"
     str_model = str.replace(str_model, toReplace, value, 1)
 
@@ -215,12 +230,19 @@ def replace_edge_strings(str_model,networkGraph):
 
 def replace_time_passed_current_edge(str_model, cars):
     toReplace = "//HOLDER_TIME_PASSED"
+    i = 0
     value = "{"
     for car in cars:
+        i += 1
         time_on_edge = car[2]
         value += str(time_on_edge)
         value += ","
-    value = value [:-1]
+        if(i % 50 == 0):
+            value += "\n"    
+    if(value.endswith("\n")):
+        value = value[:-2]
+    else:
+        value = value[:-1]
     value += "};"
     str_model = str.replace(str_model, toReplace, value, 1)
 

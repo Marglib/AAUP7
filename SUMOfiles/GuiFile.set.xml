@@ -2,7 +2,7 @@
 
 <viewsettings>
     <viewport y="500" x="500" zoom="600"/>
-    <delay value="300"/>
+    <delay value="0"/>
 
 
 
