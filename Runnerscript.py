@@ -179,7 +179,6 @@ def run(options):
                     Cars.append([car, get_route_nodes(car), get_time_on_edge(car)])
                 if (step % 10 == 0 and step > 200):
                     newRoutes = modelCaller(mainModel, mainQuery, options.expid, step, Cars, networkGraph, networkNodes)
-                    print(newRoutes)
 
                 for car in newRoutes:
                     car.update_route()

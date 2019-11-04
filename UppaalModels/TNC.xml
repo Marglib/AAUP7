@@ -24,7 +24,7 @@ const int horizon = 40;
 int Done = 0;
 int totalTravelTime = 0;
 
-int inNodes[20] = {17, 18, 19, 20, 34, 35, 36, 37, 38, 39, 45 ,44, 43,42,41,40,27,25,23,21};
+int inNodes[20][2] = {{17,0}, {18,0}, {54,19}, {20,0}, {34,0}, {35,0}, {36,0}, {37,0}, {53,38}, {39,0}, {45,0}, {44,0}, {57,43}, {42,0}, {41,0}, {40,0}, {51,27}, {25,0}, {23,0}, {21,0}};
 
 typedef int[0, N-1] id_car;
 
@@ -161,12 +161,13 @@ void update_weights()
         carsOnEdge = networkEdges[i][4];
         if(networkEdges[i][2] == 1)
         {
-            newWeight = 13.73 + 1.54 * carsOnEdge;
+            newWeight = 13.73 + 1.54 * carsOnEdge * (networkEdges[i][5]/200);
         }
         else if (networkEdges[i][2] == 2)
         {
-            newWeight = 7.37 + 0.17 * carsOnEdge;
+            newWeight = 7.37 + 0.17 * carsOnEdge * (networkEdges[i][5]/100);
         }
+        
         else if (networkEdges[i][2] == 3)
         {
             newWeight = 6.46 + 0.44 * carsOnEdge;
@@ -199,27 +200,22 @@ void check_reroute()
             fromIndex = currentStartNode[i][1];
 
 
-            //check route[i][fromIndex+3] != -1 to ensure we are not rerouting for the outnode
-            if(route[i][fromIndex+3] != -1)
+            nextFromNode = route[i][fromIndex+1];
+            nextToNode = route[i][fromIndex+2];
+            for(j = 0; j &lt; 20; j++)
             {
-                nextFromNode = route[i][fromIndex+1];
-                nextToNode = route[i][fromIndex+2];
-                for(j = 0; j &lt; 20; j++)
+                if(nextToNode == inNodes[j][0] || nextToNode == inNodes[j][1])
                 {
-                    if(nextToNode == inNodes[j])
-                    {
-                        outNode = 1;
-                    }
+                    outNode = 1;
                 }
+            }
+             edgeId = getEdgeIndex(nextFromNode, nextToNode);
 
-                edgeId = getEdgeIndex(nextFromNode, nextToNode);
+            weight = networkEdges[edgeId][3];
 
-                weight = networkEdges[edgeId][3];
-
-                if(weight &gt; threshold &amp;&amp; outNode != 1)
-                {
-                    reroute[i] = 1;
-                }
+            if(weight &gt; threshold &amp;&amp; outNode != 1)
+            {
+                reroute[i] = 1;
             }
         }
       
@@ -370,7 +366,7 @@ void simpleReroute()
 
                     for(k = 0; k &lt; 20; k++)
                     {
-                        if(connectingNodes[j] == inNodes[k] &amp;&amp; inNodes[k] != destNode)
+                        if(connectingNodes[j] == inNodes[k][0] &amp;&amp; inNodes[k][0] != destNode &amp;&amp; inNodes[k][1] != destNode)
                         {
                             illegalInNode = 1;
                         }
