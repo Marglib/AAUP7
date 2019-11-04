@@ -20,21 +20,18 @@ class car:
         self.currRoute = [x for x in currRouteIn if x != -1]
     
     def update_route(self):
-        for i in range(0,len(self.listOfReroutes)):
-            if(self.listOfReroutes[i][1] == 0):
-                newRoute = currRoute 
-                newRoute[self.listOfReroutes[i][0]] = self.listOfReroutes[i][2]
-                newRouteAsEdges = nodes_to_edges(newRoute,traci.vehicle.getRoadId(pid))
-                try:
-                    traci.vehicle.setRoute(newRouteAsEdges)
-                except:
-                    pass
-            else:
-                listOfReroutes[i][1] -= 1
+        newRoute = self.currRoute 
 
-    def nodes_to_edges(nodes, currEdge):
+        for i in range(0,len(self.listOfReroutes)):
+            newRoute[self.listOfReroutes[i][0]] = self.listOfReroutes[i][1]
+        
+        newRouteAsEdges = self.nodes_to_edges(newRoute[traci.vehicle.getRouteIndex(self.pid):])
+        traci.vehicle.setRoute(self.pid,newRouteAsEdges)
+        print("new route: " + str(newRouteAsEdges))
+                  
+
+    def nodes_to_edges(self, nodes):
         edges = []
-        edges.append(currEdge)
         for i in range(0, len(nodes)-1):
             edge = "n" + str(nodes[i]) + "-" + "n" + str(nodes[i + 1])
             edges.append(edge)
@@ -44,3 +41,6 @@ class car:
         print("pid:" + str(self.pid))
         print("reroutes:" + str(self.listOfReroutes))
         print("currRoute:" + str(self.currRoute))
+
+    def kill(self):
+        del self

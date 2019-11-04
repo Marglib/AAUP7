@@ -20,7 +20,7 @@ int curr_car = 0;
 int uniquetest = 0;
 int reroute[N];
 int carDone[N];
-const int horizon = 20;
+const int horizon = 40;
 int Done = 0;
 int totalTravelTime = 0;
 
@@ -39,16 +39,7 @@ int getEdgeIndex(int fromNode, int toNode)
     }
     return k;
 }
-/*
-int getNextRouteNode(int carId, int node)
-{
-    int i = 0;
-    while(route[carId][i] != node &amp;&amp; route[carId][i] != -1)
-    {
-        i++;
-    }
-    return route[carId][i+1];
-}*/</declaration>
+</declaration>
 	<template>
 		<name x="5" y="5">Simulator</name>
 		<declaration>clock x,y;
@@ -119,7 +110,7 @@ void flow_traffic()
                 else
                 {
                     //update time passed
-                    timePassed[i] += 5;
+                    timePassed[i] += 10;
                 }
             }
         }
@@ -236,7 +227,7 @@ void check_reroute()
        
 }</declaration>
 		<location id="id0" x="-501" y="-246">
-			<label kind="invariant" x="-511" y="-229">y &lt;= 5</label>
+			<label kind="invariant" x="-511" y="-229">y &lt;= 10</label>
 		</location>
 		<location id="id1" x="-773" y="-433">
 			<name x="-783" y="-467">Init</name>
@@ -258,7 +249,7 @@ void check_reroute()
 		<transition controllable="false">
 			<source ref="id0"/>
 			<target ref="id2"/>
-			<label kind="guard" x="-484" y="-314">y == 5</label>
+			<label kind="guard" x="-484" y="-314">y == 10</label>
 			<label kind="assignment" x="-501" y="-339">flow_traffic(), update_weights(), y = 0</label>
 		</transition>
 		<transition controllable="false">

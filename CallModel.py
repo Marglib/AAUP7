@@ -89,7 +89,6 @@ def extract_strategy(strat,numCar,pid,route):
     endOfStr = "\\n"
     listOfValues = []
     reroutes = []
-    rerouteTuple = ()
 
     for i in range(0,48):
         value = ""
@@ -106,9 +105,9 @@ def extract_strategy(strat,numCar,pid,route):
         if(len(listOfValues[i]) > 7):
             #print("VALUES FOR CAR: " + numCar)
             #print("ROUTE NODE " + str(i) + "= " + listOfValues[i])
-            time,node = clean_strategy(listOfValues[i])
-            rerouteTuple = (i,time,node)
-            reroutes.append(rerouteTuple)
+            node = clean_strategy(listOfValues[i])
+            rerouteList = [i,node]
+            reroutes.append(rerouteList)
     if(reroutes != []):
         return car(pid,reroutes,route)
     else:
@@ -126,7 +125,7 @@ def clean_strategy(stratString):
     timestep = int(split[0][-1:])
     node = int(split[1][:-1])
 
-    return timestep,node
+    return node
 
 def get_sub_string(outStr,key,end):
     keyLoc = outStr.find(key)

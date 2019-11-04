@@ -36,7 +36,7 @@ pathToModels = os.path.join(rootDir,'UppaalModels')
 mainQuery = os.path.join(pathToModels, 'TNC.q')
 mainModel = os.path.join(pathToModels, 'TNC.xml')
 listOfCarTimeLists = []
-newRoutes = []
+
 
 
 def run(options):
@@ -45,6 +45,7 @@ def run(options):
     traci.init(options.port)
     step = 0
     ListOfCarsPlaceholder = []
+    newRoutes = []
     networkGraph = preprocess()    
     pathsToFind = 3
 
@@ -70,8 +71,6 @@ def run(options):
         if options.controller == "TrafficNetworkController":
             CarsInNetworkList = traci.vehicle.getIDList()
             NodeIDs = networkGraph.nodes()
-            routeChanges = []
-            carChangedIds = []
             
             if len(CarsInNetworkList) > 0:
                 Cars = []
@@ -82,15 +81,14 @@ def run(options):
                 for car in CarsInNetworkList:
                     Cars.append([car, get_route_nodes(car), get_time_on_edge(car)])
                 if (step % 5 == 0 and step > 165):
-                    routeChanges = modelCaller(mainModel, mainQuery, options.expid, step, Cars, networkGraph, networkNodes)
-                    for car in routeChanges:
-                        carChangedIds.append(car.pid)
-                    
-                newRoutes = [x for x in newRoutes if car.pid not in carChangedIds]
-                newRoutes = newRoutes + routeChanges
-        
-            for car in newRoutes:
-                car.update_route()
+                    newRoutes = modelCaller(mainModel, mainQuery, options.expid, step, Cars, networkGraph, networkNodes)
+                    print(newRoutes)
+
+                for i in range(0,len(newRoutes)):
+                    newRoutes[i].update_route()
+                    print("FIAIIISISISISISISISISSKSKSKSK")
+                    newRoutes[i].kill()
+                    newRoutes.remove(newRoutes[i])
             
         #Simple rerouting controller
         if options.controller == "SimpleRerouting":
