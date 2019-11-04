@@ -233,3 +233,20 @@ def setRoutesToBestTry(bestTryCarData):
                 print(traci.vehicle.getRoadID(car))
                 pass
     print(i>j)
+
+#data from https://github.com/Marglib/AAUP7/blob/criticalDensity/Results/travelTime_per_car_with_regression_80th_percentile.png
+def getTravelTimeCoefficient(edgeID):
+    numLanes = traci.edge.getLaneNumber(edgeID)
+
+    if numLanes == 2:  
+        return 0.171021
+    elif numLanes == 3:
+        return 0.4368
+    elif numLanes == 4:        
+        return 0.8380
+    else:        
+        return 1.5354
+                
+
+
+
