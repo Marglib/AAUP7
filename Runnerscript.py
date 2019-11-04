@@ -12,6 +12,7 @@ import math
 import copy
 import networkx as nx
 import matplotlib.pyplot as plt
+import concurrent.futures
 from itertools import islice
 #import pandas as pd
 
@@ -26,6 +27,8 @@ from sumolib import checkBinary
 import traci
 import sumolib
 from CallModel import modelCaller
+from callStratego import cStratego
+from TrafficLightClass import smartTL
 
 # the port used for communicating with your sumo instance
 PORT = 8873
@@ -39,6 +42,7 @@ listOfCarTimeLists = []
 
 
 
+
 def run(options):
     """execute the TraCI control loop"""
     print("starting run")
@@ -49,6 +53,34 @@ def run(options):
     networkGraph = preprocess()    
     pathsToFind = 3
 
+    #-------------------------------STRATEGO info---------------------------------------
+    strategoMasterModel = os.path.join(pathToModels,'lowActivityMiniPro.xml')
+    strategoMasterModelGreen = os.path.join(pathToModels,'highActivityPro.xml')
+    strategoQuery = os.path.join(pathToModels,'StrategoQuery.q')
+    strategoLearningMet = "3"
+    strategoSuccRuns = "20"
+    strategoGoodRuns = "40"
+    strategoMaxRuns = "20"
+    strategoEvalRuns = "10"
+    strategoMaxIterations = "150"
+    #---------------------------- END ------------------------------
+
+    #-------------------- CLASS tls from here ----------------------
+    #Declare all the classes - program correspond as following: 
+    # 0 = vertical large intersection
+    # 1 = large center intersection
+    # 2 = horizontal large intersection
+    tln11 = smartTL('n11','0')
+    tln15 = smartTL('n15','1') #The large tl in the middle
+    tln16 = smartTL('n16','2') 
+    tln31 = smartTL('n31','0')
+    ListOfTls = [tln31,tln11,tln15,tln16]
+
+    #Set all phases and program ids
+    for tls in ListOfTls:
+        traci.trafficlight.setProgram(tls.tlID, tls.programID)
+        traci.trafficlight.setPhase(tls.tlID, tls.phase)
+    #-------------------------------END TLS-------------------------------------------
 
     print("Starting simulation expid=" + str(options.expid))
 
@@ -114,11 +146,24 @@ def run(options):
 
             ListOfCarsPlaceholder = list(CarsInNetworkList)
 
+
+        #------------------------- BEGIN STRATEGO CONTROLLER -----------------------------
+        if options.controller == "stratego":
+            with concurrent.futures.ThreadPoolExecutor(max_workers=len(ListOfTls)) as executor:
+                for tls in ListOfTls:
+                    future = executor.submit(tls.update_tl_state,strategoMasterModel,strategoMasterModelGreen,strategoQuery,
+                                                        strategoLearningMet,strategoSuccRuns,
+                                                        strategoMaxRuns,strategoGoodRuns,
+                                                        strategoEvalRuns,strategoMaxIterations,
+                                                        options.expid,step)
+                    future.result()
+
+            #---------------------------- END -----------------------------
+
         traci.simulationStep()
         step += 1    
     traci.close()
     sys.stdout.flush()
-
 
 def preprocess():
     network = configure_graph_from_network()
@@ -249,7 +294,8 @@ def get_directory():
     key = "/"
     keyLen = len(key)
     keyLoc = options.sumocfg.rfind(key)
-    return options.sumocfg[:keyLoc+keyLen]        
+    return options.sumocfg[:keyLoc+keyLen]
+
 def update_edgetime(edge):
     if traci.edge.getLastStepOccupancy(edge) > 0.3:
         traci.edge.adaptTraveltime(edge, 1*traci.edge.getLastStepOccupancy(edge))
@@ -270,7 +316,7 @@ def get_options():
     optParser.add_option("--expid", type="int", dest="expid")
     optParser.add_option("--sumocfg", type="string", dest="sumocfg",
                              default="data/nylandsvejPlain.sumocfg")
-    optParser.add_option("--load", type="string", dest="load",default="reserve")
+    optParser.add_option("--load", type="string", dest="load",default="0")
     optParser.add_option("--controller", type="string", dest="controller",default="default")    
     options, args = optParser.parse_args()
     return options
