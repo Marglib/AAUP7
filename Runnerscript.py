@@ -68,20 +68,60 @@ def run(options):
     #-------------------- CLASS tls from here ----------------------
     #Declare all the classes - program correspond as following: 
     # 0 = vertical large intersection
-    # 1 = large center intersection
-    # 2 = horizontal large intersection
-    tln11 = smartTL('n11','0')
-    tln15 = smartTL('n15','1') #The large tl in the middle
-    tln16 = smartTL('n16','2') 
-    tln31 = smartTL('n31','0')
-    ListOfTls = [tln31,tln11,tln15,tln16]
+    # 1 = horizontal large intersection
+    # 2 = large center intersection
+    # 3 = small intersection
+    if options.trafficlight == "smart":
+        #Every vertical traffic light:
+        tln3 = smartTL('n3','0')
+        tln7 = smartTL('n7','0')
+        tln11 = smartTL('n11','0')
+        tln31 = smartTL('n31','0')
+        
+        #The large center traffic light:
+        tln15 = smartTL('n15','2')
+        
+        #Every horizontal intersection:
+        tln13 = smartTL('n13','1')
+        tln14 = smartTL('n14','1')
+        tln16 = smartTL('n16','1')
+        tln28 = smartTL('n28','1') 
 
-    #Set all phases and program ids
-    for tls in ListOfTls:
-        traci.trafficlight.setProgram(tls.tlID, tls.programID)
-        traci.trafficlight.setPhase(tls.tlID, tls.phase)
+        #Every small intersection:
+        tln1 = smartTL('n1','3')
+        tln2 = smartTL('n2','3')
+        tln4 = smartTL('n4','3')
+        tln5 = smartTL('n5','3')
+        tln6 = smartTL('n6','3')
+        tln8 = smartTL('n8','3')
+        tln9 = smartTL('n9','3')
+        tln10 = smartTL('n10','3')
+        tln12 = smartTL('n12','3')
+        tln22 = smartTL('n22','3')
+        tln24 = smartTL('n24','3')
+        tln26 = smartTL('n26','3')
+        tln29 = smartTL('n29','3')
+        tln30 = smartTL('n30','3')
+        tln32 = smartTL('n32','3')
+        tln33 = smartTL('n33','3')
+
+        ListOfTls = [tln1,tln2,tln3,tln4,tln5,tln6,tln7,tln8,tln9,tln10,tln11,tln12,tln13,tln14,tln15,tln16,tln22,tln24,tln26,tln28,tln29,tln30,tln31,tln32,tln33] 
+        #ListOfTls = [tln3,tln7,tln11,tln13,tln14,tln15,tln16,tln28,tln31] 
+
+        #Set all phases and program ids
+        for tls in ListOfTls:
+            traci.trafficlight.setProgram(tls.tlID, tls.programID)
+            traci.trafficlight.setPhase(tls.tlID, tls.phase)
     #-------------------------------END TLS-------------------------------------------
+ 
+    #-------------------- Setup list of all edges in network ----------------------
+    tupleOfEdges = traci.edge.getIDList() #SUMO returns a tuple
+    listOfEdges = []
 
+    for edge in tupleOfEdges:
+        if((edge[0] == ":") == False):
+            listOfEdges.append(edge)
+    #-------------------- END -------------------------------------------------------
     print("Starting simulation expid=" + str(options.expid))
 
     while traci.simulation.getMinExpectedNumber() > 0:
@@ -92,6 +132,31 @@ def run(options):
         for i in range(0,len(edges)):
             networkGraph[edges[i][0]][edges[i][1]]['weight'] = get_weight(edges[i][0],edges[i][1], "travelTime")
                 
+        #------------------------- SMART TRAFFIC LIGHT -----------------------------
+        if options.trafficlight == "smart":
+            with concurrent.futures.ThreadPoolExecutor(max_workers=len(ListOfTls)) as executor:
+                for tls in ListOfTls:
+                    future = executor.submit(tls.update_tl_state,strategoMasterModel,strategoMasterModelGreen,strategoQuery,
+                                                        strategoLearningMet,strategoSuccRuns,
+                                                        strategoMaxRuns,strategoGoodRuns,
+                                                        strategoEvalRuns,strategoMaxIterations,
+                                                        options.expid,step)
+                    future.result()
+        #---------------------------- END -----------------------------
+
+        if options.controller == "basicMessoController":
+            dataForStratego = []
+            for edge in listOfEdges:
+                carsOnEdge = traci.edge.getLastStepVehicleIDs(edge)
+                adaptedTT = traci.edge.getTraveltime(edge)
+                carRoutes = []
+
+                for car in carsOnEdge:
+                    route = traci.vehicle.getRoute(car)
+                    carRoutes.append(route)
+
+                dataForStratego.append([edge, adaptedTT, carsOnEdge, carRoutes])
+
         #THE DEFAULT CONTROLLER - doesnt do anything 
         if options.controller == "default":
             CarsInNetworkList = traci.vehicle.getIDList()
@@ -114,7 +179,6 @@ def run(options):
                     Cars.append([car, get_route_nodes(car), get_time_on_edge(car)])
                 if (step % 10 == 0 and step > 200):
                     newRoutes = modelCaller(mainModel, mainQuery, options.expid, step, Cars, networkGraph, networkNodes)
-                    print(newRoutes)
 
                 for car in newRoutes:
                     car.update_route()
@@ -146,19 +210,6 @@ def run(options):
 
             ListOfCarsPlaceholder = list(CarsInNetworkList)
 
-
-        #------------------------- BEGIN STRATEGO CONTROLLER -----------------------------
-        if options.controller == "stratego":
-            with concurrent.futures.ThreadPoolExecutor(max_workers=len(ListOfTls)) as executor:
-                for tls in ListOfTls:
-                    future = executor.submit(tls.update_tl_state,strategoMasterModel,strategoMasterModelGreen,strategoQuery,
-                                                        strategoLearningMet,strategoSuccRuns,
-                                                        strategoMaxRuns,strategoGoodRuns,
-                                                        strategoEvalRuns,strategoMaxIterations,
-                                                        options.expid,step)
-                    future.result()
-
-            #---------------------------- END -----------------------------
 
         traci.simulationStep()
         step += 1    
@@ -317,7 +368,8 @@ def get_options():
     optParser.add_option("--sumocfg", type="string", dest="sumocfg",
                              default="data/nylandsvejPlain.sumocfg")
     optParser.add_option("--load", type="string", dest="load",default="0")
-    optParser.add_option("--controller", type="string", dest="controller",default="default")    
+    optParser.add_option("--controller", type="string", dest="controller",default="default")
+    optParser.add_option("--trafficlight", type="string", dest="trafficlight",default="traditional")
     options, args = optParser.parse_args()
     return options
 

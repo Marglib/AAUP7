@@ -186,7 +186,7 @@ def cStratego(model,query,learningMet,succRuns,maxRuns,goodRuns,evalRuns,maxIter
               binaryPhases, binaryPhaseIndices,tlID,yellowTime,greenModel=False,greenTimer=0):      
     newModel = createModel(model,expId,carsAreal,carsJammed,phase,duration,simStep,binaryPhasesDecimal,binaryPhaseIndices,tlID,nrOfSignals,yellowTime,greenModel,greenTimer)
     newQuery = createQuery(query,nrOfSignals,tlID)
-    stratego = VP.veri + " "
+    stratego = VP.veriStratego + " "
     #'time '
     com = stratego
     args = "\"" + newModel+"\"" \
