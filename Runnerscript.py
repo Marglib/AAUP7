@@ -176,13 +176,13 @@ def get_weight(node1, node2, measure):
     if(measure == "travelTime"):
         edge = node1 +"-"+ node2
         if(traci.edge.getLaneNumber(edge) == 1):
-            return 13.73 + 1.54 * traci.edge.getLastStepVehicleNumber(edge)
+            return 13.73 + 1.54 * traci.edge.getLastStepVehicleNumber(edge) * (traci.lane.getLength(edge + "_n") / 200)
         elif(traci.edge.getLaneNumber(edge) == 2):
-            return 7.37 + 0.17 * traci.edge.getLastStepVehicleNumber(edge)
+            return 7.37 + 0.17 * traci.edge.getLastStepVehicleNumber(edge) * (traci.lane.getLength(edge + "_n") / 100)
         elif(traci.edge.getLaneNumber(edge) == 3):
-            return 6.46 + 0.44 * traci.edge.getLastStepVehicleNumber(edge)
+            return 6.46 + 0.44 * traci.edge.getLastStepVehicleNumber(edge) * (traci.lane.getLength(edge + "_n") / 100)
         elif(traci.edge.getLaneNumber(edge) == 4):
-            return 5.69 + 0.84 * traci.edge.getLastStepVehicleNumber(edge)
+            return 5.69 + 0.84 * traci.edge.getLastStepVehicleNumber(edge) * (traci.lane.getLength(edge + "_n") / 100)
         
     
 
