@@ -45,8 +45,7 @@ def callSimulator(networkGraph, listOfEdges, currStep):
     carsReroutedThisStep = -1
     lowestTotalTravelTime = float("inf")
     fewestTotalCongestedEdges = float("inf")   #we start at highest possible so the first sim is always smaller than this
-    currentCarInformation = {}
-    currentEdgeInformation = {}
+    
     setupInformation(listOfEdges, currStep)
     #TODO change so we stop trying this branch in the tree if it does not look like it is getting better
     simData, totalCongestedEdges = simulateTrafficFlow(currentCarInformation, currentEdgeInformation, currStep, 100)
@@ -146,6 +145,7 @@ def changeRoutes(simData, networkGraph):
     return result
 
 def setupInformation(listOfEdges, step):
+    carsFound = []
     for edge in listOfEdges:
         if edge in currentEdgeInformation:
             currentEdgeInformation.update({edge : [traci.edge.getTraveltime(edge), [x for x in traci.edge.getLastStepVehicleIDs(edge)]]})
@@ -155,7 +155,7 @@ def setupInformation(listOfEdges, step):
         carsOnEdge = traci.edge.getLastStepVehicleIDs(edge)
         for car in carsOnEdge:
             route = traci.vehicle.getRoute(car)
-            
+            carsFound.append(car)
             if car in currentCarInformation:
                 if currentCarInformation[car][0] == edge:
                     pass
@@ -163,11 +163,19 @@ def setupInformation(listOfEdges, step):
                     currentCarInformation.update({car : [edge, step, route] })
             else:
                 currentCarInformation[car] = [edge, step, route]
+    
+    keysToDelete = []
+    for key in currentCarInformation:
+        if key not in carsFound:
+            keysToDelete.append(key)
+    
+    for deleteKey in keysToDelete:
+        del currentCarInformation[key]
+
 
 def simulateTrafficFlow(carData, edgeData, currentStep ,horizon):
     simulationData = {}
     totalCongestedEdges = 0
-
     localCarData = copy.deepcopy(carData)
     localEdgeData = copy.deepcopy(edgeData)
 
@@ -202,6 +210,7 @@ def simulateTrafficFlow(carData, edgeData, currentStep ,horizon):
                     localEdgeData.update({nextEdge : [ localEdgeData[nextEdge][0] + getTravelTimeCoefficient(nextEdge), newCarsOnNewEdge]})
                     if  isEdgeCongested( localEdgeData[nextEdge], nextEdge):
                         if nextEdge not in congestedEdges:
+                            pdb.set_trace()
                             congestedEdges.append(nextEdge)
                             #Used to see which simulation is best
                             totalCongestedEdges += 1
