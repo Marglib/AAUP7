@@ -61,6 +61,8 @@ def callSimulator(networkGraph, listOfEdges, currStep):
         
 
         newSim, someInt = simulateTrafficFlow(newCarData, currentEdgeInformation, currStep, 100)
+        print(someInt)
+
         totalTravelTime = getTotalTravelTime(newSim)
         if totalTravelTime < lowestTotalTravelTime:
             lowestTotalTravelTime = totalTravelTime
@@ -210,9 +212,9 @@ def simulateTrafficFlow(carData, edgeData, currentStep ,horizon):
                         
             
 def isEdgeCongested(singleEdgeData, edgeID):
-    value = 10
+    value = 2
     if traci.edge.getLaneNumber(edgeID) >= 2:
-        value = 20
+        value = 4
     if len(singleEdgeData[1]) > value:
         return True
     else:
