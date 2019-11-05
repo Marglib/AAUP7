@@ -85,7 +85,6 @@ def copyCarDataWithNeRoutes (carData, newRoutes):
     for element in newRoutes:
         #pdb.set_trace()
         if element[0] in newCarData:
-            print("Succesfully found a route")
             newCarData.update({element[0] : [carData[element[0]][0], carData[element[0]][1], element[1]]})
         else:
             print("new rounte for unkown car.... does this happen often?")
