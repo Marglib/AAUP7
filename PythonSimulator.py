@@ -75,7 +75,10 @@ def copyCarDataWithNeRoutes (carData, newRoutes):
     newCarData = copy.deepcopy(carData)
 
     for element in newRoutes:
-        newCarData.update({element[0] : [carData[element[0]][0], carData[element[0]][1], element[1]]})
+        if element[0] in newCarData:
+            newCarData.update({element[0] : [carData[element[0]][0], carData[element[0]][1], element[1]]})
+        else:
+            print("new round for unkown car.... does this happen often?")
     return newCarData
 
 def getTotalTravelTime (simData):
@@ -305,6 +308,3 @@ def getTravelTimeCoefficient(edgeID):
     else:        
         return 1.5354 * (laneLength / 200)
                 
-
-
-
