@@ -42,10 +42,11 @@ tryRuns = 50
 def callSimulator(networkGraph, listOfEdges, currStep):
     bestTry = {}
     bestTryRun = 0
-    carsReroutedThisStep = 0
+    carsReroutedThisStep = -1
     lowestTotalTravelTime = float("inf")
     fewestTotalCongestedEdges = float("inf")   #we start at highest possible so the first sim is always smaller than this
-   
+    currentCarInformation = {}
+    currentEdgeInformation = {}
     setupInformation(listOfEdges, currStep)
     #TODO change so we stop trying this branch in the tree if it does not look like it is getting better
     simData, totalCongestedEdges = simulateTrafficFlow(currentCarInformation, currentEdgeInformation, currStep, 100)
@@ -53,28 +54,26 @@ def callSimulator(networkGraph, listOfEdges, currStep):
     totalTravelTime = getTotalTravelTime(simData)
     if totalTravelTime < lowestTotalTravelTime:
         lowestTotalTravelTime = totalTravelTime
+    
     if totalCongestedEdges > 0:
+        print("starting heavy stuff")
         for i in range(0, tryRuns):
             newRoutes = changeRoutes(simData, networkGraph)
-            newCarData = copyCarDataWithNeRoutes(currentCarInformation, newRoutes)
+            newCarData = copyCarDataWithNeRoutes(currentCarInformation, newRoutes)            
 
-            
+            newSim, someInt = simulateTrafficFlow(newCarData, currentEdgeInformation, currStep, 100)
+            totalTravelTime = getTotalTravelTime(newSim)
+            if totalTravelTime < lowestTotalTravelTime:
+                lowestTotalTravelTime = totalTravelTime
+                bestTry = copy.deepcopy(newCarData)
+                if len(newRoutes) > carsReroutedThisStep:
+                    carsReroutedThisStep = len(newRoutes)
 
-        newSim, someInt = simulateTrafficFlow(newCarData, currentEdgeInformation, currStep, 100)
-        print(someInt)
-
-        totalTravelTime = getTotalTravelTime(newSim)
-        if totalTravelTime < lowestTotalTravelTime:
-            lowestTotalTravelTime = totalTravelTime
-            bestTry = copy.deepcopy(newCarData)
-            if len(newRoutes) > carsReroutedThisStep:
-                carsReroutedThisStep = len(newRoutes)
-
-        #print(totalCongestedEdges, fewestTotalCongestedEdges)
-        # if(totalCongestedEdges < fewestTotalCongestedEdges): #fewestTotalCongestedEdges  decides which try is best
-        #     fewestTotalCongestedEdges = totalCongestedEdges
-        #     bestTry = copy.deepcopy(currentCarInformation)
-            bestTryRun = i
+            #print(totalCongestedEdges, fewestTotalCongestedEdges)
+            # if(totalCongestedEdges < fewestTotalCongestedEdges): #fewestTotalCongestedEdges  decides which try is best
+            #     fewestTotalCongestedEdges = totalCongestedEdges
+            #     bestTry = copy.deepcopy(currentCarInformation)
+                bestTryRun = i
     setRoutesToBestTry(bestTry)
     print("Will reroute ", carsReroutedThisStep, "cars")
     print("the best iteration was:", bestTryRun)
@@ -83,7 +82,6 @@ def copyCarDataWithNeRoutes (carData, newRoutes):
     newCarData = copy.deepcopy(carData)
 
     for element in newRoutes:
-        #pdb.set_trace()
         if element[0] in newCarData:
             newCarData.update({element[0] : [carData[element[0]][0], carData[element[0]][1], element[1]]})
         else:
@@ -216,9 +214,9 @@ def simulateTrafficFlow(carData, edgeData, currentStep ,horizon):
                         
             
 def isEdgeCongested(singleEdgeData, edgeID):
-    value = 2
+    value = 5
     if traci.edge.getLaneNumber(edgeID) >= 2:
-        value = 4
+        value = value * 2
     if len(singleEdgeData[1]) > value:
         return True
     else:
