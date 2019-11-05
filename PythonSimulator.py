@@ -42,6 +42,7 @@ tryRuns = 50
 def callSimulator(networkGraph, listOfEdges, currStep):
     bestTry = {}
     bestTryRun = 0
+    carsReroutedThisStep = 0
     lowestTotalTravelTime = float("inf")
     fewestTotalCongestedEdges = float("inf")   #we start at highest possible so the first sim is always smaller than this
    
@@ -57,11 +58,15 @@ def callSimulator(networkGraph, listOfEdges, currStep):
         newRoutes = changeRoutes(simData, networkGraph)
         newCarData = copyCarDataWithNeRoutes(currentCarInformation, newRoutes)
 
+        
+
         newSim, someInt = simulateTrafficFlow(newCarData, currentEdgeInformation, currStep, 100)
         totalTravelTime = getTotalTravelTime(newSim)
         if totalTravelTime < lowestTotalTravelTime:
             lowestTotalTravelTime = totalTravelTime
             bestTry = copy.deepcopy(newCarData)
+            if len(newRoutes) > carsReroutedThisStep:
+                carsReroutedThisStep = len(newRoutes)
 
         #print(totalCongestedEdges, fewestTotalCongestedEdges)
         # if(totalCongestedEdges < fewestTotalCongestedEdges): #fewestTotalCongestedEdges  decides which try is best
@@ -69,7 +74,8 @@ def callSimulator(networkGraph, listOfEdges, currStep):
         #     bestTry = copy.deepcopy(currentCarInformation)
             bestTryRun = i
     setRoutesToBestTry(bestTry)
-    print(bestTryRun)
+    print("Will reroute ", carsReroutedThisStep, "cars")
+    print("the best iteration was:", bestTryRun)
 
 def copyCarDataWithNeRoutes (carData, newRoutes):
     newCarData = copy.deepcopy(carData)
@@ -78,7 +84,7 @@ def copyCarDataWithNeRoutes (carData, newRoutes):
         if element[0] in newCarData:
             newCarData.update({element[0] : [carData[element[0]][0], carData[element[0]][1], element[1]]})
         else:
-            print("new round for unkown car.... does this happen often?")
+            print("new rounte for unkown car.... does this happen often?")
     return newCarData
 
 def getTotalTravelTime (simData):
@@ -135,6 +141,7 @@ def changeRoutes(simData, networkGraph):
                     newRoute = makeNewRoute(edge, networkGraph, car) #TODO NEED BETTER WAY TO REROUTE
                     if newRoute != "":
                         result.append([car, newRoute])
+    
     return result
 
 def setupInformation(listOfEdges, step):
