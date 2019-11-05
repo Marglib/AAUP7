@@ -53,13 +53,14 @@ def callSimulator(networkGraph, listOfEdges, currStep):
     totalTravelTime = getTotalTravelTime(simData)
     if totalTravelTime < lowestTotalTravelTime:
         lowestTotalTravelTime = totalTravelTime
-    
-    for i in range(0, tryRuns):
-        newRoutes = changeRoutes(simData, networkGraph)
-        newCarData = copyCarDataWithNeRoutes(currentCarInformation, newRoutes)
+    if totalCongestedEdges > 0:
+        for i in range(0, tryRuns):
+            newRoutes = changeRoutes(simData, networkGraph)
+            newCarData = copyCarDataWithNeRoutes(currentCarInformation, newRoutes)
 
-        
+            
 
+<<<<<<< HEAD
         newSim, someInt = simulateTrafficFlow(newCarData, currentEdgeInformation, currStep, 100)
         print(someInt)
 
@@ -75,6 +76,21 @@ def callSimulator(networkGraph, listOfEdges, currStep):
         #     fewestTotalCongestedEdges = totalCongestedEdges
         #     bestTry = copy.deepcopy(currentCarInformation)
             bestTryRun = i
+=======
+            newSim, someInt = simulateTrafficFlow(newCarData, currentEdgeInformation, currStep, 100)
+            totalTravelTime = getTotalTravelTime(newSim)
+            if totalTravelTime < lowestTotalTravelTime:
+                lowestTotalTravelTime = totalTravelTime
+                bestTry = copy.deepcopy(newCarData)
+                if len(newRoutes) > carsReroutedThisStep:
+                    carsReroutedThisStep = len(newRoutes)
+
+            #print(totalCongestedEdges, fewestTotalCongestedEdges)
+            # if(totalCongestedEdges < fewestTotalCongestedEdges): #fewestTotalCongestedEdges  decides which try is best
+            #     fewestTotalCongestedEdges = totalCongestedEdges
+            #     bestTry = copy.deepcopy(currentCarInformation)
+                bestTryRun = i
+>>>>>>> cb1fac82af54df44b7fb8465d430a26f464147f4
     setRoutesToBestTry(bestTry)
     print("Will reroute ", carsReroutedThisStep, "cars")
     print("the best iteration was:", bestTryRun)
@@ -83,7 +99,9 @@ def copyCarDataWithNeRoutes (carData, newRoutes):
     newCarData = copy.deepcopy(carData)
 
     for element in newRoutes:
+        #pdb.set_trace()
         if element[0] in newCarData:
+            print("Succesfully found a route")
             newCarData.update({element[0] : [carData[element[0]][0], carData[element[0]][1], element[1]]})
         else:
             print("new rounte for unkown car.... does this happen often?")
@@ -169,15 +187,18 @@ def simulateTrafficFlow(carData, edgeData, currentStep ,horizon):
     simulationData = {}
     totalCongestedEdges = 0
 
+    localCarData = copy.deepcopy(carData)
+    localEdgeData = copy.deepcopy(edgeData)
+
     for i in range(1, horizon):
         congestedEdges = []
         keysToDelete = []
 
-        for carKey in carData:
-            singleCarData = carData[carKey]
+        for carKey in localCarData:
+            singleCarData = localCarData[carKey]
             currentEdge = singleCarData[0]
             enterTime = singleCarData[1]
-            travelTimeForEdge = edgeData[currentEdge][0]
+            travelTimeForEdge = localEdgeData[currentEdge][0]
             timeOnEdge = (currentStep - enterTime) + i
             
             if timeOnEdge >= travelTimeForEdge:
@@ -189,24 +210,24 @@ def simulateTrafficFlow(carData, edgeData, currentStep ,horizon):
                     print("-an error occured-" * 200)
                     keysToDelete.append(carKey)
                 else:
-                    carData.update({carKey : [nextEdge, currentStep + i, singleCarData[2]]})
-                    newCarsOnCurrentEdge = edgeData[currentEdge][1]
+                    localCarData.update({carKey : [nextEdge, currentStep + i, singleCarData[2]]})
+                    newCarsOnCurrentEdge = localEdgeData[currentEdge][1]
                     if carKey in newCarsOnCurrentEdge:
                         newCarsOnCurrentEdge.remove(carKey)
-                    newCarsOnNewEdge = edgeData[nextEdge][1]
+                    newCarsOnNewEdge = localEdgeData[nextEdge][1]
                     newCarsOnNewEdge.append(carKey)
                    
-                    edgeData.update ({currentEdge : [edgeData[currentEdge][0] -  getTravelTimeCoefficient(currentEdge), newCarsOnCurrentEdge]}) 
-                    edgeData.update({nextEdge : [ edgeData[nextEdge][0] + getTravelTimeCoefficient(nextEdge), newCarsOnNewEdge]})
-                    if  isEdgeCongested( edgeData[nextEdge], nextEdge):
+                    localEdgeData.update ({currentEdge : [localEdgeData[currentEdge][0] -  getTravelTimeCoefficient(currentEdge), newCarsOnCurrentEdge]}) 
+                    localEdgeData.update({nextEdge : [ localEdgeData[nextEdge][0] + getTravelTimeCoefficient(nextEdge), newCarsOnNewEdge]})
+                    if  isEdgeCongested( localEdgeData[nextEdge], nextEdge):
                         if nextEdge not in congestedEdges:
                             congestedEdges.append(nextEdge)
                             #Used to see which simulation is best
                             totalCongestedEdges += 1
         for key in keysToDelete:
-            del carData[key]
+            del localCarData[key]
 
-        simulationData[i] = [copy.deepcopy(carData), copy.deepcopy(edgeData), copy.copy(congestedEdges), currentStep + i]
+        simulationData[i] = [copy.deepcopy(localCarData), copy.deepcopy(localEdgeData), copy.copy(congestedEdges), currentStep + i]
 
     return simulationData, totalCongestedEdges
                         
