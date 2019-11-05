@@ -67,7 +67,7 @@ def callSimulator(networkGraph, listOfEdges, currStep):
         # if(totalCongestedEdges < fewestTotalCongestedEdges): #fewestTotalCongestedEdges  decides which try is best
         #     fewestTotalCongestedEdges = totalCongestedEdges
         #     bestTry = copy.deepcopy(currentCarInformation)
-        #     bestTryRun = i
+            bestTryRun = i
     setRoutesToBestTry(bestTry)
     print(bestTryRun)
 
@@ -197,7 +197,7 @@ def simulateTrafficFlow(carData, edgeData, currentStep ,horizon):
         for key in keysToDelete:
             del carData[key]
 
-        simulationData[i] = [copy.deepcopy(carData), copy.deepcopy(edgeData), congestedEdges.copy(), currentStep + i]
+        simulationData[i] = [copy.deepcopy(carData), copy.deepcopy(edgeData), copy.copy(congestedEdges), currentStep + i]
 
     return simulationData, totalCongestedEdges
                         
