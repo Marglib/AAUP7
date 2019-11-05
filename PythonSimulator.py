@@ -60,7 +60,6 @@ def callSimulator(networkGraph, listOfEdges, currStep):
 
             
 
-<<<<<<< HEAD
         newSim, someInt = simulateTrafficFlow(newCarData, currentEdgeInformation, currStep, 100)
         print(someInt)
 
@@ -76,21 +75,6 @@ def callSimulator(networkGraph, listOfEdges, currStep):
         #     fewestTotalCongestedEdges = totalCongestedEdges
         #     bestTry = copy.deepcopy(currentCarInformation)
             bestTryRun = i
-=======
-            newSim, someInt = simulateTrafficFlow(newCarData, currentEdgeInformation, currStep, 100)
-            totalTravelTime = getTotalTravelTime(newSim)
-            if totalTravelTime < lowestTotalTravelTime:
-                lowestTotalTravelTime = totalTravelTime
-                bestTry = copy.deepcopy(newCarData)
-                if len(newRoutes) > carsReroutedThisStep:
-                    carsReroutedThisStep = len(newRoutes)
-
-            #print(totalCongestedEdges, fewestTotalCongestedEdges)
-            # if(totalCongestedEdges < fewestTotalCongestedEdges): #fewestTotalCongestedEdges  decides which try is best
-            #     fewestTotalCongestedEdges = totalCongestedEdges
-            #     bestTry = copy.deepcopy(currentCarInformation)
-                bestTryRun = i
->>>>>>> cb1fac82af54df44b7fb8465d430a26f464147f4
     setRoutesToBestTry(bestTry)
     print("Will reroute ", carsReroutedThisStep, "cars")
     print("the best iteration was:", bestTryRun)
