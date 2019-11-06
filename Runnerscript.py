@@ -126,11 +126,6 @@ def run(options):
 
     while traci.simulation.getMinExpectedNumber() > 0:
         print(">>>simulation step: " + str(step))
-
-        #Update graph weights according to current traffic
-        edges = list(networkGraph.edges)
-        for i in range(0,len(edges)):
-            networkGraph[edges[i][0]][edges[i][1]]['weight'] = get_weight(edges[i][0],edges[i][1], "travelTime")
                 
         #------------------------- SMART TRAFFIC LIGHT -----------------------------
         if options.trafficlight == "smart":
@@ -159,13 +154,15 @@ def run(options):
 
         #THE DEFAULT CONTROLLER - doesnt do anything 
         if options.controller == "default":
-            CarsInNetworkList = traci.vehicle.getIDList()
-            update_time_on_edge(CarsInNetworkList)
-            for car in CarsInNetworkList:
-                print(get_time_on_edge(car))
+            pass
 
         #THE MAIN CONTROLLER
         if options.controller == "TrafficNetworkController":
+            #Update graph weights according to current traffic
+            edges = list(networkGraph.edges)
+            for i in range(0,len(edges)):
+                networkGraph[edges[i][0]][edges[i][1]]['weight'] = get_weight(edges[i][0],edges[i][1], "travelTime")
+
             CarsInNetworkList = traci.vehicle.getIDList()
             NodeIDs = networkGraph.nodes()
             
@@ -227,13 +224,13 @@ def get_weight(node1, node2, measure):
     if(measure == "travelTime"):
         edge = node1 +"-"+ node2
         if(traci.edge.getLaneNumber(edge) == 1):
-            return 13.73 + 1.54 * traci.edge.getLastStepVehicleNumber(edge) * (traci.lane.getLength(edge + "_n") / 200)
+            return 13.73 + 1.54 * traci.edge.getLastStepVehicleNumber(edge) * (traci.lane.getLength(edge + "_0") / 200)
         elif(traci.edge.getLaneNumber(edge) == 2):
-            return 7.37 + 0.17 * traci.edge.getLastStepVehicleNumber(edge) * (traci.lane.getLength(edge + "_n") / 100)
+            return 7.37 + 0.17 * traci.edge.getLastStepVehicleNumber(edge) * (traci.lane.getLength(edge + "_0") / 100)
         elif(traci.edge.getLaneNumber(edge) == 3):
-            return 6.46 + 0.44 * traci.edge.getLastStepVehicleNumber(edge) * (traci.lane.getLength(edge + "_n") / 100)
+            return 6.46 + 0.44 * traci.edge.getLastStepVehicleNumber(edge) * (traci.lane.getLength(edge + "_0") / 100)
         elif(traci.edge.getLaneNumber(edge) == 4):
-            return 5.69 + 0.84 * traci.edge.getLastStepVehicleNumber(edge) * (traci.lane.getLength(edge + "_n") / 100)
+            return 5.69 + 0.84 * traci.edge.getLastStepVehicleNumber(edge) * (traci.lane.getLength(edge + "_0") / 100)
         
     
 

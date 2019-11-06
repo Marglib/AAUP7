@@ -1,0 +1,17 @@
+<routes>
+    <vType accel="1.0" decel="5.0" id="Car" jmIgnoreKeepClearTime="100.0" maxSpeed="30" length="3" />
+        
+    <!--emergencyDecel="0.0"-->
+    <trip id="0" depart="0" from="n20-n4" to="n51-n27"/>
+<trip id="1" depart="1" from="n25-n9" to="n57-n43"/>
+<trip id="2" depart="2" from="n43-n57" to="n54-n19"/>
+<trip id="3" depart="3" from="n42-n30" to="n26-n37"/>
+<trip id="4" depart="3" from="n27-n51" to="n2-n18"/>
+<trip id="5" depart="4" from="n39-n33" to="n51-n27"/>
+<trip id="6" depart="4" from="n21-n1" to="n57-n43"/>
+<trip id="7" depart="9" from="n20-n4" to="n51-n27"/>
+<trip id="8" depart="10" from="n35-n22" to="n53-n38"/>
+<trip id="9" depart="10" from="n43-n57" to="n30-n42"/>
+
+
+</routes>

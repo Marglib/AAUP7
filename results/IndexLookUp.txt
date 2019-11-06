@@ -10,7 +10,37 @@ The indeces for the different experiments:
     #311 - 1000 time steps with 1000 trips for a simplererouting controller
     #312 - 1000 time steps with 2000 trips for a simplererouting controller
 
-#400 - Smart traffic lights and simple Uppaal implementation
+#4000 - Smart traffic lights and simple Uppaal implementation
+    #4000-4099
+        #4000-4009 - Normal tl & default controller
+        #4010-4019 - Normal tl & TrafficNetworkController
+        #4020-4029 - Smart tl & default controller
+        #4030-4039 - Smart tl & TrafficNetworkController
+    #4100-4199
+        #4100-4109 - Normal tl & default controller
+        #4110-4119 - Normal tl & TrafficNetworkController
+        #4120-4129 - Smart tl & default controller
+        #4130-4139 - Smart tl & TrafficNetworkController
+    #4200-4299
+        #4200-4209 - Normal tl & default controller
+        #4210-4219 - Normal tl & TrafficNetworkController
+        #4220-4229 - Smart tl & default controller
+        #4230-4239 - Smart tl & TrafficNetworkController
+    #4300-4399
+        #4300-4309 - Normal tl & default controller
+        #4310-4319 - Normal tl & TrafficNetworkController
+        #4320-4329 - Smart tl & default controller
+        #4330-4339 - Smart tl & TrafficNetworkController
+    #4400-4499
+        #4400-4409 - Normal tl & default controller
+        #4410-4419 - Normal tl & TrafficNetworkController
+        #4420-4429 - Smart tl & default controller
+        #4430-4439 - Smart tl & TrafficNetworkController
+    #4500-4599
+        #4500-4509 - Normal tl & default controller
+        #4510-4519 - Normal tl & TrafficNetworkController
+        #4520-4529 - Smart tl & default controller
+        #4530-4539 - Smart tl & TrafficNetworkController
 
 
 

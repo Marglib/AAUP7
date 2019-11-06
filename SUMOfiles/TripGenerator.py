@@ -14,8 +14,10 @@ import webbrowser
 import pandas as pd
 from numpy.random import choice
 
+rootDir = os.path.abspath(os.getcwd())
+pathToFiles = os.path.join(rootDir,'SUMOfiles')
+routeFile = os.path.join(pathToFiles,"RouteFileTemplate.rou.xml")
 
-routeFile = "RouteFileTemplate.rou.xml"
 
 def generateTrips(options, edgeFileDir):
     fromNodes = []
@@ -46,7 +48,7 @@ def generateTrips(options, edgeFileDir):
 
     randomDepartures.sort()
 
-    fo = open(routeFile, "r+")
+    fo = open(routeFile,"r+")
     routeFileAsString = fo.read()
     fo.close()
 
@@ -54,7 +56,7 @@ def generateTrips(options, edgeFileDir):
     value = ""
 
     if options.useProbFile:
-        df = pd.read_csv("inOutNodes.txt")
+        df = pd.read_csv(os.path.join(pathToFiles,"inOutNodes.txt"))
         
         isCorrect = verifyProbabilitys(df)
         fromNodes = [element.split("-")[0] for element in fromEdges]
@@ -159,7 +161,6 @@ def get_options():
 # this is the main entry point of this script
 if __name__ == "__main__":
     options = get_options()
-
     if(options.edgeFile == ""):
         sys.exit("edgeFile cannot be empty")
     if((os.path.exists(options.edgeFile)) == False):
