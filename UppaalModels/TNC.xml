@@ -44,6 +44,7 @@ int getEdgeIndex(int fromNode, int toNode)
 	<template>
 		<name x="5" y="5">Simulator</name>
 		<declaration>clock x,y;
+// needs abosolute path to be used in tempmodel
 ///home/thomas/AAUP7/UppaalModels/Libraries/lib.so
 
 import "/Libraries/lib.so" {
@@ -134,8 +135,6 @@ void update_weights()
 {
     int i = 0;
     int carsOnEdge = 0;
-    int toNode, fromNode;
-    double newWeight = 0.0;
     
     for(i = 0; i &lt; numEdges; i++)
     {
@@ -152,7 +151,7 @@ void check_reroute()
     int edgeId;
     int weight;
     int outNode = 0;
-    int threshold = 0; 
+    int threshold = 0;
 
     for(i = 0; i &lt; N; i++)
     {
@@ -249,7 +248,7 @@ void check_reroute()
 		<name>Rerouter</name>
 		<declaration>int connectingNodes[3];
 
-void getConnectingNodes(int node, int prevNode, int cNodes[3])
+void getConnectingNodes(int node, int prevNode)
 {
     int i = 0;
     int foundNodes = 0;
@@ -286,29 +285,26 @@ int manhattanDistance(int node1, int node2)
     return abs(nodePositions[i][1] - nodePositions[j][1]) + abs(nodePositions[i][2] - nodePositions[j][2]);
 }
 
-int getBestConnection(int cNodes[3], int edgeWeights[3], int destNode, int rerouteNode)
+int getBestConnection(int destNode, int rerouteNode)
 {
     int j = 0, k = 0;
     int illegalInNode = 0;
     int edgeId, edgeWeight, bestConnection;
-
-    edgeWeights[0] = 0;
-    edgeWeights[1] = 0;
-    edgeWeights[2] = 0;
+    int edgeWeights[3];
 
     for (j = 0; j &lt; 3; j++)
     {   
-        if(cNodes[j] != -1)
+        if(connectingNodes[j] != -1)
         {
-            edgeId = getEdgeIndex(rerouteNode, cNodes[j]);
+            edgeId = getEdgeIndex(rerouteNode, connectingNodes[j]);
 
             edgeWeight = networkEdges[edgeId][3];
 
-            edgeWeights[j] = manhattanDistance(cNodes[j], destNode) + edgeWeight;
+            edgeWeights[j] = manhattanDistance(connectingNodes[j], destNode) + edgeWeight;
 
             for(k = 0; k &lt; 20; k++)
             {
-                if(cNodes[j] == inNodes[k][0] &amp;&amp; inNodes[k][0] != destNode &amp;&amp; inNodes[k][1] != destNode)
+                if(connectingNodes[j] == inNodes[k][0] &amp;&amp; inNodes[k][0] != destNode &amp;&amp; inNodes[k][1] != destNode)
                 {
                     illegalInNode = 1;
                 }
@@ -326,7 +322,7 @@ int getBestConnection(int cNodes[3], int edgeWeights[3], int destNode, int rerou
         }
     }
 
-    return cNodes[bestConnection]; 
+    return connectingNodes[bestConnection]; 
 }
 
 void simpleReroute()
@@ -336,7 +332,6 @@ void simpleReroute()
     int destNode;
     int curNode = currentStartNode[curr_car][0];
     int curIndex = currentStartNode[curr_car][1];
-    int edgeWeights[3];
     int prevNode = curNode;
     int rerouteNode;
     int bestConnection = 0;
@@ -358,9 +353,9 @@ void simpleReroute()
         {
             bestConnection = 0;
 
-            getConnectingNodes(rerouteNode, prevNode, connectingNodes);
+            getConnectingNodes(rerouteNode, prevNode);
         
-            bestConnection = getBestConnection(connectingNodes, edgeWeights, destNode, rerouteNode);
+            bestConnection = getBestConnection(destNode, rerouteNode);
         
             carRoute[curIndex + 1] = bestConnection;
             prevNode = rerouteNode;

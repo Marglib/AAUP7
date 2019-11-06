@@ -202,9 +202,6 @@ def cStratego(model,query,learningMet,succRuns,maxRuns,goodRuns,evalRuns,maxIter
     #print("Calling stratego for traffic light strategy \n")
     time_avg_sim, out1 = runStratego(com,args,query)
     sigEnabled,sigDuration = getStrategy(out1,greenModel,nrOfSignals)
-    if(tlID == 'n15'):
-        print(out1)
-        print(sigEnabled)
     #print(sigDuration)
     #we hardcode the output to the concrete crossing where:
     #signals 1 2 are WE EW and 3 4 are NS SN

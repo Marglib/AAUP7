@@ -31,7 +31,7 @@ class car:
             traci.vehicle.setRoute(self.pid,newRouteAsEdges)
             print("new route: " + str(newRouteAsEdges))
         except:
-            pass      
+            print("Could not reroute car " + str(self.pid) + "with route " + str(newRouteAsEdges))      
 
     def nodes_to_edges(self, nodes):
         edges = []

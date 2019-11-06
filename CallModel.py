@@ -117,14 +117,12 @@ def extract_strategy(strat,numCar,pid,route):
 def clean_strategy(stratString):
     stratString = stratString.strip()
     delim = "0,0)"
-    timestep = 0
     node = 0
 
     start = stratString.find(delim)
     keyLen = len(delim)
     split = stratString[start+keyLen:].split(",")
-    timestep = int(split[0][-1:])
-    node = int(split[1][:-1])
+    node = int(split[(len(split)-1)][:-1])
 
     return node
 

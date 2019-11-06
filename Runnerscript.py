@@ -157,7 +157,7 @@ def run(options):
             pass
 
         #THE MAIN CONTROLLER
-        if options.controller == "TrafficNetworkController":
+        if (options.controller == "TrafficNetworkController" and step % 10 == 0 and step > 199):
             #Update graph weights according to current traffic
             edges = list(networkGraph.edges)
             for i in range(0,len(edges)):
@@ -165,6 +165,7 @@ def run(options):
 
             CarsInNetworkList = traci.vehicle.getIDList()
             NodeIDs = networkGraph.nodes()
+
             
             if len(CarsInNetworkList) > 0:
                 Cars = []
@@ -177,10 +178,13 @@ def run(options):
                 
                 newRoutes = modelCaller(mainModel, mainQuery, options.expid, step, Cars, networkGraph, networkNodes)
 
+
                 for car in newRoutes:
                     car.update_route()
                     car.kill()
-                    newRoutes.remove(car)
+                    #newRoutes.remove(car)
+
+                newRoutes = []
             
         #Simple rerouting controller
         if options.controller == "SimpleRerouting":

@@ -26,8 +26,8 @@ class smartTL:
         self.programID = programID
         self.yellow = yellowTime
         self.binaryPhases,self.binaryPhasesDecimal,self.binaryPhaseIndices,self.yellowOnlyPhases,self.nrOfSignals = self.get_phases_for_program()
-        if(self.tlID == 'n15'):
-            print(self.binaryPhases,self.binaryPhasesDecimal,self.binaryPhaseIndices,self.yellowOnlyPhases,self.nrOfSignals)
+        #if(self.tlID == 'n15'):
+        #    print(self.binaryPhases,self.binaryPhasesDecimal,self.binaryPhaseIndices,self.yellowOnlyPhases,self.nrOfSignals)
 
         #Initial values for important variables
         self.duration = yellowTime
