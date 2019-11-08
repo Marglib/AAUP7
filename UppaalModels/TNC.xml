@@ -247,6 +247,7 @@ void check_reroute()
 	<template>
 		<name>Rerouter</name>
 		<declaration>int connectingNodes[3];
+int extendedNodes[3];
 
 void getConnectingNodes(int node, int prevNode)
 {
@@ -263,6 +264,27 @@ void getConnectingNodes(int node, int prevNode)
         if(edge[0] == node &amp;&amp; edge[1] != prevNode)
         {
             connectingNodes[foundNodes] = edge[1];
+            foundNodes++;
+        }
+    }
+
+}
+
+void getExtendedNodes(int node, int prevNode)
+{
+    int i = 0;
+    int foundNodes = 0;
+    int edge[6];
+    extendedNodes[0] = -1;
+    extendedNodes[1] = -1;
+    extendedNodes[2] = -1;
+
+    for(i = 0; i &lt; numEdges; i++)
+    {
+        edge = networkEdges[i];
+        if(edge[0] == node &amp;&amp; edge[1] != prevNode)
+        {
+            extendedNodes[foundNodes] = edge[1];
             foundNodes++;
         }
     }
@@ -287,24 +309,52 @@ int manhattanDistance(int node1, int node2)
 
 int getBestConnection(int destNode, int rerouteNode)
 {
-    int j = 0, k = 0;
+    int j = 0, k = 0, i = 0;
     int illegalInNode = 0;
-    int edgeId, edgeWeight, bestConnection;
+    int edgeId, edgeWeight, bestConnection; 
+    int bestExtension = 0;
     int edgeWeights[3];
+    int extendedEdgeWeights[3];
 
     for (j = 0; j &lt; 3; j++)
     {   
         if(connectingNodes[j] != -1)
         {
+            bestExtension = 0;
             edgeId = getEdgeIndex(rerouteNode, connectingNodes[j]);
 
             edgeWeight = networkEdges[edgeId][3];
 
             edgeWeights[j] = manhattanDistance(connectingNodes[j], destNode) + edgeWeight;
 
+            getExtendedNodes(connectingNodes[j], rerouteNode);
+
+            for (i = 0; i &lt; 3; i++)
+            {
+                if(extendedNodes[i] != -1)
+                {
+                    edgeId = getEdgeIndex(connectingNodes[j], extendedNodes[i]);
+
+                    edgeWeight = networkEdges[edgeId][3];
+    
+                    extendedEdgeWeights[i] = manhattanDistance(extendedNodes[i], destNode) + edgeWeight;
+
+                    if(extendedEdgeWeights[i] &lt;  extendedEdgeWeights[bestExtension])
+                    {
+                        bestExtension = i;
+                    }
+
+                    edgeWeights[j] += manhattanDistance(extendedNodes[bestExtension], destNode) + edgeWeight;
+                }
+            }
+
             for(k = 0; k &lt; 20; k++)
             {
                 if(connectingNodes[j] == inNodes[k][0] &amp;&amp; inNodes[k][0] != destNode &amp;&amp; inNodes[k][1] != destNode)
+                {
+                    illegalInNode = 1;
+                }
+                else if(extendedNodes[bestExtension] == inNodes[k][0] &amp;&amp; inNodes[k][0] != destNode &amp;&amp; inNodes[k][1] != destNode)
                 {
                     illegalInNode = 1;
                 }
@@ -374,122 +424,7 @@ void simpleReroute()
     }
     
 }
-/*
-void extendedReroute()
-{
-    int carRoute[routeLenght] = route[curr_car];
-    int i = 0, j = 0, k = 0, l = 0;
-    int destNode;
-    int curNode = currentStartNode[curr_car][0];
-    int curIndex = currentStartNode[curr_car][1];
-    int edgeWeights[3];
-    int prevNode = curNode;
-    int rerouteNode;
-    int edgeId, edgeWeight, bestConnection;
-    int illegalInNode = 0;
-    int nextConnectingNodes[3];
 
-
-    i = curIndex;
-    while (carRoute[i+1] != -1)
-    {            
-        i++;
-    }
-
-    destNode = carRoute[i];
-    if (curNode != destNode)
-    {
-        curIndex++;
-        rerouteNode = route[curr_car][curIndex];
-
-        while (rerouteNode != destNode)
-        {
-            edgeId = 0;
-            edgeWeight = 0; 
-            j = 0;
-            bestConnection = 0;connectingNodes
-
-            getConnectingNodes(rerouteNode, prevNode, connectingNodes);
-        
-            for (j = 0; j &lt; 3; j++)
-            {   
-                if(connectingNodes[j] != -1)
-                {
-                    edgeId = getEdgeIndex(rerouteNode, connectingNodes[j]);
-
-                    edgeWeight = networkEdges[edgeId][3];
-
-                    getConnectingNodes(rerouteNode, prevNode, nextConnectingNodes);
-
-                    for (l = 0; l &lt; 3; l++)
-                    {   
-                        if(nextConnectingNodes[l] != -1)
-                        {
-                            edgeId = getEdgeIndex(rerouteNode, nextConnectingNodes[l]);
-
-                            edgeWeight = networkEdges[edgeId][3];
-
-                            edgeWeights[j] = manhattanDistance(nextConnectingNodes[l], destNode);
-
-                            for(k = 0; k &lt; 20; k++)
-                            {
-                                if(nextConnectingNodes[l] == inNodes[k][0] &amp;&amp; inNodes[k][0] != destNode &amp;&amp; inNodes[k][1] != destNode)
-                                {
-                                    illegalInNode = 1;
-                                }
-                            }
-
-                            if(illegalInNode == 1)
-                            {
-                                edgeWeights[j] = 32000;
-                            }            
-                            if( edgeWeights[j] &lt;  edgeWeights[bestConnection])
-                            {
-                                bestConnection = j;
-                            }
-                            illegalInNode = 0;
-                        }
-                    }
-
-                    edgeWeights[j] = manhattanDistance(connectingNodes[j], destNode);
-
-                    for(k = 0; k &lt; 20; k++)
-                    {
-                        if(connectingNodes[j] == inNodes[k][0] &amp;&amp; inNodes[k][0] != destNode &amp;&amp; inNodes[k][1] != destNode)
-                        {
-                            illegalInNode = 1;
-                        }
-                    }
-
-                    if(illegalInNode == 1)
-                    {
-                        edgeWeights[j] = 32000;
-                    }            
-                    if( edgeWeights[j] &lt;  edgeWeights[bestConnection])
-                    {
-                        bestConnection = j;
-                    }
-                    illegalInNode = 0;
-                }
-            } 
-        
-            carRoute[curIndex + 1] = connectingNodes[bestConnection];
-            prevNode = rerouteNode;
-            rerouteNode = connectingNodes[bestConnection];
-            curIndex++;        
-        }
-
-        while(curIndex &lt; (routeLenght-1))
-        {
-            carRoute[curIndex+1] = -1;
-            curIndex++;
-        }         
-
-        route[curr_car] = carRoute;
-
-    }
-    
-}*/
 
 void choose_route(int strategy)
 {

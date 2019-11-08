@@ -45,9 +45,9 @@ class smartTL:
         #Old Functions: self.get_lane_func(traci.lane.getLastStepVehicleNumber, self.tlID)[::-1]
         carsAreal = self.get_cars_areal_in_radius(self.tlID, self.radius)[::-1]
         carsJammed = self.get_lane_func(traci.lane.getLastStepHaltingNumber, self.tlID)[::-1]
-        if(self.tlID == 'n15'):
-            print(carsAreal)
-            print(carsJammed)
+        #if(self.tlID == 'n15'):
+        #    print(carsAreal)
+        #    print(carsJammed)
         
         if self.strategoTimer == 0:
             if self.inYellow:

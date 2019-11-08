@@ -18,6 +18,7 @@ class car:
         self.pid = pid
         self.listOfReroutes = listOfReroutes
         self.currRoute = currRouteIn
+        self.rerouted = False
     
     def update_route(self):
         newRoute = self.currRoute 
@@ -30,6 +31,7 @@ class car:
         try:
             traci.vehicle.setRoute(self.pid,newRouteAsEdges)
             print("new route: " + str(newRouteAsEdges))
+            self.rerouted = True
         except:
             print("Could not reroute car " + str(self.pid) + "with route " + str(newRouteAsEdges))      
 

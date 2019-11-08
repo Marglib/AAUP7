@@ -157,16 +157,15 @@ def run(options):
             pass
 
         #THE MAIN CONTROLLER
-        if (options.controller == "TrafficNetworkController" and step % 10 == 0 and step > 199):
+        if (options.controller == "TrafficNetworkController"):
             #Update graph weights according to current traffic
             edges = list(networkGraph.edges)
             for i in range(0,len(edges)):
                 networkGraph[edges[i][0]][edges[i][1]]['weight'] = get_weight(edges[i][0],edges[i][1], "travelTime")
 
             CarsInNetworkList = traci.vehicle.getIDList()
-            NodeIDs = networkGraph.nodes()
-
-            
+            NodeIDs = networkGraph.nodes()      
+        
             if len(CarsInNetworkList) > 0:
                 Cars = []
                 networkNodes = []
@@ -176,15 +175,15 @@ def run(options):
                 for car in CarsInNetworkList:
                     Cars.append([car, get_route_nodes(car), get_time_on_edge(car)])
                 
-                newRoutes = modelCaller(mainModel, mainQuery, options.expid, step, Cars, networkGraph, networkNodes)
-
+                if(step % 10 == 0 and step > 199):      
+                    for car in newRoutes:
+                        car.kill()              
+                    newRoutes = modelCaller(mainModel, mainQuery, options.expid, step, Cars, networkGraph, networkNodes)
 
                 for car in newRoutes:
                     car.update_route()
-                    car.kill()
-                    #newRoutes.remove(car)
 
-                newRoutes = []
+                newRoutes = [car for car in newRoutes if not car.rerouted]
             
         #Simple rerouting controller
         if options.controller == "SimpleRerouting":
