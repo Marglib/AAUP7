@@ -1,0 +1,613 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
+<nta>
+	<declaration>// Place global declarations here.
+const int routeLenght = 25;
+const int nodes = //HOLDER_NUMBER_OF_NODES
+const int numEdges = //HOLDER_NUMBER_OF_EDGES
+//HOLDER_NUMBER_OF_CARS
+const int pid[N] = //HOLDER_CAR_PID 
+int route[N][routeLenght] = //HOLDER_CAR_ROUTE 
+//HOLDER_NODE_POSITIONS
+int timePassed[N] = //HOLDER_TIME_PASSED
+int currentStartNode[N][2] = //HOLDER_CURRENT_START_NODE
+typedef int[0,nodes] node_t;
+
+//networkEdges constains touples of the form (fromNodeId, toNodeId, lanes, edgeweight, carsOnEdge)
+//HOLDER_EDGES
+
+int edgeCloseProps[numEdges] = //HOLDER_EDGE_CLOSE_PROPS
+
+int curr_car = 0;
+int uniquetest = 0;
+int reroute[N];
+int carDone[N];
+const int horizon = 40;
+int Done = 0;
+int totalTravelTime = 0;
+
+int inNodes[20][2] = {{17,0}, {18,0}, {54,19}, {20,0}, {34,0}, {35,0}, {36,0}, {37,0}, {53,38}, {39,0}, {45,0}, {44,0}, {57,43}, {42,0}, {41,0}, {40,0}, {51,27}, {25,0}, {23,0}, {21,0}};
+
+typedef int[0, N-1] id_car;
+
+broadcast chan Reroute, DoneRerouting;
+
+int getEdgeIndex(int fromNode, int toNode)
+{
+    int k = 0;
+    while(networkEdges[k][0] != fromNode || networkEdges[k][1] != toNode)
+    {
+        k++;
+    }
+    return k;
+}
+
+</declaration>
+	<template>
+		<name x="5" y="5">Simulator</name>
+		<declaration>clock x,y;
+// needs abosolute path to be used in tempmodel
+///home/thomas/AAUP7/UppaalModels/Libraries/lib.so
+
+import "/Libraries/lib.so" {
+	int calc_edge_weight(int lanes, int cars, int lenght);
+    int get_threshold(int edge_length);
+	//alias = int calc_edge_weight(int lanes, int cars, int lenght);
+};
+
+
+void constructor()
+{
+    int i = 0;
+
+    for(i = 0; i &lt; N; i++)
+    {
+        reroute[i] = 0;
+        carDone[i] = 0;
+    }
+}
+
+
+//check if cars have changed edge
+void flow_traffic()
+{
+    int i = 0;
+    int currentEdge = 0;
+    int timePassedCarI = 0;
+    int edgeTT = 0;
+    int edgeId;
+    int fromNode, toNode, nextToNode;  
+    int fromIndex;  
+    int allDone = 0;
+
+
+    for (i = 0; i &lt; N; i++)
+    {
+        allDone += carDone[i];
+        if(!carDone[i])
+        {
+            timePassedCarI = timePassed[i];
+            
+            fromNode = currentStartNode[i][0];
+            fromIndex = currentStartNode[i][1];
+            toNode = route[i][fromIndex+1];
+
+            if(toNode == -1)
+            {
+                carDone[i] = 1;
+            }
+            else
+            {
+                edgeId = getEdgeIndex(fromNode, toNode);
+        
+                edgeTT = networkEdges[edgeId][3];
+
+                if(timePassedCarI &gt;= edgeTT)
+                {
+                    currentStartNode[i][0] = toNode;
+                    currentStartNode[i][1]++;
+                    totalTravelTime += timePassedCarI;
+                    timePassed[i] = 0;
+                    networkEdges[edgeId][4] = networkEdges[edgeId][4] - 1;
+                    nextToNode = route[i][fromIndex+2];
+
+                    if(nextToNode != -1)
+                    {
+                        edgeId = getEdgeIndex(toNode, nextToNode);
+                        networkEdges[edgeId][4] = networkEdges[edgeId][4] + 1;
+                    }
+                }
+                else
+                {
+                    //update time passed
+                    timePassed[i] += 10;
+                }
+            }
+        }
+    }
+
+    if(allDone == N)
+    {
+        Done = 1;
+    }
+
+}
+
+void update_weights()
+{
+    int i = 0;
+    int carsOnEdge = 0;
+    
+    for(i = 0; i &lt; numEdges; i++)
+    {
+        carsOnEdge = networkEdges[i][4];        
+        networkEdges[i][3] = calc_edge_weight(networkEdges[i][2], carsOnEdge, networkEdges[i][5]);
+    }
+}
+
+//TODO: ensure that cars with congested out edges are not added for rerouting
+void check_reroute()
+{
+    int i = 0, j = 0;
+    int fromIndex, nextFromNode, nextToNode;
+    int edgeId;
+    int weight;
+    int outNode = 0;
+    int threshold = 0;
+
+    for(i = 0; i &lt; N; i++)
+    {
+        if(!carDone[i])
+        {
+            j = 0;
+            outNode = 0;
+            threshold = 0;
+            fromIndex = currentStartNode[i][1];
+
+            if(route[i][fromIndex+3] != -1)
+            {
+            nextFromNode = route[i][fromIndex+1];
+            nextToNode = route[i][fromIndex+2];
+            for(j = 0; j &lt; 20; j++)
+            {
+                if(nextToNode == inNodes[j][0] || nextToNode == inNodes[j][1])
+                {
+                    outNode = 1;
+                }
+            }
+            edgeId = getEdgeIndex(nextFromNode, nextToNode);
+
+            weight = networkEdges[edgeId][3];
+
+            threshold = get_threshold(networkEdges[edgeId][5]);
+
+            if(weight &gt; threshold &amp;&amp; outNode == 0)
+            {
+                reroute[i] = 1;
+            }
+            }
+        }
+      
+    }
+       
+}</declaration>
+		<location id="id0" x="-501" y="-246">
+			<label kind="invariant" x="-511" y="-229">y &lt;= 10</label>
+		</location>
+		<location id="id1" x="-773" y="-433">
+			<name x="-783" y="-467">Init</name>
+			<committed/>
+		</location>
+		<location id="id2" x="-501" y="-433">
+			<urgent/>
+		</location>
+		<location id="id3" x="-264" y="-433">
+			<urgent/>
+		</location>
+		<location id="id4" x="34" y="-433">
+			<name x="24" y="-467">End</name>
+		</location>
+		<location id="id5" x="-179" y="-305">
+			<urgent/>
+		</location>
+		<init ref="id1"/>
+		<transition controllable="false">
+			<source ref="id0"/>
+			<target ref="id2"/>
+			<label kind="guard" x="-484" y="-314">y == 10</label>
+			<label kind="assignment" x="-501" y="-339">flow_traffic(), update_weights(), y = 0</label>
+		</transition>
+		<transition controllable="false">
+			<source ref="id5"/>
+			<target ref="id0"/>
+			<label kind="synchronisation" x="-306" y="-212">DoneRerouting?</label>
+			<nail x="-179" y="-246"/>
+		</transition>
+		<transition controllable="false">
+			<source ref="id3"/>
+			<target ref="id5"/>
+			<label kind="guard" x="-162" y="-390">x &lt; horizon &amp;&amp; Done == 0</label>
+			<label kind="synchronisation" x="-162" y="-373">Reroute!</label>
+			<nail x="-179" y="-373"/>
+		</transition>
+		<transition controllable="false">
+			<source ref="id3"/>
+			<target ref="id4"/>
+			<label kind="guard" x="-221" y="-458">x &gt;= horizon || Done == 1</label>
+		</transition>
+		<transition controllable="false">
+			<source ref="id2"/>
+			<target ref="id3"/>
+			<label kind="assignment" x="-450" y="-458">check_reroute()</label>
+		</transition>
+		<transition controllable="false">
+			<source ref="id1"/>
+			<target ref="id2"/>
+			<label kind="assignment" x="-697" y="-458">constructor()</label>
+		</transition>
+	</template>
+	<template>
+		<name>SimEdges</name>
+		<location id="id6" x="-170" y="-8">
+			<committed/>
+		</location>
+		<location id="id7" x="136" y="-85">
+			<committed/>
+		</location>
+		<location id="id8" x="136" y="59">
+			<committed/>
+		</location>
+		<location id="id9" x="408" y="-8">
+		</location>
+		<location id="id10" x="255" y="-8">
+			<committed/>
+		</location>
+		<branchpoint id="id11" x="0" y="-8">
+		</branchpoint>
+		<init ref="id6"/>
+		<transition controllable="false">
+			<source ref="id10"/>
+			<target ref="id6"/>
+			<label kind="guard" x="-102" y="153">curr_edge &lt; (numEdges -1)</label>
+			<label kind="assignment" x="-42" y="187">curr_Edge++</label>
+			<nail x="255" y="178"/>
+			<nail x="-170" y="178"/>
+		</transition>
+		<transition controllable="false">
+			<source ref="id10"/>
+			<target ref="id9"/>
+			<label kind="guard" x="273" y="-42">curr_edge == (numEdges - 1)</label>
+		</transition>
+		<transition controllable="false">
+			<source ref="id8"/>
+			<target ref="id10"/>
+		</transition>
+		<transition controllable="false">
+			<source ref="id7"/>
+			<target ref="id10"/>
+			<label kind="assignment" x="170" y="-102">networkEdges[curr_edge][3] = 20000</label>
+		</transition>
+		<transition>
+			<source ref="id11"/>
+			<target ref="id8"/>
+			<label kind="probability" x="-127" y="59">100 - edgeCloseProps[curr_edge]</label>
+		</transition>
+		<transition>
+			<source ref="id11"/>
+			<target ref="id7"/>
+			<label kind="probability" x="-102" y="-93">edgeCloseProps[curr_edge]</label>
+		</transition>
+		<transition controllable="false">
+			<source ref="id6"/>
+			<target ref="id11"/>
+		</transition>
+	</template>
+	<template>
+		<name>Rerouter</name>
+		<declaration>int connectingNodes[3];
+int extendedNodes[3];
+
+void getConnectingNodes(int node, int prevNode)
+{
+    int i = 0;
+    int foundNodes = 0;
+    int edge[6];
+    connectingNodes[0] = -1;
+    connectingNodes[1] = -1;
+    connectingNodes[2] = -1;
+
+    for(i = 0; i &lt; numEdges; i++)
+    {
+        edge = networkEdges[i];
+        if(edge[0] == node &amp;&amp; edge[1] != prevNode)
+        {
+            connectingNodes[foundNodes] = edge[1];
+            foundNodes++;
+        }
+    }
+
+}
+
+void getExtendedNodes(int node, int prevNode)
+{
+    int i = 0;
+    int foundNodes = 0;
+    int edge[6];
+    extendedNodes[0] = -1;
+    extendedNodes[1] = -1;
+    extendedNodes[2] = -1;
+
+    for(i = 0; i &lt; numEdges; i++)
+    {
+        edge = networkEdges[i];
+        if(edge[0] == node &amp;&amp; edge[1] != prevNode)
+        {
+            extendedNodes[foundNodes] = edge[1];
+            foundNodes++;
+        }
+    }
+
+}
+
+int manhattanDistance(int node1, int node2)
+{
+    int i = 0, j = 0;
+
+    while(node1 != nodePositions[i][0])
+    {
+        i++;
+    }
+    while(node2 != nodePositions[j][0])
+    {
+        j++;
+    }
+
+    return abs(nodePositions[i][1] - nodePositions[j][1]) + abs(nodePositions[i][2] - nodePositions[j][2]);
+}
+
+int getBestConnection(int destNode, int rerouteNode)
+{
+    int j = 0, k = 0, i = 0;
+    int illegalInNode = 0;
+    int edgeId, edgeWeight, bestConnection; 
+    int bestExtension = 0;
+    int edgeWeights[3];
+    int extendedEdgeWeights[3];
+
+    for (j = 0; j &lt; 3; j++)
+    {   
+        if(connectingNodes[j] != -1)
+        {
+            bestExtension = 0;
+            edgeId = getEdgeIndex(rerouteNode, connectingNodes[j]);
+
+            edgeWeight = networkEdges[edgeId][3];
+
+            edgeWeights[j] = manhattanDistance(connectingNodes[j], destNode) + edgeWeight;
+
+            getExtendedNodes(connectingNodes[j], rerouteNode);
+
+            extendedEdgeWeights[0] = 0;
+            extendedEdgeWeights[1] = 0;
+            extendedEdgeWeights[2] = 0;
+
+            for (i = 0; i &lt; 3; i++)
+            {
+                if(extendedNodes[i] != -1)
+                {
+                    edgeId = getEdgeIndex(connectingNodes[j], extendedNodes[i]);
+
+                    edgeWeight = networkEdges[edgeId][3];
+    
+                    extendedEdgeWeights[i] = manhattanDistance(extendedNodes[i], destNode) + edgeWeight;
+
+                    for(k = 0; k &lt; 20; k++)
+                    {
+                        if(extendedNodes[i] == inNodes[k][0] &amp;&amp; inNodes[k][0] != destNode &amp;&amp; inNodes[k][1] != destNode)
+                        {
+                            illegalInNode = 1;
+                        }
+                    }
+
+                    if(illegalInNode == 1)
+                    {
+                        extendedEdgeWeights[i] = 32000;
+                        illegalInNode = 0;
+                        
+                    }
+                    else if (extendedEdgeWeights[i] &lt;  extendedEdgeWeights[bestExtension])
+                    {
+                        bestExtension = i;   
+                    }
+                    
+                }
+            }
+
+            edgeWeights[j] = edgeWeights[j] + extendedEdgeWeights[bestExtension];
+
+            for(k = 0; k &lt; 20; k++)
+            {
+                if(connectingNodes[j] == inNodes[k][0] &amp;&amp; inNodes[k][0] != destNode &amp;&amp; inNodes[k][1] != destNode)
+                {
+                    illegalInNode = 1;
+                }
+            }
+
+            if(illegalInNode == 1)
+            {
+                edgeWeights[j] = 32000;
+            }            
+            if( edgeWeights[j] &lt;  edgeWeights[bestConnection])
+            {
+                bestConnection = j;
+            }
+            illegalInNode = 0;
+        }
+    }
+
+    return connectingNodes[bestConnection]; 
+}
+
+void simpleReroute()
+{
+    int carRoute[routeLenght] = route[curr_car];
+    int i = 0;
+    int destNode;
+    int curNode = currentStartNode[curr_car][0];
+    int curIndex = currentStartNode[curr_car][1];
+    int prevNode = curNode;
+    int rerouteNode;
+    int bestConnection = 0;
+
+
+    i = curIndex;
+    while (carRoute[i+1] != -1)
+    {            
+        i++;
+    }
+
+    destNode = carRoute[i];
+    if (curNode != destNode)
+    {
+        curIndex++;
+        rerouteNode = route[curr_car][curIndex];
+
+        while (rerouteNode != destNode)
+        {
+            bestConnection = 0;
+
+            getConnectingNodes(rerouteNode, prevNode);
+        
+            bestConnection = getBestConnection(destNode, rerouteNode);
+        
+            carRoute[curIndex + 1] = bestConnection;
+            prevNode = rerouteNode;
+            rerouteNode = bestConnection;
+            curIndex++;        
+        }
+
+        while(curIndex &lt; (routeLenght-1))
+        {
+            carRoute[curIndex+1] = -1;
+            curIndex++;
+        }         
+
+        route[curr_car] = carRoute;
+
+    }
+    
+}
+
+
+void choose_route(int strategy)
+{
+    if(!carDone[curr_car])
+    {
+        reroute[curr_car] = 0;   
+    
+        if(strategy == 1)
+        {
+            simpleReroute();
+        }
+        else if (strategy == 0)
+        {
+            //Keep current route
+        }
+    }
+
+}</declaration>
+		<location id="id12" x="-909" y="-195">
+		</location>
+		<location id="id13" x="-714" y="-195">
+			<urgent/>
+		</location>
+		<location id="id14" x="-510" y="-195">
+			<urgent/>
+		</location>
+		<location id="id15" x="-314" y="-289">
+			<urgent/>
+		</location>
+		<location id="id16" x="-314" y="-110">
+			<urgent/>
+		</location>
+		<location id="id17" x="-110" y="-195">
+			<urgent/>
+		</location>
+		<location id="id18" x="59" y="-195">
+			<committed/>
+		</location>
+		<init ref="id12"/>
+		<transition controllable="false">
+			<source ref="id13"/>
+			<target ref="id17"/>
+			<label kind="guard" x="-696" y="-416">reroute[curr_car] == 0</label>
+			<nail x="-714" y="-382"/>
+			<nail x="-110" y="-382"/>
+		</transition>
+		<transition controllable="false">
+			<source ref="id13"/>
+			<target ref="id14"/>
+			<label kind="guard" x="-696" y="-229">reroute[curr_car] == 1</label>
+		</transition>
+		<transition controllable="false">
+			<source ref="id18"/>
+			<target ref="id12"/>
+			<label kind="assignment" x="-408" y="85">curr_car = 0</label>
+			<nail x="59" y="76"/>
+			<nail x="-909" y="76"/>
+		</transition>
+		<transition controllable="false">
+			<source ref="id17"/>
+			<target ref="id18"/>
+			<label kind="guard" x="-68" y="-221">curr_car &gt;= (N-1)</label>
+			<label kind="synchronisation" x="-76" y="-238">DoneRerouting!</label>
+		</transition>
+		<transition controllable="false">
+			<source ref="id17"/>
+			<target ref="id13"/>
+			<label kind="guard" x="-450" y="8">curr_car &lt; (N-1)</label>
+			<label kind="assignment" x="-450" y="-17">curr_car++</label>
+			<nail x="-110" y="-25"/>
+			<nail x="-714" y="-25"/>
+		</transition>
+		<transition controllable="false">
+			<source ref="id15"/>
+			<target ref="id17"/>
+		</transition>
+		<transition controllable="false">
+			<source ref="id16"/>
+			<target ref="id17"/>
+		</transition>
+		<transition>
+			<source ref="id14"/>
+			<target ref="id16"/>
+			<label kind="assignment" x="-501" y="-127">choose_route(1)</label>
+		</transition>
+		<transition>
+			<source ref="id14"/>
+			<target ref="id15"/>
+			<label kind="assignment" x="-501" y="-280">choose_route(0)</label>
+		</transition>
+		<transition controllable="false">
+			<source ref="id12"/>
+			<target ref="id13"/>
+			<label kind="synchronisation" x="-841" y="-221">Reroute?</label>
+		</transition>
+	</template>
+	<system>// Place template instantiations here.
+
+
+// List one or more processes to be composed into a system.
+system Simulator, Rerouter, SimEdges;
+    </system>
+	<queries>
+		<query>
+			<formula>E&lt;&gt; Simulator.End</formula>
+			<comment></comment>
+		</query>
+		<query>
+			<formula>strategy Opt =minE (totalTravelTime) [&lt;=horizon]: &lt;&gt; Simulator.End</formula>
+			<comment></comment>
+		</query>
+	</queries>
+</nta>
