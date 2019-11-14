@@ -15,7 +15,7 @@ import pandas as pd
 from numpy.random import choice
 
 rootDir = os.path.abspath(os.getcwd())
-pathToFiles = os.path.join(rootDir,'SUMOfiles')
+pathToFiles = rootDir
 routeFile = os.path.join(pathToFiles,"RouteFileTemplate.rou.xml")
 
 

@@ -10,6 +10,11 @@ The indeces for the different experiments:
     #311 - 1000 time steps with 1000 trips for a simplererouting controller
     #312 - 1000 time steps with 2000 trips for a simplererouting controller
 
+#600 - Small experiments to check performance
+    #600-604 - No controller & smart trafficlight
+    #605-609 - TNC & smart trafficlight
+    #610-614 - No nothing
+
 #4000 - Smart traffic lights and simple Uppaal implementation
     #4000-4099
         #4000-4009 - Normal tl & default controller
