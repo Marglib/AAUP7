@@ -5,7 +5,8 @@
     <input>
         <net-file value="MasterNetFile.net.xml"/>
         <route-files value="trip1000-1000.rou.xml"/>
-    <gui-settings-file value="GuiFile.set.xml"/>
+        <gui-settings-file value="GuiFile.set.xml"/>
+        <additional-files value="RerouteFile.set.xml"/>
     </input>
 
     <time>
@@ -18,3 +19,4 @@
     </report>
 
 </configuration>
+
