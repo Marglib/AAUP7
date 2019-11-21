@@ -154,7 +154,7 @@ def run(options):
 
         #THE DEFAULT CONTROLLER - doesnt do anything 
         if options.controller == "default":
-            pass
+            print(traci.trafficlight.getProgram('n3'))
 
         #THE MAIN CONTROLLER
         if (options.controller == "TrafficNetworkController"):
