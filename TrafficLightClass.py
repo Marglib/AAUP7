@@ -45,13 +45,14 @@ class smartTL:
         #Old Functions: self.get_lane_func(traci.lane.getLastStepVehicleNumber, self.tlID)[::-1]
         carsAreal = self.get_cars_areal_in_radius(self.tlID, self.radius)[::-1]
         carsJammed = self.get_lane_func(traci.lane.getLastStepHaltingNumber, self.tlID)[::-1]
+        phasePlaceholder = 0
         #if(self.tlID == 'n15'):
         #    print(carsAreal)
         #    print(carsJammed)
         
         if self.strategoTimer == 0:
             if self.inYellow:
-                self.nextPhase,_,_ = cStratego(strategoMasterModel,strategoQuery,
+                phasePlaceholder,_,_ = cStratego(strategoMasterModel,strategoQuery,
                                             strategoLearningMet,strategoSuccRuns,
                                             strategoMaxRuns,strategoGoodRuns,
                                             strategoEvalRuns,strategoMaxIterations,
@@ -62,7 +63,7 @@ class smartTL:
                 self.inYellow = False
                 self.strategoGreenTimer = 0
             else:
-                self.nextPhase,_,_ =  cStratego(strategoMasterModelGreen,strategoQuery,
+                phasePlaceholder,_,_ =  cStratego(strategoMasterModelGreen,strategoQuery,
                                             strategoLearningMet,strategoSuccRuns,
                                             strategoMaxRuns,strategoGoodRuns,
                                             strategoEvalRuns,strategoMaxIterations,
@@ -71,11 +72,15 @@ class smartTL:
                                             self.binaryPhasesDecimal,self.binaryPhases,self.binaryPhaseIndices,self.tlID,self.yellow,
                                             greenModel=True,
                                             greenTimer=self.strategoGreenTimer)
-                if self.nextPhase == self.phase:
-                    self.duration = 5
-                else:
-                    self.nextPhase = self.phase +1 
-                    self.duration = self.yellow              
+                if phasePlaceholder != -1:
+                    self.nextPhase = phasePlaceholder
+                    if self.nextPhase == self.phase:
+                        self.duration = 5
+                    else:
+                        self.nextPhase = self.phase +1 
+                        self.duration = self.yellow   
+                else: 
+                    print("No strategy found. Not changing phase.")           
         if self.phaseTimer == 0:
             self.phase = self.nextPhase
             traci.trafficlight.setPhase(self.tlID,self.phase)
