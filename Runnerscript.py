@@ -216,8 +216,9 @@ def run(options):
 
             ListOfCarsPlaceholder = list(CarsInNetworkList)
 
-        print("Amount of reroutes so far: " + str(amountOfReroutes))
-        print("Average route deviation: " + str(totalRouteDif/amountOfReroutes))
+        if (amountOfReroutes > 0 and options.trafficlight == "smart"):
+            print("Amount of reroutes so far: " + str(amountOfReroutes))
+            print("Average route deviation: " + str(totalRouteDif/amountOfReroutes))
         traci.simulationStep()
         step += 1
     traci.close()
