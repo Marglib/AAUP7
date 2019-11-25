@@ -27,6 +27,7 @@ double totalTravelTime = 0.0;
 typedef int[0, INT32_MAX] int32_t;
 int32_t totalTravelTime = 0;
 */
+int cost[nodes][nodes];
 int inNodes[20][2] = {{17,0}, {18,0}, {54,19}, {20,0}, {34,0}, {35,0}, {36,0}, {37,0}, {53,38}, {39,0}, {45,0}, {44,0}, {57,43}, {42,0}, {41,0}, {40,0}, {51,27}, {25,0}, {23,0}, {21,0}};
 
 typedef int[0, N-1] id_car;
@@ -60,6 +61,34 @@ import "/Libraries/lib.so" {
 	//alias = int calc_edge_weight(int lanes, int cars, int lenght);
 };
 
+void create_adjacency_matrix()
+{
+    int x = 0, y = 0, w;
+    int edgeId;
+
+    for(x=0; x&lt; nodes; x++)
+    {
+        for(y=0; y&lt; nodes; y++)
+        {
+            edgeId = getEdgeIndex(x, y);
+
+            if (edgeId != -1)
+            {    
+                //w = manhattanDistance(x, y) + networkEdges[edgeId][3];
+                w = networkEdges[edgeId][5] + networkEdges[edgeId][3];
+            }
+            else if ( x == y)
+            {
+                w  = 0;
+            } 
+            else
+            {
+                w = max;
+            }
+            cost [x][y] = w;
+        }
+    }
+}
 
 void constructor()
 {
@@ -70,6 +99,8 @@ void constructor()
         reroute[i] = 0;
         carDone[i] = 0;
     }
+
+    create_adjacency_matrix();
 }
 
 
@@ -219,8 +250,11 @@ void check_reroute()
 		<transition controllable="false">
 			<source ref="id0"/>
 			<target ref="id2"/>
-			<label kind="guard" x="-484" y="-314">y == 10</label>
-			<label kind="assignment" x="-501" y="-339">flow_traffic(), update_weights(), y = 0</label>
+			<label kind="guard" x="-569" y="-306">y == 10</label>
+			<label kind="assignment" x="-493" y="-357">flow_traffic(), 
+update_weights(), 
+create_adjacency_matrix(),
+y = 0</label>
 		</transition>
 		<transition controllable="false">
 			<source ref="id5"/>
@@ -248,14 +282,13 @@ void check_reroute()
 		<transition controllable="false">
 			<source ref="id1"/>
 			<target ref="id2"/>
-			<label kind="assignment" x="-697" y="-458">constructor()</label>
+			<label kind="assignment" x="-697" y="-408">constructor()</label>
 		</transition>
 	</template>
 	<template>
 		<name>Rerouter</name>
 		<declaration>int connectingNodes[3];
 int extendedNodes[3];
-int cost[nodes][nodes];
 const int max = 16000;
 
 void getConnectingNodes(int node, int prevNode)
@@ -537,34 +570,7 @@ void dijkstra()
 
 
 
-void create_adjacency_matrix()
-{
-    int x = 0, y = 0, w;
-    int edgeId;
 
-    for(x=0; x&lt; nodes; x++)
-    {
-        for(y=0; y&lt; nodes; y++)
-        {
-            edgeId = getEdgeIndex(x, y);
-
-            if (edgeId != -1)
-            {    
-                //w = manhattanDistance(x, y) + networkEdges[edgeId][3];
-                w = networkEdges[edgeId][5] + networkEdges[edgeId][3];
-            }
-            else if ( x == y)
-            {
-                w  = 0;
-            } 
-            else
-            {
-                w = max;
-            }
-            cost [x][y] = w;
-        }
-    }
-}
 
 
 void choose_route(int strategy)
@@ -575,8 +581,8 @@ void choose_route(int strategy)
     
         if(strategy == 1)
         {
-            //dijkstra();
-            simpleReroute();
+            dijkstra();
+            //simpleReroute();
         }
         else if (strategy == 0)
         {
