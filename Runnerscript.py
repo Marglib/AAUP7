@@ -49,6 +49,8 @@ def run(options):
     traci.init(options.port)
     step = 0
     ListOfCarsPlaceholder = []
+    amountOfReroutes = 0
+    totalRouteDif = 0
     newRoutes = []
     networkGraph = preprocess()    
     pathsToFind = 3
@@ -154,7 +156,7 @@ def run(options):
 
         #THE DEFAULT CONTROLLER - doesnt do anything 
         if options.controller == "default":
-            pass
+            print(traci.trafficlight.getProgram('n3'))
 
         #THE MAIN CONTROLLER
         if (options.controller == "TrafficNetworkController"):
@@ -175,13 +177,17 @@ def run(options):
                 for car in CarsInNetworkList:
                     Cars.append([car, get_route_nodes(car), get_time_on_edge(car)])
                 
-                if(step % 10 == 0 and step > 199):      
+                if(step % 10 == 0):      
                     for car in newRoutes:
                         car.kill()              
                     newRoutes = modelCaller(mainModel, mainQuery, options.expid, step, Cars, networkGraph, networkNodes)
 
                 for car in newRoutes:
                     car.update_route()
+                    if car.rerouted:
+                        amountOfReroutes += 1
+                        totalRouteDif += car.routeChange
+                        
 
                 newRoutes = [car for car in newRoutes if not car.rerouted]
             
@@ -210,9 +216,11 @@ def run(options):
 
             ListOfCarsPlaceholder = list(CarsInNetworkList)
 
-
+        if (amountOfReroutes > 0 and options.trafficlight == "smart"):
+            print("Amount of reroutes so far: " + str(amountOfReroutes))
+            print("Average route deviation: " + str(totalRouteDif/amountOfReroutes))
         traci.simulationStep()
-        step += 1    
+        step += 1
     traci.close()
     sys.stdout.flush()
 

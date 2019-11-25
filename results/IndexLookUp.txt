@@ -1,6 +1,8 @@
 The indeces for the different experiments:
-#100
-    Empty for now
+#100 - Giant experiments
+    #100 - smart tl and TNC on a 20000-10000trip file
+    #101 - No nothing
+    #102 - Smart tl alone
 #200 - Capacity experiments
     
 #300 - simple rerouting experiments
