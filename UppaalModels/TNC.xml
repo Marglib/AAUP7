@@ -186,7 +186,7 @@ void check_reroute()
 
             threshold = get_threshold(networkEdges[edgeId][5]);
 
-            if(weight &gt; threshold &amp;&amp; outNode == 0)
+            if((weight &gt; threshold &amp;&amp; outNode == 0) || networkEdges[edgeId][6] == 1)
             {
                 reroute[i] = 1;
             }
@@ -262,7 +262,7 @@ void getConnectingNodes(int node, int prevNode)
 {
     int i = 0;
     int foundNodes = 0;
-    int edge[6];
+    int edge[7];
     connectingNodes[0] = -1;
     connectingNodes[1] = -1;
     connectingNodes[2] = -1;
@@ -283,7 +283,7 @@ void getExtendedNodes(int node, int prevNode)
 {
     int i = 0;
     int foundNodes = 0;
-    int edge[6];
+    int edge[7];
     extendedNodes[0] = -1;
     extendedNodes[1] = -1;
     extendedNodes[2] = -1;
@@ -324,6 +324,7 @@ int getBestConnection(int destNode, int rerouteNode)
     int bestExtension = 0;
     int edgeWeights[3];
     int extendedEdgeWeights[3];
+    int closedEdge = 0;
 
     for (j = 0; j &lt; 3; j++)
     {   
@@ -333,6 +334,7 @@ int getBestConnection(int destNode, int rerouteNode)
             edgeId = getEdgeIndex(rerouteNode, connectingNodes[j]);
 
             edgeWeight = networkEdges[edgeId][3];
+            closedEdge = networkEdges[edgeId][6];
 
             edgeWeights[j] = manhattanDistance(connectingNodes[j], destNode) + edgeWeight;
 
@@ -354,7 +356,7 @@ int getBestConnection(int destNode, int rerouteNode)
 
                     for(k = 0; k &lt; 20; k++)
                     {
-                        if(extendedNodes[i] == inNodes[k][0] &amp;&amp; inNodes[k][0] != destNode &amp;&amp; inNodes[k][1] != destNode)
+                        if((extendedNodes[i] == inNodes[k][0] &amp;&amp; inNodes[k][0] != destNode &amp;&amp; inNodes[k][1] != destNode) &amp;&amp; closedEdge == 1)
                         {
                             illegalInNode = 1;
                         }
@@ -378,7 +380,7 @@ int getBestConnection(int destNode, int rerouteNode)
 
             for(k = 0; k &lt; 20; k++)
             {
-                if(connectingNodes[j] == inNodes[k][0] &amp;&amp; inNodes[k][0] != destNode &amp;&amp; inNodes[k][1] != destNode)
+                if((connectingNodes[j] == inNodes[k][0] &amp;&amp; inNodes[k][0] != destNode &amp;&amp; inNodes[k][1] != destNode) &amp;&amp; closedEdge == 1)
                 {
                     illegalInNode = 1;
                 }
@@ -658,7 +660,6 @@ void choose_route(int strategy)
 			<source ref="id6"/>
 			<target ref="id7"/>
 			<label kind="synchronisation" x="-841" y="-187">Reroute?</label>
-			<label kind="assignment" x="-909" y="-229">create_adjacency_matrix()</label>
 		</transition>
 	</template>
 	<system>// Place template instantiations here.
