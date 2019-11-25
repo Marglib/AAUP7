@@ -41,8 +41,6 @@ mainModel = os.path.join(pathToModels, 'TNC.xml')
 listOfCarTimeLists = []
 
 
-
-
 def run(options):
     """execute the TraCI control loop"""
     print("starting run")
