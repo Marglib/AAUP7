@@ -22,7 +22,10 @@ int reroute[N];
 int carDone[N];
 const int horizon = 40;
 int Done = 0;
-int totalTravelTime = 0;
+//double totalTravelTime = 0.0;
+const int INT32_MAX = 2147483647;
+typedef int[0, INT32_MAX] int32_t;
+int32_t totalTravelTime = 0;
 
 int inNodes[20][2] = {{17,0}, {18,0}, {54,19}, {20,0}, {34,0}, {35,0}, {36,0}, {37,0}, {53,38}, {39,0}, {45,0}, {44,0}, {57,43}, {42,0}, {41,0}, {40,0}, {51,27}, {25,0}, {23,0}, {21,0}};
 
@@ -36,6 +39,10 @@ int getEdgeIndex(int fromNode, int toNode)
     while(networkEdges[k][0] != fromNode || networkEdges[k][1] != toNode)
     {
         k++;
+        if(k == numEdges)
+        {
+            return -1;
+        }
     }
     return k;
 }
@@ -248,6 +255,8 @@ void check_reroute()
 		<name>Rerouter</name>
 		<declaration>int connectingNodes[3];
 int extendedNodes[3];
+int cost[nodes][nodes];
+const int max = 16000;
 
 void getConnectingNodes(int node, int prevNode)
 {
@@ -353,7 +362,7 @@ int getBestConnection(int destNode, int rerouteNode)
 
                     if(illegalInNode == 1)
                     {
-                        extendedEdgeWeights[i] = 32000;
+                        extendedEdgeWeights[i] = max;
                         illegalInNode = 0;
                         
                     }
@@ -377,7 +386,7 @@ int getBestConnection(int destNode, int rerouteNode)
 
             if(illegalInNode == 1)
             {
-                edgeWeights[j] = 32000;
+                edgeWeights[j] = max;
             }            
             if( edgeWeights[j] &lt;  edgeWeights[bestConnection])
             {
@@ -440,6 +449,120 @@ void simpleReroute()
     
 }
 
+void dijkstra()
+{
+    int carRoute[routeLenght] = route[curr_car];
+    int newRoute[routeLenght];
+    int selected[nodes], dist[nodes], prev[nodes];
+    int i = 0, min, m , d, j;
+    int destNode;
+    int curNode;
+    int curIndex = currentStartNode[curr_car][1];
+    int prevNode = curNode;
+    int rerouteNode;
+
+    for (i = 0; i &lt; nodes; i++)
+    {
+        selected[i] = 0;
+        dist[i] = max;
+        prev[i] = -1;
+    }
+
+    i = curIndex;
+    while (carRoute[i+1] != -1)
+    {            
+        i++;
+    }
+
+    destNode = carRoute[i];
+
+
+    curIndex++;
+    curNode = carRoute[curIndex];
+    rerouteNode = curNode;
+    selected[rerouteNode] = 1;
+    dist[rerouteNode] = 0;
+
+    while(selected[destNode] == 0)
+    {
+        min = max;
+        m = 0;
+        for(i = 0; i &lt; nodes; i++)
+        {
+            d = dist[rerouteNode] + cost[rerouteNode][i];
+            if(d &lt; dist[i] &amp;&amp; selected[i] == 0)
+            {
+                dist[i] = d;
+                prev[i] = rerouteNode;
+            }
+            if(min &gt; dist[i] &amp;&amp; selected[i] == 0)
+            {
+                min = dist[i];
+                m = i;
+            }
+        }
+        rerouteNode = m;
+        selected[rerouteNode] = 1;    
+    }
+
+    rerouteNode = destNode;
+    j = 0;
+
+    while (rerouteNode != curNode)
+    {
+        newRoute[j] = rerouteNode;
+        rerouteNode = prev[rerouteNode];
+        j++;        
+    }
+
+    
+    while (j &gt; 0)
+    {
+        j--;
+        carRoute[curIndex+1] = newRoute[j];
+        curIndex++;        
+    }
+
+    while(curIndex &lt; (routeLenght-1))
+    {
+        carRoute[curIndex+1] = -1;
+        curIndex++;
+    }         
+
+    route[curr_car] = carRoute;
+
+}
+
+
+
+void create_adjacency_matrix()
+{
+    int x = 0, y = 0, w;
+    int edgeId;
+
+    for(x=0; x&lt; nodes; x++)
+    {
+        for(y=0; y&lt; nodes; y++)
+        {
+            edgeId = getEdgeIndex(x, y);
+
+            if (edgeId != -1)
+            {    
+                w = manhattanDistance(x, y) + networkEdges[edgeId][3];
+            }
+            else if ( x == y)
+            {
+                w  = 0;
+            } 
+            else
+            {
+                w = max;
+            }
+            cost [x][y] = w;
+        }
+    }
+}
+
 
 void choose_route(int strategy)
 {
@@ -449,7 +572,8 @@ void choose_route(int strategy)
     
         if(strategy == 1)
         {
-            simpleReroute();
+            dijkstra();
+            //simpleReroute();
         }
         else if (strategy == 0)
         {
@@ -533,7 +657,8 @@ void choose_route(int strategy)
 		<transition controllable="false">
 			<source ref="id6"/>
 			<target ref="id7"/>
-			<label kind="synchronisation" x="-841" y="-221">Reroute?</label>
+			<label kind="synchronisation" x="-841" y="-187">Reroute?</label>
+			<label kind="assignment" x="-909" y="-229">create_adjacency_matrix()</label>
 		</transition>
 	</template>
 	<system>// Place template instantiations here.
