@@ -87,11 +87,11 @@ int delchoice = 0;
  
 //PLACE HOLDERS
 //HOLDER_INITIAL_PHASE
-int carsAreal[signal_t] = {0, 0, 0, 0, 2, 10, 8, 0};
-int carsJammed[signal_t] = {0, 0, 0, 0, 2, 8, 8, 0};
+int carsAreal[signal_t] = {0, 0, 0, 0, 0, 0, 0, 0};
+int carsJammed[signal_t] = {0, 0, 0, 0, 0, 0, 0, 0};
 //first delay is dinamic in contrast to the 15 min for the floor heating, a yellow phase has to follow. i.e. fd = delay + yellow
 //HOLDER_FIRST_DELAY
-//SIM_STEP=84
+//SIM_STEP=14
 
 max_signal_conf_t phasechoice;
 
