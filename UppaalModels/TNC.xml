@@ -22,11 +22,11 @@ int reroute[N];
 int carDone[N];
 const int horizon = 40;
 int Done = 0;
-//double totalTravelTime = 0.0;
-const int INT32_MAX = 2147483647;
+double totalTravelTime = 0.0;
+/*const int INT32_MAX = 2147483647;
 typedef int[0, INT32_MAX] int32_t;
 int32_t totalTravelTime = 0;
-
+*/
 int inNodes[20][2] = {{17,0}, {18,0}, {54,19}, {20,0}, {34,0}, {35,0}, {36,0}, {37,0}, {53,38}, {39,0}, {45,0}, {44,0}, {57,43}, {42,0}, {41,0}, {40,0}, {51,27}, {25,0}, {23,0}, {21,0}};
 
 typedef int[0, N-1] id_car;
@@ -111,7 +111,7 @@ void flow_traffic()
                 {
                     currentStartNode[i][0] = toNode;
                     currentStartNode[i][1]++;
-                    totalTravelTime += timePassedCarI;
+                    totalTravelTime = totalTravelTime + (timePassedCarI/100);
                     timePassed[i] = 0;
                     networkEdges[edgeId][4] = networkEdges[edgeId][4] - 1;
                     nextToNode = route[i][fromIndex+2];
@@ -548,7 +548,8 @@ void create_adjacency_matrix()
 
             if (edgeId != -1)
             {    
-                w = manhattanDistance(x, y) + networkEdges[edgeId][3];
+                //w = manhattanDistance(x, y) + networkEdges[edgeId][3];
+                w = networkEdges[edgeId][5] + networkEdges[edgeId][3];
             }
             else if ( x == y)
             {
@@ -572,8 +573,8 @@ void choose_route(int strategy)
     
         if(strategy == 1)
         {
-            dijkstra();
-            //simpleReroute();
+            //dijkstra();
+            simpleReroute();
         }
         else if (strategy == 0)
         {
@@ -658,7 +659,6 @@ void choose_route(int strategy)
 			<source ref="id6"/>
 			<target ref="id7"/>
 			<label kind="synchronisation" x="-841" y="-187">Reroute?</label>
-			<label kind="assignment" x="-909" y="-229">create_adjacency_matrix()</label>
 		</transition>
 	</template>
 	<system>// Place template instantiations here.
