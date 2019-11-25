@@ -27,8 +27,9 @@ def get_stats(resultFiles, startID, endID):
 
     frame = pd.concat(li, axis=0, ignore_index=True)
     frame.loc['mean'] = frame.mean()
+    frame.loc['max'] = frame.max()
 
-    frame.to_csv("results/resultsMerge_start" + str(startID) + "_end" + str(endID), index=False)
+    frame.to_csv("results/resultsMerge_start" + str(startID) + "_end" + str(endID))
 
 if __name__ == "__main__":
     resultFiles, startID, endID = generate_multi_results()
