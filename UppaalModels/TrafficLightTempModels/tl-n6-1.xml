@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
 <nta>
-	<declaration>//align with sumo model
+	<declaration>// Place global declarations here.
+//align with sumo model
 //                                              North
 //                				      	|	     |	       |
 // 				                        |	B2   |	       |
@@ -28,23 +29,22 @@
 // 					                             South
 
 //we consider 6 signals (name,id)  (A1_0,1) (A1_1,2) (A2_0,3) (A2_1,4) (B1,5) (B2,6)
-
-
 int totalJammedCars = 0;
 int curStep = 0;
+clock x;
 
-//CONSTANTS
+
+//CONSTANTS - SOME are replaced with variables
 const int NrOfSignals = 4;
 //const int NrOfSignalConfs = 2*2*2*2-1; //2^NS 
 const int NrOfMaxCompSignalConfs = 2; 
-//const int MIN_GREEN = 20, MAX_GREEN = 45;
-const int YELLOW = 6;
-const int Horizon = 90; //90 step simulations = 90 secs
-const int delayMultiplier = 5; 
+const int YELLOW = 8;
+const int Horizon = 20; //20 step simulations = 20 secs 
 const int stepsToCross = 1; // a car needs to steps (2secs) to cross in average
 const int deconstructJamRate = 1;
+const int MAX_GREEN = 120;
 const int UINT16_MAX    =  65535;
-
+int checkGreenTimer = 0;
 
 
 //TYPES
@@ -72,46 +72,27 @@ false,false,false,false
 //this is the current state of the system, we let if flow for MIN_GREEN
 
 
-//int incommingCars[signal_t] = {
-//0, 0, 0, 0, 0, 0
-//};
 
-int delchoice = 0;
 
 //to replace by python script
 //const max_signal_conf_t initialPhase = 1; 
-//int carsAreal[signal_t] = {12,  54,  20,  15, 11, 11};
-//int carsJammed[signal_t] = {12,  54, 15, 15, 20,  15};
+//int carsAreal[signal_t] = {0,  0,  0,  0, 1, 2};
+//int carsJammed[signal_t] = {0,  0, 0, 0, 0,  0};
 //const int firstDelay = MIN_GREEN;
-
+//int greenTimer = 10;
  
 //PLACE HOLDERS
-//HOLDER_INITIAL_PHASE
-int carsAreal[signal_t] = {0, 1, 0, 0};
-int carsJammed[signal_t] = {0, 1, 0, 0};
+const max_signal_conf_t initialPhase = 1;
+int greenTimer = 10;
+int carsAreal[signal_t] = {0, 0, 0, 0};
+int carsJammed[signal_t] = {0, 0, 0, 0};
 //first delay is dinamic in contrast to the 15 min for the floor heating, a yellow phase has to follow. i.e. fd = delay + yellow
 //HOLDER_FIRST_DELAY
-<<<<<<< HEAD
-//SIM_STEP=394
-=======
-//SIM_STEP=14
->>>>>>> c15bddb30ba7c6449d49fea2747be3c103a0b445
-
-max_signal_conf_t phasechoice;
-
-
-
-
-</declaration>
+//SIM_STEP=91</declaration>
 	<template>
 		<name x="5" y="5">trafficLights</name>
-		<declaration>clock x;
-
-void turnYellowOn() {
-  for (i:signal_t)    {
-      signal[i] = false;
-  }
-}
+		<declaration>// Place local declarations here.
+clock x;
 
 
 void selectPhase(max_signal_conf_t ms_conf) {
@@ -119,6 +100,32 @@ void selectPhase(max_signal_conf_t ms_conf) {
   for (i:signal_t)    {
       signal[i] = (s_conf &amp; (1&lt;&lt;(i-1)))==(1&lt;&lt;(i-1));
   }
+}
+
+void complementPhase(max_signal_conf_t ms_conf) {
+    if (ms_conf == 0)
+        selectPhase(1);
+    if (ms_conf == 1)
+        selectPhase(0);
+}
+
+
+void initialize() {
+    selectPhase(initialPhase);
+
+    for (i:signal_t) {
+        if(signal[i] &amp;&amp; carsAreal[i]==0){
+            checkGreenTimer = 1;
+        }
+    } 
+    if(checkGreenTimer){
+        greenTimer = 0;
+    }
+    
+    //if (signal[1] &amp;&amp; carsAreal[5]==0 &amp;&amp; carsAreal[6]==0)
+    //    greenTimer = 0;        
+    //if (signal[5] &amp;&amp; carsAreal[1]==0 &amp;&amp; carsAreal[2]==0 &amp;&amp; carsAreal[3]==0 &amp;&amp; carsAreal[4]==0)
+    //    greenTimer = 0;        
 }
 
 
@@ -135,34 +142,52 @@ void flow(int delaySteps) {
     int incCars = 0;
     const int upperStep = curStep + delaySteps;
     int j;
-    for (j=curStep; j&lt;=upperStep; j++) {
+    for (j=curStep; j&lt;upperStep; j++) {
         if (stepCounter &gt; stepsToCross) {
             carsPassed = 1;
             stepCounter = 0;
         }        
         for (i:signal_t)    {
-            if (signal[i]) {   
-                carsJammed[i] = carsJammed[i] - carsPassed;    
+            if (signal[i]) {
+                if (carsJammed[i]&gt;0)   
+                    carsJammed[i] = carsJammed[i] - carsPassed;    
             }
-            else {
-                carsJammed[i] = carsJammed[i];
-            }            
             totalJammedCars = totalJammedCars + carsJammed[i];
           }
         curStep++;
-        stepCounter++;
-        normalize();
-        
+        stepCounter++;        
     }    
     // do something like if enabled carsPassing = carsPassing - carsPassed + incomming(i) otherwise carsPassing = carsPassing + incomming(i) keep value &gt;= 0
     // for carsJammed do if not enabled carsJammed = carsJammed + incomming(i,timetojam!) if enabled carsJammed = 0
 }
 
-void initialize() {
+
+void goYellow(int delaySteps) {
+    const int upperStep = curStep + delaySteps;
+    int j;
+    complementPhase(initialPhase);
     for (i:signal_t) {
-        carsJammed[i] = carsJammed[i] + carsAreal[i];
+        carsJammed[i] = carsJammed[i] + carsAreal[i]; 
+        carsAreal[i] = 0;       
+    }
+    for (j=curStep; j&lt;=upperStep; j++) {
+        for (i:signal_t) {
+            totalJammedCars = totalJammedCars + carsJammed[i];
+        }    
+        curStep++;
+    }    
+}
+
+void goGreen() {
+    for (i:signal_t) {
+        if (signal[i]) {
+            carsAreal[i] = 0;
+        }
+        carsJammed[i] = carsJammed[i] + carsAreal[i]; 
+        carsAreal[i] = 0;
     }
 }
+
   
 void resetUnneeded() {
 //    delchoice = 0;
@@ -174,208 +199,101 @@ void resetUnneeded() {
     }    
 }
 </declaration>
-		<location id="id0" x="-144" y="-153">
-			<name x="-246" y="-144">ChoosePhase</name>
+		<location id="id0" x="-220" y="0">
 			<urgent/>
 		</location>
-		<location id="id1" x="561" y="-153">
-			<name x="544" y="-136">Yellow</name>
-			<label kind="invariant" x="518" y="-119">x &lt;= YELLOW</label>
+		<location id="id1" x="34" y="0">
+			<name x="51" y="-8">Yellow</name>
+			<label kind="invariant" x="24" y="17">x &lt;= 8</label>
 		</location>
-		<location id="id2" x="-365" y="-153">
+		<location id="id2" x="34" y="153">
+			<name x="17" y="119">GreenAgain</name>
+			<label kind="invariant" x="8" y="178">x &lt;= 5</label>
+		</location>
+		<location id="id3" x="-331" y="0">
 			<urgent/>
 		</location>
-		<location id="id3" x="-391" y="-331">
-			<name x="-425" y="-314">__RESET__</name>
+		<location id="id4" x="34" y="-102">
+			<name x="8" y="-144">Green</name>
+			<label kind="invariant" x="0" y="-127">x &lt;= 8</label>
 		</location>
-		<location id="id4" x="119" y="-153">
-			<name x="17" y="-153">chooseDelay</name>
-			<urgent/>
+		<location id="id5" x="-331" y="152">
+			<name x="-340" y="169">DONE</name>
 		</location>
-		<location id="id5" x="365" y="-153">
-			<name x="356" y="-136">Green</name>
-			<label kind="invariant" x="348" y="-119">x &lt;= delchoice</label>
+		<location id="id6" x="-739" y="-272">
+			<name x="-773" y="-255">__RESET__</name>
 		</location>
-		<location id="id6" x="-144" y="0">
-			<name x="-170" y="17">DONE</name>
-		</location>
-		<init ref="id2"/>
+		<init ref="id3"/>
+		<transition controllable="false">
+			<source ref="id6"/>
+			<target ref="id6"/>
+			<label kind="assignment" x="-773" y="-408">resetUnneeded()</label>
+			<nail x="-781" y="-382"/>
+			<nail x="-688" y="-382"/>
+		</transition>
 		<transition controllable="false">
 			<source ref="id0"/>
-			<target ref="id6"/>
-			<label kind="guard" x="-297" y="-76">curStep &gt;= Horizon</label>
-		</transition>
-		<transition controllable="false">
-			<source ref="id5"/>
-			<target ref="id1"/>
-			<label kind="guard" x="374" y="-187">x &gt;= delchoice</label>
-			<label kind="synchronisation" x="383" y="-170">yellow[phasechoice]!</label>
-			<label kind="assignment" x="382" y="-238">flow(delchoice),
-turnYellowOn(),
-x = 0</label>
-		</transition>
-		<transition controllable="false">
-			<source ref="id4"/>
 			<target ref="id5"/>
-			<label kind="synchronisation" x="144" y="-178">green[phasechoice]!</label>
-			<label kind="assignment" x="161" y="-153">delchoice = 10,
-x = 0</label>
-		</transition>
-		<transition controllable="false">
-			<source ref="id3"/>
-			<target ref="id3"/>
-			<label kind="assignment" x="-442" y="-459">resetUnneeded()</label>
-			<nail x="-442" y="-433"/>
-			<nail x="-348" y="-433"/>
+			<label kind="guard" x="-357" y="51">curStep &gt;= Horizon</label>
 		</transition>
 		<transition controllable="false">
 			<source ref="id1"/>
-			<target ref="id0"/>
-			<label kind="guard" x="127" y="-425">x &gt;= YELLOW</label>
-			<label kind="synchronisation" x="102" y="-450">red[phasechoice]!</label>
-			<label kind="assignment" x="153" y="-408">x = 0</label>
-			<nail x="561" y="-374"/>
-			<nail x="-144" y="-374"/>
+			<target ref="id4"/>
+			<label kind="guard" x="42" y="-68">x &gt;= 8</label>
+			<label kind="assignment" x="42" y="-51">x = 0</label>
 		</transition>
 		<transition controllable="false">
 			<source ref="id2"/>
 			<target ref="id0"/>
-			<label kind="assignment" x="-331" y="-170">initialize()</label>
+			<label kind="guard" x="-144" y="144">x &gt;= 5</label>
+			<label kind="assignment" x="-144" y="161">flow(5),
+x = 0</label>
+			<nail x="34" y="178"/>
+			<nail x="-221" y="177"/>
+		</transition>
+		<transition controllable="false">
+			<source ref="id4"/>
+			<target ref="id0"/>
+			<label kind="guard" x="-136" y="-110">x &gt;= 8</label>
+			<label kind="assignment" x="-136" y="-93">flow(8), 
+x = 0</label>
+			<nail x="8" y="-102"/>
+		</transition>
+		<transition controllable="false">
+			<source ref="id3"/>
+			<target ref="id0"/>
+			<label kind="assignment" x="-306" y="-25">initialize()</label>
 		</transition>
 		<transition>
 			<source ref="id0"/>
-			<target ref="id4"/>
-			<label kind="select" x="-110" y="-178">ms_conf:max_signal_conf_t</label>
-			<label kind="guard" x="-110" y="-195">curStep &lt; Horizon</label>
-			<label kind="assignment" x="-127" y="-136">selectPhase(ms_conf),
-phasechoice = ms_conf</label>
-		</transition>
-	</template>
-	<template>
-		<name>phasei</name>
-		<parameter>max_signal_conf_t id</parameter>
-		<declaration>clock timer;
-
-void resetUnneeded() {
-    timer = 0;
-
-}
-</declaration>
-		<location id="id7" x="-102" y="-595">
-			<name x="-85" y="-603">RED</name>
-		</location>
-		<location id="id8" x="-102" y="-459">
-			<name x="-85" y="-467">GREEN</name>
-		</location>
-		<location id="id9" x="-102" y="-314">
-			<name x="-85" y="-323">YELLOW</name>
-		</location>
-		<location id="id10" x="-493" y="-603">
-			<name x="-535" y="-586">__RESET__</name>
-		</location>
-		<init ref="id7"/>
-		<transition controllable="false">
-			<source ref="id9"/>
-			<target ref="id7"/>
-			<label kind="synchronisation" x="-280" y="-476">red[id]?</label>
-			<label kind="assignment" x="-289" y="-459">timer = 0</label>
-			<nail x="-110" y="-314"/>
-			<nail x="-221" y="-314"/>
-			<nail x="-221" y="-595"/>
+			<target ref="id2"/>
+			<label kind="guard" x="-153" y="59">curStep &lt; Horizon &amp;&amp;
+greenTimer &lt; MAX_GREEN</label>
+			<label kind="assignment" x="-153" y="93">goGreen()</label>
 		</transition>
 		<transition>
-			<source ref="id8"/>
-			<target ref="id9"/>
-			<label kind="synchronisation" x="-85" y="-408">yellow[id]?</label>
-			<label kind="assignment" x="-85" y="-391">timer = 0</label>
-		</transition>
-		<transition>
-			<source ref="id7"/>
-			<target ref="id8"/>
-			<label kind="synchronisation" x="-93" y="-544">green[id]?</label>
-			<label kind="assignment" x="-93" y="-527">timer = 0</label>
-		</transition>
-		<transition controllable="false">
-			<source ref="id10"/>
-			<target ref="id10"/>
-			<label kind="assignment" x="-544" y="-731">resetUnneeded()</label>
-			<nail x="-544" y="-705"/>
-			<nail x="-450" y="-705"/>
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="guard" x="-127" y="-17">curStep &lt; Horizon</label>
+			<label kind="assignment" x="-110" y="0">goYellow(8),
+greenTimer = 0</label>
 		</transition>
 	</template>
-	<system>system 
-    trafficLights
-    ,phasei
-//    ,env
-;
+	<system>
+// List one or more processes to be composed into a system.
+system trafficLights;
     </system>
 	<queries>
+		<query>
+			<formula></formula>
+			<comment></comment>
+		</query>
 		<query>
 			<formula>strategy Opt =minE (totalJammedCars) [&lt;=2*Horizon]: &lt;&gt; trafficLights.DONE</formula>
 			<comment></comment>
 		</query>
 		<query>
-			<formula>strategy GoSafe = control: A[] (phasei(0).timer&lt;=50 &amp;&amp; phasei(1).timer&lt;=50) || trafficLights.DONE</formula>
-			<comment></comment>
-		</query>
-		<query>
-			<formula>strategy OptSafe =minE (totalJammedCars) [&lt;=Horizon*2]: &lt;&gt; trafficLights.DONE under GoSafe</formula>
-			<comment></comment>
-		</query>
-		<query>
-			<formula>simulate 20 [&lt;=Horizon] { totalJammedCars } </formula>
-			<comment></comment>
-		</query>
-		<query>
-			<formula>simulate 20 [&lt;=Horizon] { totalJammedCars } under Opt</formula>
-			<comment></comment>
-		</query>
-		<query>
-			<formula>E[&lt;=Horizon;1000] (max: totalJammedCars) </formula>
-			<comment></comment>
-		</query>
-		<query>
-			<formula>E[&lt;=Horizon;1000] (max: totalJammedCars) under Opt</formula>
-			<comment></comment>
-		</query>
-		<query>
-			<formula>E[&lt;=Horizon;1000] (max: trip) under Opt //expected time for targetCar to pass</formula>
-			<comment></comment>
-		</query>
-		<query>
-			<formula></formula>
-			<comment></comment>
-		</query>
-		<query>
-			<formula></formula>
-			<comment></comment>
-		</query>
-		<query>
-			<formula>simulate 1 [&lt;=Horizon] { carsJammed[1], carsJammed[2], carsJammed[3], carsJammed[4] }</formula>
-			<comment></comment>
-		</query>
-		<query>
-			<formula>simulate 100 [&lt;=Horizon] { carsAreal[1], carsAreal[2], carsAreal[3], carsAreal[4] }</formula>
-			<comment></comment>
-		</query>
-		<query>
-			<formula>simulate 1 [&lt;=Horizon] { carsAreal[1], carsAreal[2], carsAreal[3], carsAreal[4] } under Opt</formula>
-			<comment></comment>
-		</query>
-		<query>
-			<formula>simulate 1 [&lt;=Horizon] { signal[1], 2+signal[2], 4+signal[3], 6+signal[4] } under Opt</formula>
-			<comment></comment>
-		</query>
-		<query>
-			<formula>simulate 10 [&lt;=Horizon] { signal[1], 2+signal[2], 4+signal[3], 6+signal[4]} under Opt</formula>
-			<comment></comment>
-		</query>
-		<query>
-			<formula>simulate 1 [&lt;=Horizon] {  4+signal[3], 32+carsPassedTargetLane, targetCarPassed, units[3] } under OptCarTarget</formula>
-			<comment></comment>
-		</query>
-		<query>
-			<formula>simulate 10 [&lt;=Horizon] { signal[1], 2+signal[2], 4+signal[3], 6+signal[4]} under OptCarTarget</formula>
+			<formula>simulate 1 [&lt;=Horizon] { signal[1], 2+signal[2], 4+signal[3], 6+signal[4], 8+signal[5], 10+signal[6] } under Opt</formula>
 			<comment></comment>
 		</query>
 	</queries>
