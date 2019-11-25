@@ -3,7 +3,7 @@ import os
 import sys
 
 try:
-     tools = os.path.join(os.environ['SUMO_HOME'], "tools")
+     tools = "/user/d704e19/sumo/tools" 
      sys.path.append(tools)
 except:   
      sys.exit("please declare environment variable 'SUMO_HOME'")
@@ -19,19 +19,22 @@ class car:
         self.listOfReroutes = listOfReroutes
         self.currRoute = currRouteIn
         self.rerouted = False
-    
+        self.routeChange = 0   
+ 
     def update_route(self):
         newRoute = self.currRoute 
 
         for i in range(0,len(self.listOfReroutes)):
             newRoute[self.listOfReroutes[i][0]] = self.listOfReroutes[i][1]
         newRoute = [x for x in newRoute if x != -1]
+        currRouteLen = len([x for x in self.currRoute if x != -1])
         
         newRouteAsEdges = self.nodes_to_edges(newRoute[traci.vehicle.getRouteIndex(self.pid):])
         try:
             traci.vehicle.setRoute(self.pid,newRouteAsEdges)
             print("new route: " + str(newRouteAsEdges))
             self.rerouted = True
+            self.routeChange = abs(len(newRoute) - currRouteLen)
         except:
             print("Could not reroute car " + str(self.pid) + "with route " + str(newRouteAsEdges))      
 

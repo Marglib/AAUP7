@@ -10,9 +10,9 @@ from subprocess import Popen, PIPE, STDOUT
 import traci
 from CarClass import car
 
-rootDir = os.path.abspath(os.getcwd())
-pathToResults = os.path.join(rootDir,'results')
-pathToModels = os.path.join(rootDir,'UppaalModels')
+#rootDir = os.path.abspath(os.getcwd())
+pathToResults = '/user/d704e19/experiments/AAUP7/results'
+pathToModels = '/user/d704e19/experiments/AAUP7/UppaalModels'
 
 def runModel(com, args, query, simStep):
     query = "\"" + query + "\""
@@ -276,7 +276,7 @@ def createQuery(master_query,cars,nodePositions,expId):
     value = value[:-1]
     str_query = str.replace(str_query, toReplace, value, 1)
 
-    queryName = rootDir + "/UppaalModels/TNCtempQuery" + str(expId) + '.q'
+    queryName = "/user/d704e19/experiments/AAUP7/UppaalModels/TNCtempQuery" + str(expId) + '.q'
     text_file = open(queryName, "w")
     text_file.write(str_query)
     text_file.close()

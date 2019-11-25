@@ -22,7 +22,7 @@ int reroute[N];
 int carDone[N];
 const int horizon = 40;
 int Done = 0;
-int totalTravelTime = 0;
+double totalTravelTime = 0.0;
 
 int inNodes[20][2] = {{17,0}, {18,0}, {54,19}, {20,0}, {34,0}, {35,0}, {36,0}, {37,0}, {53,38}, {39,0}, {45,0}, {44,0}, {57,43}, {42,0}, {41,0}, {40,0}, {51,27}, {25,0}, {23,0}, {21,0}};
 
@@ -47,7 +47,7 @@ int getEdgeIndex(int fromNode, int toNode)
 // needs abosolute path to be used in tempmodel
 ///home/thomas/AAUP7/UppaalModels/Libraries/lib.so
 
-import "/Libraries/lib.so" {
+import "/lib64/lib.so" {
 	int calc_edge_weight(int lanes, int cars, int lenght);
     int get_threshold(int edge_length);
 	//alias = int calc_edge_weight(int lanes, int cars, int lenght);
@@ -104,7 +104,7 @@ void flow_traffic()
                 {
                     currentStartNode[i][0] = toNode;
                     currentStartNode[i][1]++;
-                    totalTravelTime += timePassedCarI;
+                    totalTravelTime = totalTravelTime + (timePassedCarI/100);
                     timePassed[i] = 0;
                     networkEdges[edgeId][4] = networkEdges[edgeId][4] - 1;
                     nextToNode = route[i][fromIndex+2];

@@ -1,0 +1,565 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
+<nta>
+	<declaration>// Place global declarations here.
+const int routeLenght = 25;
+const int nodes = 57;
+const int numEdges = 144;
+const int N = 2;
+
+const int pid[N] = {20979,
+20985}; 
+int route[N][routeLenght] = {
+{41,29,30,14,10,11,56,7,55,3,54,19,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
+{19,54,3,55,7,56,11,12,26,28,33,45,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1}}; 
+const int nodePositions[57][3] = {{6,600,600},
+{18,0,600},{41,1600,400},{31,1200,800},{30,1200,600},{37,800,1600},{13,1000,400},{28,1000,1200},{8,600,1000},{24,600,1200},{26,800,1200},{2,400,600},{34,0,1200},{47,1000,900},{9,800,400},{48,1100,800},{54,300,800},{44,1600,1000},{45,1600,1200},{50,1000,500},{29,1200,400},{20,0,1000},{51,1000,300},{21,400,0},{46,900,800},{5,600,400},{16,1000,1000},{10,800,600},{42,1600,600},{39,1200,1600},{3,400,800},{14,1000,600},{36,600,1600},{12,800,1000},{22,400,1200},{43,1600,800},{52,1000,1100},{27,1000,0},{17,0,400},{4,400,1000},{23,600,0},{56,700,800},{7,600,800},{57,1300,800},{55,500,800},{25,800,0},{53,1000,1300},{1,400,400},{40,1200,0},{19,0,800},{11,800,800},
+{32,1200,1000},{38,1000,1600},{33,1200,1200},{35,400,1600},{15,1000,800},{49,1000,700}};
+int timePassed[N] = {14,16};
+int currentStartNode[N][2] = {{54,10},
+{33,10}};
+typedef int[0,nodes] node_t;
+
+//networkEdges constains touples of the form (fromNodeId, toNodeId, lanes, edgeweight, carsOnEdge)
+int networkEdges[144][6] = {{6,5,1,12,0,186},
+{6,2,1,12,0,186},{6,7,1,12,0,179},{6,10,1,12,0,186},{18,2,1,26,0,393},{41,29,1,26,0,393},{31,30,1,12,0,179},{31,57,2,6,0,89},{31,32,1,12,0,179},{31,48,2,6,0,89},{30,42,1,26,0,393},{30,29,1,12,0,186},{30,14,1,12,0,179},{30,31,1,12,0,179},{37,26,1,26,0,393},{13,50,2,6,0,89},{13,29,1,12,0,179},{13,9,1,12,0,179},{13,51,2,6,0,89},{28,52,2,6,0,89},{28,33,1,12,0,179},{28,53,2,6,0,89},{28,26,1,12,0,179},{8,24,1,12,0,186},{8,12,1,12,0,186},{8,7,1,12,0,179},{8,4,1,12,0,186},{24,22,1,12,0,186},{24,8,1,12,0,186},{24,26,1,12,0,186},{24,36,1,26,0,393},{26,37,1,26,0,393},{26,24,1,12,0,186},{26,12,1,12,0,186},{26,28,1,12,0,179},{2,1,1,12,0,186},{2,6,1,12,0,186},{2,18,1,26,0,393},{2,3,1,12,0,179},{34,22,1,26,0,393},{47,16,3,5,0,89},{47,15,4,4,0,79},{9,5,1,12,0,186},{9,25,1,26,0,393},{9,13,1,12,0,179},{9,10,1,12,0,186},{48,15,4,4,0,79},{48,31,3,5,0,89},{54,19,2,21,1,296},{54,3,3,5,0,89},{44,32,1,26,0,393},
+{45,33,1,26,0,393},{50,13,3,5,0,89},{50,14,3,5,0,89},{29,30,1,12,0,186},{29,40,1,26,0,393},{29,13,1,12,0,179},{29,41,1,26,0,393},{20,4,1,26,0,393},{51,27,2,21,0,296},{51,13,3,5,0,89},{21,1,1,26,0,393},{46,11,3,5,0,89},{46,15,4,4,0,79},{5,1,1,12,0,186},{5,6,1,12,0,186},{5,23,1,26,0,393},{5,9,1,12,0,186},{16,52,2,6,0,89},{16,47,2,6,0,89},{16,32,1,12,0,179},{16,12,1,12,0,179},{10,6,1,12,0,186},{10,9,1,12,0,186},{10,11,1,12,0,179},{10,14,1,12,0,179},{42,30,1,26,0,393},{39,33,1,26,0,393},{3,55,2,6,0,89},{3,54,2,6,0,89},{3,4,1,12,0,179},{3,2,1,12,0,179},{14,30,1,12,0,179},{14,50,2,6,0,89},{14,49,2,6,0,89},{14,10,1,12,0,179},{36,24,1,26,0,393},{12,16,1,12,0,179},{12,8,1,12,0,186},{12,11,1,12,0,179},{12,26,1,12,0,186},{22,34,1,26,0,393},{22,35,1,26,0,393},{22,24,1,12,0,186},{22,4,1,12,0,186},{43,57,2,21,0,296},{52,16,3,5,0,89},{52,28,3,5,0,89},{27,51,2,21,0,296},{17,1,1,26,0,393},{4,22,1,12,0,186},
+{4,8,1,12,0,186},{4,20,1,26,0,393},{4,3,1,12,0,179},{23,5,1,26,0,393},{56,11,3,5,0,89},{56,7,3,5,0,89},{7,6,1,12,0,179},{7,55,2,6,0,89},{7,8,1,12,0,179},{7,56,2,6,0,89},{57,43,2,21,0,296},{57,31,3,5,0,89},{55,3,3,5,0,89},{55,7,3,5,0,89},{25,9,1,26,0,393},{53,38,2,21,0,296},{53,28,3,5,0,89},{1,5,1,12,0,186},{1,17,1,26,0,393},{1,21,1,26,0,393},{1,2,1,12,0,186},{40,29,1,26,0,393},{19,54,2,21,0,296},{11,46,2,6,0,89},{11,12,1,12,0,179},{11,56,2,6,0,89},{11,10,1,12,0,179},{32,44,1,26,0,393},{32,16,1,12,0,179},{32,33,1,12,0,186},{32,31,1,12,0,179},{38,53,2,21,0,296},{33,32,1,12,0,186},{33,39,1,26,0,393},{33,45,1,27,1,393},{33,28,1,12,0,179},{35,22,1,26,0,393},{15,46,2,5,0,79},{15,47,2,5,0,79},{15,48,2,5,0,79},{15,49,2,5,0,79},{49,15,4,4,0,79},{49,14,3,5,0,89}};
+
+int curr_car = 0;
+int uniquetest = 0;
+int reroute[N];
+int carDone[N];
+const int horizon = 40;
+int Done = 0;
+int totalTravelTime = 0;
+
+int inNodes[20][2] = {{17,0}, {18,0}, {54,19}, {20,0}, {34,0}, {35,0}, {36,0}, {37,0}, {53,38}, {39,0}, {45,0}, {44,0}, {57,43}, {42,0}, {41,0}, {40,0}, {51,27}, {25,0}, {23,0}, {21,0}};
+
+typedef int[0, N-1] id_car;
+
+broadcast chan Reroute, DoneRerouting;
+
+int getEdgeIndex(int fromNode, int toNode)
+{
+    int k = 0;
+    while(networkEdges[k][0] != fromNode || networkEdges[k][1] != toNode)
+    {
+        k++;
+    }
+    return k;
+}
+
+</declaration>
+	<template>
+		<name x="5" y="5">Simulator</name>
+		<declaration>clock x,y;
+// needs abosolute path to be used in tempmodel
+///home/thomas/AAUP7/UppaalModels/Libraries/lib.so
+
+import "/Libraries/lib.so" {
+	int calc_edge_weight(int lanes, int cars, int lenght);
+    int get_threshold(int edge_length);
+	//alias = int calc_edge_weight(int lanes, int cars, int lenght);
+};
+
+
+void constructor()
+{
+    int i = 0;
+
+    for(i = 0; i &lt; N; i++)
+    {
+        reroute[i] = 0;
+        carDone[i] = 0;
+    }
+}
+
+
+//check if cars have changed edge
+void flow_traffic()
+{
+    int i = 0;
+    int currentEdge = 0;
+    int timePassedCarI = 0;
+    int edgeTT = 0;
+    int edgeId;
+    int fromNode, toNode, nextToNode;  
+    int fromIndex;  
+    int allDone = 0;
+
+
+    for (i = 0; i &lt; N; i++)
+    {
+        allDone += carDone[i];
+        if(!carDone[i])
+        {
+            timePassedCarI = timePassed[i];
+            
+            fromNode = currentStartNode[i][0];
+            fromIndex = currentStartNode[i][1];
+            toNode = route[i][fromIndex+1];
+
+            if(toNode == -1)
+            {
+                carDone[i] = 1;
+            }
+            else
+            {
+                edgeId = getEdgeIndex(fromNode, toNode);
+        
+                edgeTT = networkEdges[edgeId][3];
+
+                if(timePassedCarI &gt;= edgeTT)
+                {
+                    currentStartNode[i][0] = toNode;
+                    currentStartNode[i][1]++;
+                    totalTravelTime += timePassedCarI;
+                    timePassed[i] = 0;
+                    networkEdges[edgeId][4] = networkEdges[edgeId][4] - 1;
+                    nextToNode = route[i][fromIndex+2];
+
+                    if(nextToNode != -1)
+                    {
+                        edgeId = getEdgeIndex(toNode, nextToNode);
+                        networkEdges[edgeId][4] = networkEdges[edgeId][4] + 1;
+                    }
+                }
+                else
+                {
+                    //update time passed
+                    timePassed[i] += 10;
+                }
+            }
+        }
+    }
+
+    if(allDone == N)
+    {
+        Done = 1;
+    }
+
+}
+
+void update_weights()
+{
+    int i = 0;
+    int carsOnEdge = 0;
+    
+    for(i = 0; i &lt; numEdges; i++)
+    {
+        carsOnEdge = networkEdges[i][4];        
+        networkEdges[i][3] = calc_edge_weight(networkEdges[i][2], carsOnEdge, networkEdges[i][5]);
+    }
+}
+
+//TODO: ensure that cars with congested out edges are not added for rerouting
+void check_reroute()
+{
+    int i = 0, j = 0;
+    int fromIndex, nextFromNode, nextToNode;
+    int edgeId;
+    int weight;
+    int outNode = 0;
+    int threshold = 0;
+
+    for(i = 0; i &lt; N; i++)
+    {
+        if(!carDone[i])
+        {
+            j = 0;
+            outNode = 0;
+            threshold = 0;
+            fromIndex = currentStartNode[i][1];
+
+            if(route[i][fromIndex+3] != -1)
+            {
+            nextFromNode = route[i][fromIndex+1];
+            nextToNode = route[i][fromIndex+2];
+            for(j = 0; j &lt; 20; j++)
+            {
+                if(nextToNode == inNodes[j][0] || nextToNode == inNodes[j][1])
+                {
+                    outNode = 1;
+                }
+            }
+            edgeId = getEdgeIndex(nextFromNode, nextToNode);
+
+            weight = networkEdges[edgeId][3];
+
+            threshold = get_threshold(networkEdges[edgeId][5]);
+
+            if(weight &gt; threshold &amp;&amp; outNode == 0)
+            {
+                reroute[i] = 1;
+            }
+            }
+        }
+      
+    }
+       
+}</declaration>
+		<location id="id0" x="-501" y="-246">
+			<label kind="invariant" x="-511" y="-229">y &lt;= 10</label>
+		</location>
+		<location id="id1" x="-773" y="-433">
+			<name x="-783" y="-467">Init</name>
+			<committed/>
+		</location>
+		<location id="id2" x="-501" y="-433">
+			<urgent/>
+		</location>
+		<location id="id3" x="-264" y="-433">
+			<urgent/>
+		</location>
+		<location id="id4" x="34" y="-433">
+			<name x="24" y="-467">End</name>
+		</location>
+		<location id="id5" x="-179" y="-305">
+			<urgent/>
+		</location>
+		<init ref="id1"/>
+		<transition controllable="false">
+			<source ref="id0"/>
+			<target ref="id2"/>
+			<label kind="guard" x="-484" y="-314">y == 10</label>
+			<label kind="assignment" x="-501" y="-339">flow_traffic(), update_weights(), y = 0</label>
+		</transition>
+		<transition controllable="false">
+			<source ref="id5"/>
+			<target ref="id0"/>
+			<label kind="synchronisation" x="-306" y="-212">DoneRerouting?</label>
+			<nail x="-179" y="-246"/>
+		</transition>
+		<transition controllable="false">
+			<source ref="id3"/>
+			<target ref="id5"/>
+			<label kind="guard" x="-162" y="-390">x &lt; horizon &amp;&amp; Done == 0</label>
+			<label kind="synchronisation" x="-162" y="-373">Reroute!</label>
+			<nail x="-179" y="-373"/>
+		</transition>
+		<transition controllable="false">
+			<source ref="id3"/>
+			<target ref="id4"/>
+			<label kind="guard" x="-221" y="-458">x &gt;= horizon || Done == 1</label>
+		</transition>
+		<transition controllable="false">
+			<source ref="id2"/>
+			<target ref="id3"/>
+			<label kind="assignment" x="-450" y="-458">check_reroute()</label>
+		</transition>
+		<transition controllable="false">
+			<source ref="id1"/>
+			<target ref="id2"/>
+			<label kind="assignment" x="-697" y="-458">constructor()</label>
+		</transition>
+	</template>
+	<template>
+		<name>Rerouter</name>
+		<declaration>int connectingNodes[3];
+int extendedNodes[3];
+
+void getConnectingNodes(int node, int prevNode)
+{
+    int i = 0;
+    int foundNodes = 0;
+    int edge[6];
+    connectingNodes[0] = -1;
+    connectingNodes[1] = -1;
+    connectingNodes[2] = -1;
+
+    for(i = 0; i &lt; numEdges; i++)
+    {
+        edge = networkEdges[i];
+        if(edge[0] == node &amp;&amp; edge[1] != prevNode)
+        {
+            connectingNodes[foundNodes] = edge[1];
+            foundNodes++;
+        }
+    }
+
+}
+
+void getExtendedNodes(int node, int prevNode)
+{
+    int i = 0;
+    int foundNodes = 0;
+    int edge[6];
+    extendedNodes[0] = -1;
+    extendedNodes[1] = -1;
+    extendedNodes[2] = -1;
+
+    for(i = 0; i &lt; numEdges; i++)
+    {
+        edge = networkEdges[i];
+        if(edge[0] == node &amp;&amp; edge[1] != prevNode)
+        {
+            extendedNodes[foundNodes] = edge[1];
+            foundNodes++;
+        }
+    }
+
+}
+
+int manhattanDistance(int node1, int node2)
+{
+    int i = 0, j = 0;
+
+    while(node1 != nodePositions[i][0])
+    {
+        i++;
+    }
+    while(node2 != nodePositions[j][0])
+    {
+        j++;
+    }
+
+    return abs(nodePositions[i][1] - nodePositions[j][1]) + abs(nodePositions[i][2] - nodePositions[j][2]);
+}
+
+int getBestConnection(int destNode, int rerouteNode)
+{
+    int j = 0, k = 0, i = 0;
+    int illegalInNode = 0;
+    int edgeId, edgeWeight, bestConnection; 
+    int bestExtension = 0;
+    int edgeWeights[3];
+    int extendedEdgeWeights[3];
+
+    for (j = 0; j &lt; 3; j++)
+    {   
+        if(connectingNodes[j] != -1)
+        {
+            bestExtension = 0;
+            edgeId = getEdgeIndex(rerouteNode, connectingNodes[j]);
+
+            edgeWeight = networkEdges[edgeId][3];
+
+            edgeWeights[j] = manhattanDistance(connectingNodes[j], destNode) + edgeWeight;
+
+            getExtendedNodes(connectingNodes[j], rerouteNode);
+
+            extendedEdgeWeights[0] = 0;
+            extendedEdgeWeights[1] = 0;
+            extendedEdgeWeights[2] = 0;
+
+            for (i = 0; i &lt; 3; i++)
+            {
+                if(extendedNodes[i] != -1)
+                {
+                    edgeId = getEdgeIndex(connectingNodes[j], extendedNodes[i]);
+
+                    edgeWeight = networkEdges[edgeId][3];
+    
+                    extendedEdgeWeights[i] = manhattanDistance(extendedNodes[i], destNode) + edgeWeight;
+
+                    for(k = 0; k &lt; 20; k++)
+                    {
+                        if(extendedNodes[i] == inNodes[k][0] &amp;&amp; inNodes[k][0] != destNode &amp;&amp; inNodes[k][1] != destNode)
+                        {
+                            illegalInNode = 1;
+                        }
+                    }
+
+                    if(illegalInNode == 1)
+                    {
+                        extendedEdgeWeights[i] = 32000;
+                        illegalInNode = 0;
+                        
+                    }
+                    else if (extendedEdgeWeights[i] &lt;  extendedEdgeWeights[bestExtension])
+                    {
+                        bestExtension = i;   
+                    }
+                    
+                }
+            }
+
+            edgeWeights[j] = edgeWeights[j] + extendedEdgeWeights[bestExtension];
+
+            for(k = 0; k &lt; 20; k++)
+            {
+                if(connectingNodes[j] == inNodes[k][0] &amp;&amp; inNodes[k][0] != destNode &amp;&amp; inNodes[k][1] != destNode)
+                {
+                    illegalInNode = 1;
+                }
+            }
+
+            if(illegalInNode == 1)
+            {
+                edgeWeights[j] = 32000;
+            }            
+            if( edgeWeights[j] &lt;  edgeWeights[bestConnection])
+            {
+                bestConnection = j;
+            }
+            illegalInNode = 0;
+        }
+    }
+
+    return connectingNodes[bestConnection]; 
+}
+
+void simpleReroute()
+{
+    int carRoute[routeLenght] = route[curr_car];
+    int i = 0;
+    int destNode;
+    int curNode = currentStartNode[curr_car][0];
+    int curIndex = currentStartNode[curr_car][1];
+    int prevNode = curNode;
+    int rerouteNode;
+    int bestConnection = 0;
+
+
+    i = curIndex;
+    while (carRoute[i+1] != -1)
+    {            
+        i++;
+    }
+
+    destNode = carRoute[i];
+    if (curNode != destNode)
+    {
+        curIndex++;
+        rerouteNode = route[curr_car][curIndex];
+
+        while (rerouteNode != destNode)
+        {
+            bestConnection = 0;
+
+            getConnectingNodes(rerouteNode, prevNode);
+        
+            bestConnection = getBestConnection(destNode, rerouteNode);
+        
+            carRoute[curIndex + 1] = bestConnection;
+            prevNode = rerouteNode;
+            rerouteNode = bestConnection;
+            curIndex++;        
+        }
+
+        while(curIndex &lt; (routeLenght-1))
+        {
+            carRoute[curIndex+1] = -1;
+            curIndex++;
+        }         
+
+        route[curr_car] = carRoute;
+
+    }
+    
+}
+
+
+void choose_route(int strategy)
+{
+    if(!carDone[curr_car])
+    {
+        reroute[curr_car] = 0;   
+    
+        if(strategy == 1)
+        {
+            simpleReroute();
+        }
+        else if (strategy == 0)
+        {
+            //Keep current route
+        }
+    }
+
+}</declaration>
+		<location id="id6" x="-909" y="-195">
+		</location>
+		<location id="id7" x="-714" y="-195">
+			<urgent/>
+		</location>
+		<location id="id8" x="-510" y="-195">
+			<urgent/>
+		</location>
+		<location id="id9" x="-314" y="-289">
+			<urgent/>
+		</location>
+		<location id="id10" x="-314" y="-110">
+			<urgent/>
+		</location>
+		<location id="id11" x="-110" y="-195">
+			<urgent/>
+		</location>
+		<location id="id12" x="59" y="-195">
+			<committed/>
+		</location>
+		<init ref="id6"/>
+		<transition controllable="false">
+			<source ref="id7"/>
+			<target ref="id11"/>
+			<label kind="guard" x="-696" y="-416">reroute[curr_car] == 0</label>
+			<nail x="-714" y="-382"/>
+			<nail x="-110" y="-382"/>
+		</transition>
+		<transition controllable="false">
+			<source ref="id7"/>
+			<target ref="id8"/>
+			<label kind="guard" x="-696" y="-229">reroute[curr_car] == 1</label>
+		</transition>
+		<transition controllable="false">
+			<source ref="id12"/>
+			<target ref="id6"/>
+			<label kind="assignment" x="-408" y="85">curr_car = 0</label>
+			<nail x="59" y="76"/>
+			<nail x="-909" y="76"/>
+		</transition>
+		<transition controllable="false">
+			<source ref="id11"/>
+			<target ref="id12"/>
+			<label kind="guard" x="-68" y="-221">curr_car &gt;= (N-1)</label>
+			<label kind="synchronisation" x="-76" y="-238">DoneRerouting!</label>
+		</transition>
+		<transition controllable="false">
+			<source ref="id11"/>
+			<target ref="id7"/>
+			<label kind="guard" x="-450" y="8">curr_car &lt; (N-1)</label>
+			<label kind="assignment" x="-450" y="-17">curr_car++</label>
+			<nail x="-110" y="-25"/>
+			<nail x="-714" y="-25"/>
+		</transition>
+		<transition controllable="false">
+			<source ref="id9"/>
+			<target ref="id11"/>
+		</transition>
+		<transition controllable="false">
+			<source ref="id10"/>
+			<target ref="id11"/>
+		</transition>
+		<transition>
+			<source ref="id8"/>
+			<target ref="id10"/>
+			<label kind="assignment" x="-501" y="-127">choose_route(1)</label>
+		</transition>
+		<transition>
+			<source ref="id8"/>
+			<target ref="id9"/>
+			<label kind="assignment" x="-501" y="-280">choose_route(0)</label>
+		</transition>
+		<transition controllable="false">
+			<source ref="id6"/>
+			<target ref="id7"/>
+			<label kind="synchronisation" x="-841" y="-221">Reroute?</label>
+		</transition>
+	</template>
+	<system>// Place template instantiations here.
+
+
+// List one or more processes to be composed into a system.
+system Simulator, Rerouter;
+    </system>
+	<queries>
+		<query>
+			<formula>E&lt;&gt; Simulator.End</formula>
+			<comment></comment>
+		</query>
+		<query>
+			<formula>strategy Opt =minE (totalTravelTime) [&lt;=horizon]: &lt;&gt; Simulator.End</formula>
+			<comment></comment>
+		</query>
+	</queries>
+</nta>

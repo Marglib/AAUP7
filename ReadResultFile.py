@@ -4,7 +4,7 @@ import random
 import optparse
 import subprocess
 import math
-import pandas as pd
+import csv
 
 def find_value(line, parameter, digits):
   	start = line.find(parameter) + len(parameter) + 2
@@ -73,9 +73,16 @@ def generate_results(options, tripResultDir, tripFileDir, queueFileDir):
 		'95thPercentileLengthExp':[getnPercentile(95, queueLengthExpList)]
 		
 		}
-	df = pd.DataFrame(d)
-
-	df.to_csv(tripResultDir, index=False)
+	
+	try:
+		with open(tripResultDir, 'w') as csvfile:
+			writer = csv.dictWriter(csvfile, filednames=csv_columns)
+			writer.writeheader()
+			for data in d:
+				writer.writerow(data)
+	except IOError:
+		print("I/O error")
+	
 	
 	f.close()
 	r.close()

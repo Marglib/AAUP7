@@ -8,9 +8,8 @@ import VerifierPath as VP
 from os.path import expanduser
 
 home = expanduser("~")
-rootDir = os.path.abspath(os.getcwd())
-pathToResults = os.path.join(rootDir,'results')
-pathToModels = os.path.join(rootDir,'UppaalModels')
+pathToResults = '/user/d704e19/experiments/AAUP7/results'
+pathToModels = '/user/d704e19/experiments/AAUP7/UppaalModels'
 
 def runStratego(com, args, query):
     #print('calling stratego with command: ' + com + args + query) 
@@ -19,6 +18,7 @@ def runStratego(com, args, query):
     out = f.read()
     total_time = time.time() - start_time
     return total_time, out
+
 
 # Verifying formula 2 at line 9
 #  -- Formula is satisfied.
@@ -39,7 +39,7 @@ def myGetSubString(mstr, key, greenModel):
     key_len = len(key)
     found = mstr.find(key)
     if found == -1:
-        return "no-strategy"        
+        return -1        
     else:
         start = found + key_len     
         end = mstr.find(delim, start+5) +1 #To make sure we search the next line for linebreak 
@@ -53,9 +53,12 @@ def getTuple(mstr, pos):
     pos1 = mstr.find(startKey,pos)
     pos2 = mstr.find(splitKey,pos1)
     pos3 = mstr.find(endKey,pos2)
-    val1 = mstr[pos1+1:pos2]
-    val2 = mstr[pos2+1:pos3]
-    return int(val1),int(val2), pos3
+    if -1 in {pos1,pos2,pos3}:
+        return -1,-1,-1
+    else:
+    	val1 = mstr[pos1+1:pos2]
+    	val2 = mstr[pos2+1:pos3]
+    	return int(val1),int(val2), pos3
 
 def getSignalStrategy(signaliStr):
     found = False
@@ -68,6 +71,8 @@ def getSignalStrategy(signaliStr):
         oldval1 = val1
         oldval2 = val2
         val1,val2,pos=getTuple(signaliStr,pos)        
+        if -1 in {val1,val2,pos}:
+            return -1,-1
         if val1 > oldval1:
             found = True
             if oldval2 == 1:
@@ -156,13 +161,13 @@ def createModel(master_model,expId,carsAreal,carsJammed,phase,duration,simStep,b
     value = value[:-1]
     str_model = str.replace(str_model, toReplace, value, 1)
         
-    modelName = rootDir + "/UppaalModels/TrafficLightTempModels/tl-" + str(tlID) + "-" + str(expId) + ".xml"
+    modelName = "/user/d704e19/experiments/AAUP7/UppaalModels/TrafficLightTempModels/tl-" + str(tlID) + "-" + str(expId) + ".xml"
     text_file = open(modelName, "w")
     text_file.write(str_model)
     text_file.close()
     return modelName
 
-def createQuery(master_query,nrOfSignals,tlID):
+def createQuery(master_query,nrOfSignals,tlID, expId):
     fo = open(master_query, "r+")
     str_query = fo.read()
     fo.close()
@@ -174,7 +179,7 @@ def createQuery(master_query,nrOfSignals,tlID):
     value = value[:-1]
     str_query = str.replace(str_query, toReplace, value, 1)
 
-    queryName = rootDir + "/UppaalModels/TrafficLightTempModels/tempQuery" + str(tlID) + '.q'
+    queryName = "/user/d704e19/experiments/AAUP7/UppaalModels/TrafficLightTempModels/tempQuery" + str(tlID) +  "-" + str(expId) + '.q'
     text_file = open(queryName, "w")
     text_file.write(str_query)
     text_file.close()
@@ -185,7 +190,7 @@ def cStratego(model,query,learningMet,succRuns,maxRuns,goodRuns,evalRuns,maxIter
               carsAreal,carsJammed,phase,duration,simStep,nrOfSignals,binaryPhasesDecimal, 
               binaryPhases, binaryPhaseIndices,tlID,yellowTime,greenModel=False,greenTimer=0):      
     newModel = createModel(model,expId,carsAreal,carsJammed,phase,duration,simStep,binaryPhasesDecimal,binaryPhaseIndices,tlID,nrOfSignals,yellowTime,greenModel,greenTimer)
-    newQuery = createQuery(query,nrOfSignals,tlID)
+    newQuery = createQuery(query,nrOfSignals,tlID,expId)
     stratego = VP.veriStratego + " "
     #'time '
     com = stratego
@@ -220,7 +225,9 @@ def cStratego(model,query,learningMet,succRuns,maxRuns,goodRuns,evalRuns,maxIter
     #todo: check if we need yellowPhase
     signalsInBinary = ""
     for sig in sigEnabled:
-        if sig:
+        if sig == -1:
+            return -1
+        elif sig:
             signalsInBinary += "1"
         else:
             signalsInBinary += "0"

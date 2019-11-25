@@ -4,6 +4,7 @@ from __future__ import print_function
 from xml.dom import minidom
 import os
 import sys
+sys.path.append('/user/d704e19/.local/lib/python2.7/site-packages/')
 import optparse
 import subprocess
 import random
@@ -11,14 +12,13 @@ import time
 import math
 import copy
 import networkx as nx
-import matplotlib.pyplot as plt
 import concurrent.futures
 from itertools import islice
 #import pandas as pd
 
 # we need to import python modules from the $SUMO_HOME/tools directory
 try:
-     tools = os.path.join(os.environ['SUMO_HOME'], "tools")
+     tools = "/user/d704e19/sumo/tools"
      sys.path.append(tools)
 except:   
      sys.exit("please declare environment variable 'SUMO_HOME'")
@@ -33,9 +33,9 @@ from TrafficLightClass import smartTL
 # the port used for communicating with your sumo instance
 PORT = 8873
 
-rootDir = os.path.abspath(os.getcwd())
-pathToResults = os.path.join(rootDir,'results')
-pathToModels = os.path.join(rootDir,'UppaalModels')
+
+pathToResults = '/user/d704e19/experiments/AAUP7/results'
+pathToModels = '/user/d704e19/experiments/AAUP7/UppaalModels'
 mainQuery = os.path.join(pathToModels, 'TNC.q')
 mainModel = os.path.join(pathToModels, 'TNC.xml')
 listOfCarTimeLists = []
@@ -43,15 +43,19 @@ listOfCarTimeLists = []
 
 
 
-def run(options):
+def run(options, command):
     """execute the TraCI control loop"""
     print("starting run")
-    traci.init(options.port)
+    #traci.init(options.port)
+    traci.start(command,numRetries=1000)
     step = 0
     ListOfCarsPlaceholder = []
     newRoutes = []
     networkGraph = preprocess()    
     pathsToFind = 3
+    amountOfReroutes = 0
+    totalRouteDif = 0
+    totalTeleports = 0
 
     #-------------------------------STRATEGO info---------------------------------------
     strategoMasterModel = os.path.join(pathToModels,'lowActivityMiniPro.xml')
@@ -175,13 +179,16 @@ def run(options):
                 for car in CarsInNetworkList:
                     Cars.append([car, get_route_nodes(car), get_time_on_edge(car)])
                 
-                if(step % 10 == 0 and step > 199):      
+                if(step % 10 == 0):      
                     for car in newRoutes:
                         car.kill()              
                     newRoutes = modelCaller(mainModel, mainQuery, options.expid, step, Cars, networkGraph, networkNodes)
 
                 for car in newRoutes:
                     car.update_route()
+                    if car.rerouted:
+                        amountOfReroutes += 1
+                        totalRouteDif += car.routeChange
 
                 newRoutes = [car for car in newRoutes if not car.rerouted]
             
@@ -210,7 +217,11 @@ def run(options):
 
             ListOfCarsPlaceholder = list(CarsInNetworkList)
 
-
+        totalTeleports += traci.simulation.getEndingTeleportNumber()
+        if amountOfReroutes > 0:
+            print("Amount of reroutes so far: " + str(amountOfReroutes))
+            print("Average route deviation: " + str(totalRouteDif/amountOfReroutes))
+        print("Amount of teleports so far: " + str(totalTeleports))
         traci.simulationStep()
         step += 1    
     traci.close()
@@ -387,9 +398,13 @@ if __name__ == "__main__":
     emissioninfofile = "results/emission" + str(options.expid) + ".xml"
     tripinfofile = "results/tripinfo" + str(options.expid) + ".xml"
     queueinfofile = "results/queueinfo" + str(options.expid) + ".xml"
-    sumoProcess = subprocess.Popen([sumoBinary, "-c", options.sumocfg, "--tripinfo-output", 
-                                   tripinfofile, "--emission-output", emissioninfofile, "--queue-output", queueinfofile, 
-                                   "--remote-port", str(options.port)], stdout=sys.stdout,
-                                   stderr=sys.stderr)
-    run(options)
-    sumoProcess.wait()
+    """
+	sumoProcess = subprocess.Popen([sumoBinary, "-c", options.sumocfg, "--tripinfo-output", 
+                                   tripinfofile, "--emission-output", emissioninfofile, "--queue-output", queueinfofile, "--remote-port", str(options.port)], 
+                                   stdout=sys.stdout,
+                                 stderr=sys.stderr)
+"""
+    command = [sumoBinary, "-c", options.sumocfg, "--tripinfo-output", 
+                                   tripinfofile, "--emission-output", emissioninfofile, "--queue-output", queueinfofile]
+    run(options, command)
+    #sumoProcess.wait()

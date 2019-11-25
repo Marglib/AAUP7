@@ -6,43 +6,41 @@ import math
 import optparse
 from os.path import expanduser
 from subprocess import Popen, PIPE, STDOUT, call
-import pandas as pd
-from CreateResultStats import create_statistics_file
 
 def create_netfile_copy(uid):
-    netfile = open("SUMOfiles/MasterNetFile.net.xml","r+")
+    netfile = open("AAUP7/SUMOfiles/MasterNetFile.net.xml","r+")
     str_net = netfile.read()
     netfile.close()
-    netfile_name = os.path.join("SUMOfiles/ExperimentSUMOfiles/MasterNetFile" + str(uid) +".net.xml")
+    netfile_name = os.path.join("AAUP7/SUMOfiles/ExperimentSUMOfiles/MasterNetFile" + str(uid) +".net.xml")
     text_file = open(netfile_name,"w")
     text_file.write(str_net)
     text_file.close()
 
 def create_edge_file_copy(uid):
-    edgefile = open("SUMOfiles/MasterEdgeFile.edg.xml","r+")
+    edgefile = open("AAUP7/SUMOfiles/MasterEdgeFile.edg.xml","r+")
     str_edges = edgefile.read()
     edgefile.close()
-    edgefile_name = os.path.join("SUMOfiles/ExperimentSUMOfiles/MasterEdgeFile" + str(uid) +".edg.xml")
+    edgefile_name = os.path.join("AAUP7/SUMOfiles/ExperimentSUMOfiles/MasterEdgeFile" + str(uid) +".edg.xml")
     text_file = open(edgefile_name,"w")
     text_file.write(str_edges)
     text_file.close()
 
 def create_config_file(load,uid):
-    cfg = open("SUMOfiles/ConfigPlaceholder.sumocfg", "r+")
+    cfg = open("AAUP7/SUMOfiles/ConfigPlaceholder.sumocfg", "r+")
     str_cfg = cfg.read()
     cfg.close()
 
     create_netfile_copy(uid)
 
     toReplace = "//HOLDER_TRIP_FILE"
-    value = "trip" + str(load) + "-2000-" + str(uid) +".rou.xml"
+    value = "/user/d704e19/experiments/AAUP7/SUMOfiles/ExperimentSUMOfiles/trip" + str(load) + "-2000-" + str(uid) +".rou.xml"
     str_cfg = str.replace(str_cfg, toReplace, value, 1)
 
     toReplace = "//HOLDER_NET_FILE"
-    value = "MasterNetFile" + str(uid) +".net.xml"
+    value = "/user/d704e19/experiments/AAUP7/SUMOfiles/ExperimentSUMOfiles/MasterNetFile" + str(uid) +".net.xml"
     str_cfg = str.replace(str_cfg, toReplace, value, 1)
 
-    cfgName = os.path.join("SUMOfiles/ExperimentSUMOfiles/ConfigPlaceholderExp" + str(uid) +".sumocfg")
+    cfgName = os.path.join("AAUP7/SUMOfiles/ExperimentSUMOfiles/ConfigPlaceholderExp" + str(uid) +".sumocfg")
     text_file = open(cfgName, "w")
     text_file.write(str_cfg)
     text_file.close()
@@ -51,7 +49,7 @@ def create_config_file(load,uid):
 def create_result_files(pyv,expIDs,i):
     print("Creating result files for run:" + str(i))
     for j in range(0,4):
-        sumoProcess = Popen(pyv +" ReadResultFile.py --tripinfofile tripinfo" + str(int(expIDs[j]) + i) + " --queuefile queueinfo"  + str(expIDs[j])+ str(i), stdout = PIPE, stderr = PIPE, shell=True)
+        sumoProcess = Popen(pyv +" AAUP7/ReadResultFile.py --tripinfofile tripinfo" + str(int(expIDs[j]) + i) + " --queuefile queueinfo"  + str(expIDs[j])+ str(i), stdout = PIPE, stderr = PIPE, shell=True)
         out, outerror = sumoProcess.communicate()
         sumoProcess.wait()
 
@@ -62,29 +60,29 @@ def run_experiment(pyv,load,runs,expIDs,uid,port):
         create_config_file(load,uid)
         create_edge_file_copy(uid)
 
-        generateLoadProcess = Popen(pyv +" SUMOfiles/TripGenerator.py --trips " + str(load) + " --time 2000 --edgeFile SUMOfiles/ExperimentSUMOfiles/MasterEdgeFile"+ str(uid) +".edg.xml -o trip" +str(load)+"-2000-"+ str(uid) + " --useProbFile", stdout = PIPE, stderr = PIPE, shell=True)
+        generateLoadProcess = Popen(pyv +" AAUP7/SUMOfiles/TripGenerator.py --trips " + str(load) + " --time 2000 --edgeFile AAUP7/SUMOfiles/ExperimentSUMOfiles/MasterEdgeFile"+ str(uid) +".edg.xml -o trip" +str(load)+"-2000-"+ str(uid) + " --useProbFile", stdout = PIPE, stderr = PIPE, shell=True)
         out, outerror = generateLoadProcess.communicate()
 
         print("Running simulation with TNC only:")
-        sumoProcess = Popen(pyv +" Runnerscript.py --nogui --sumocfg SUMOfiles/ExperimentSUMOfiles/ConfigPlaceholderExp" + str(uid) +".sumocfg --expid " + str(int(expIDs[0]) + i) + " --port "+ str(port) +" --controller TrafficNetworkController", stdout = PIPE, stderr = PIPE, shell=True)
+        sumoProcess = Popen(pyv +" AAUP7/Runnerscript.py --nogui --sumocfg AAUP7/SUMOfiles/ExperimentSUMOfiles/ConfigPlaceholderExp" + str(uid) +".sumocfg --expid " + str(int(expIDs[0]) + i) + " --port "+ str(port) +" --controller TrafficNetworkController", stdout = PIPE, stderr = PIPE, shell=True)
         out, outerror = sumoProcess.communicate()
         print(out,outerror)
         sumoProcess.wait()
 
         print("Running simulation with TNC and smart TL:")
-        sumoProcess = Popen(pyv +" Runnerscript.py --nogui --sumocfg SUMOfiles/ExperimentSUMOfiles/ConfigPlaceholderExp" + str(uid) +".sumocfg --expid " + str(int(expIDs[1]) + i) + " --port " + str(port) + " --controller TrafficNetworkController --trafficlight smart", stdout = PIPE, stderr = PIPE, shell=True)
+        sumoProcess = Popen(pyv +" AAUP7/Runnerscript.py --nogui --sumocfg AAUP7/SUMOfiles/ExperimentSUMOfiles/ConfigPlaceholderExp" + str(uid) +".sumocfg --expid " + str(int(expIDs[1]) + i) + " --port " + str(port) + " --controller TrafficNetworkController --trafficlight smart", stdout = PIPE, stderr = PIPE, shell=True)
         out, outerror = sumoProcess.communicate()
         print(out,outerror)
         sumoProcess.wait()
 
         print("Running simulation with smart TL only:")
-        sumoProcess = Popen(pyv +" Runnerscript.py --nogui --sumocfg SUMOfiles/ExperimentSUMOfiles/ConfigPlaceholderExp" + str(uid) +".sumocfg --expid " + str(int(expIDs[2]) + i) + " --port " + str(port) + " --trafficlight smart", stdout = PIPE, stderr = PIPE, shell=True)
+        sumoProcess = Popen(pyv +" AAUP7/Runnerscript.py --nogui --sumocfg AAUP7/SUMOfiles/ExperimentSUMOfiles/ConfigPlaceholderExp" + str(uid) +".sumocfg --expid " + str(int(expIDs[2]) + i) + " --port " + str(port) + " --trafficlight smart", stdout = PIPE, stderr = PIPE, shell=True)
         out, outerror = sumoProcess.communicate()
         print(out,outerror)
         sumoProcess.wait()
 
         print("Running simulation without any modifications:")
-        sumoProcess = Popen(pyv +" Runnerscript.py --nogui --sumocfg SUMOfiles/ExperimentSUMOfiles/ConfigPlaceholderExp" + str(uid) +".sumocfg --expid " + str(int(expIDs[3]) + i) + " --port " + str(port), stdout = PIPE, stderr = PIPE, shell=True)
+        sumoProcess = Popen(pyv +" AAUP7/Runnerscript.py --nogui --sumocfg AAUP7/SUMOfiles/ExperimentSUMOfiles/ConfigPlaceholderExp" + str(uid) +".sumocfg --expid " + str(int(expIDs[3]) + i) + " --port " + str(port), stdout = PIPE, stderr = PIPE, shell=True)
         out, outerror = sumoProcess.communicate()
         print(out,outerror)
         sumoProcess.wait()
