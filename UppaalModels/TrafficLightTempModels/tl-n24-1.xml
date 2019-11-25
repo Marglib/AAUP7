@@ -91,7 +91,11 @@ int carsAreal[signal_t] = {1, 0, 0, 5};
 int carsJammed[signal_t] = {0, 0, 0, 5};
 //first delay is dinamic in contrast to the 15 min for the floor heating, a yellow phase has to follow. i.e. fd = delay + yellow
 //HOLDER_FIRST_DELAY
+<<<<<<< HEAD
 //SIM_STEP=394
+=======
+//SIM_STEP=14
+>>>>>>> c15bddb30ba7c6449d49fea2747be3c103a0b445
 
 max_signal_conf_t phasechoice;
 

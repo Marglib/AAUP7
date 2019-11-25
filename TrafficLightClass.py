@@ -194,6 +194,7 @@ class smartTL:
             else:
                 res[i] = numberOfCars
         
+        #print(res)
         return res
 
     def get_opposite_cars_jammed(self, controlledLanes):
