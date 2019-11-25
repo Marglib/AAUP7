@@ -59,6 +59,11 @@ class smartTL:
                                             expid,carsAreal,carsJammed,
                                             self.phase,self.duration,step,self.nrOfSignals,
                                             self.binaryPhasesDecimal,self.binaryPhases,self.binaryPhaseIndices,self.tlID,self.yellow)
+                if(phasePlaceholder != -1):
+                    self.nextPhase = phasePlaceholder
+                else:
+                    print("No strategy found")
+
                 self.duration = 10
                 self.inYellow = False
                 self.strategoGreenTimer = 0
@@ -74,13 +79,15 @@ class smartTL:
                                             greenTimer=self.strategoGreenTimer)
                 if phasePlaceholder != -1:
                     self.nextPhase = phasePlaceholder
-                    if self.nextPhase == self.phase:
-                        self.duration = 5
-                    else:
-                        self.nextPhase = self.phase +1 
-                        self.duration = self.yellow   
                 else: 
-                    print("No strategy found. Not changing phase.")           
+                    print("No strategy found. Not changing phase.")  
+
+                if self.nextPhase == self.phase:
+                    self.duration = 5
+                else:
+                    self.nextPhase = self.phase +1 
+                    self.duration = self.yellow   
+                        
         if self.phaseTimer == 0:
             self.phase = self.nextPhase
             traci.trafficlight.setPhase(self.tlID,self.phase)
