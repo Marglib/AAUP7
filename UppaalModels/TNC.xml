@@ -3,6 +3,7 @@
 <nta>
 	<declaration>// Place global declarations here.
 const int routeLenght = 25;
+const int max = 16000;
 const int nodes = //HOLDER_NUMBER_OF_NODES
 const int numEdges = //HOLDER_NUMBER_OF_EDGES
 //HOLDER_NUMBER_OF_CARS
@@ -289,7 +290,7 @@ y = 0</label>
 		<name>Rerouter</name>
 		<declaration>int connectingNodes[3];
 int extendedNodes[3];
-const int max = 16000;
+
 
 void getConnectingNodes(int node, int prevNode)
 {

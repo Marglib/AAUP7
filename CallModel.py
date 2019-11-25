@@ -163,6 +163,18 @@ def replace_car_strings(str_model,cars,nodePositions):
     value += "};"
     str_model = str.replace(str_model, toReplace, value, 1)
 
+    toReplace = "//HOLDER_NEW_ROUTE"
+    value = "{"
+    for i in range (0,len(cars)):
+        value += "\n{"
+        for j in range (0, 25):
+            value += str(cars[i][1][j]) + ","
+        value = value[:-1]
+        value += "},"
+    value = value[:-1]
+    value += "};"
+    str_model = str.replace(str_model, toReplace, value, 1)
+
     return str_model
 
 def replace_node_strings(str_model,nodePositions,cars):
@@ -274,7 +286,7 @@ def createQuery(master_query,cars,nodePositions,expId):
     for i in range(0,len(cars)):
         value += " pid[" + str(int(cars[i][0]) + 1000) + "],"
         for j in range(0,len(nodePositions)):
-            value += " route[" + str(i) + "][" + str(j) + "],"
+            value += " newroute[" + str(i) + "][" + str(j) + "],"
     value = value[:-1]
     str_query = str.replace(str_query, toReplace, value, 1)
 
