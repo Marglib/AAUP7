@@ -1,6 +1,7 @@
 import math
 import os
 import sys
+import random
 
 try:
      tools = os.path.join(os.environ['SUMO_HOME'], "tools")
@@ -31,8 +32,9 @@ class car:
         
         newRouteAsEdges = self.nodes_to_edges(newRoute[traci.vehicle.getRouteIndex(self.pid):])
         try:
-            traci.vehicle.setRoute(self.pid,newRouteAsEdges)
-            print("new route: " + str(newRouteAsEdges))
+            if self.decision(0.9):
+                traci.vehicle.setRoute(self.pid,newRouteAsEdges)
+                print("new route: " + str(newRouteAsEdges))
             self.rerouted = True
             self.routeChange = abs(len(newRoute) - currRouteLen)
         except:
@@ -44,6 +46,9 @@ class car:
             edge = "n" + str(nodes[i]) + "-" + "n" + str(nodes[i + 1])
             edges.append(edge)
         return edges
+    
+    def decision(self,probability):
+        return random.random() < probability
 
     def to_string(self):
         print("pid:" + str(self.pid))
