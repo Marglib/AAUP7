@@ -80,7 +80,7 @@ class smartTL:
                 if phasePlaceholder != -1:
                     self.nextPhase = phasePlaceholder
                 else: 
-                    print("No strategy found. Not changing phase.")  
+                    print("No strategy found")  
 
                 if self.nextPhase == self.phase:
                     self.duration = 5
