@@ -159,11 +159,16 @@ def run(options):
         #THE MAIN CONTROLLER
         if (options.controller == "TrafficNetworkController"):
             #Update graph weights according to current traffic
+            closedEdges = []
+            CarsInNetworkList = traci.vehicle.getIDList()
+            #if(step > 300 and step < 700):
+            closedEdges = [('n11','n56'), ('n56','n11'), ('n7','n56'), ('n56','n7')]
+
+
+
             edges = list(networkGraph.edges)
             for i in range(0,len(edges)):
                 networkGraph[edges[i][0]][edges[i][1]]['weight'] = get_weight(edges[i][0],edges[i][1], "travelTime")
-
-            CarsInNetworkList = traci.vehicle.getIDList()
             NodeIDs = networkGraph.nodes()      
         
             if len(CarsInNetworkList) > 0:
@@ -178,7 +183,7 @@ def run(options):
                 if(step % 10 == 0):      
                     for car in newRoutes:
                         car.kill()              
-                    newRoutes = modelCaller(mainModel, mainQuery, options.expid, step, Cars, networkGraph, networkNodes)
+                    newRoutes = modelCaller(mainModel, mainQuery, options.expid, step, Cars, networkGraph, networkNodes, closedEdges)
 
                 for car in newRoutes:
                     car.update_route()

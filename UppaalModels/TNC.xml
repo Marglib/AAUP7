@@ -22,11 +22,12 @@ int reroute[N];
 int carDone[N];
 const int horizon = 40;
 int Done = 0;
-//double totalTravelTime = 0.0;
-const int INT32_MAX = 2147483647;
+double totalTravelTime = 0.0;
+/*const int INT32_MAX = 2147483647;
 typedef int[0, INT32_MAX] int32_t;
 int32_t totalTravelTime = 0;
-
+*/
+int cost[nodes][nodes];
 int inNodes[20][2] = {{17,0}, {18,0}, {54,19}, {20,0}, {34,0}, {35,0}, {36,0}, {37,0}, {53,38}, {39,0}, {45,0}, {44,0}, {57,43}, {42,0}, {41,0}, {40,0}, {51,27}, {25,0}, {23,0}, {21,0}};
 
 typedef int[0, N-1] id_car;
@@ -60,6 +61,34 @@ import "/Libraries/lib.so" {
 	//alias = int calc_edge_weight(int lanes, int cars, int lenght);
 };
 
+void create_adjacency_matrix()
+{
+    int x = 0, y = 0, w;
+    int edgeId;
+
+    for(x=0; x&lt; nodes; x++)
+    {
+        for(y=0; y&lt; nodes; y++)
+        {
+            edgeId = getEdgeIndex(x, y);
+
+            if (edgeId != -1)
+            {    
+                //w = manhattanDistance(x, y) + networkEdges[edgeId][3];
+                w = networkEdges[edgeId][5] + networkEdges[edgeId][3];
+            }
+            else if ( x == y)
+            {
+                w  = 0;
+            } 
+            else
+            {
+                w = max;
+            }
+            cost [x][y] = w;
+        }
+    }
+}
 
 void constructor()
 {
@@ -70,6 +99,8 @@ void constructor()
         reroute[i] = 0;
         carDone[i] = 0;
     }
+
+    create_adjacency_matrix();
 }
 
 
@@ -111,7 +142,7 @@ void flow_traffic()
                 {
                     currentStartNode[i][0] = toNode;
                     currentStartNode[i][1]++;
-                    totalTravelTime += timePassedCarI;
+                    totalTravelTime = totalTravelTime + (timePassedCarI/100);
                     timePassed[i] = 0;
                     networkEdges[edgeId][4] = networkEdges[edgeId][4] - 1;
                     nextToNode = route[i][fromIndex+2];
@@ -186,7 +217,7 @@ void check_reroute()
 
             threshold = get_threshold(networkEdges[edgeId][5]);
 
-            if(weight &gt; threshold &amp;&amp; outNode == 0)
+            if((weight &gt; threshold &amp;&amp; outNode == 0) || networkEdges[edgeId][6] == 1)
             {
                 reroute[i] = 1;
             }
@@ -219,8 +250,11 @@ void check_reroute()
 		<transition controllable="false">
 			<source ref="id0"/>
 			<target ref="id2"/>
-			<label kind="guard" x="-484" y="-314">y == 10</label>
-			<label kind="assignment" x="-501" y="-339">flow_traffic(), update_weights(), y = 0</label>
+			<label kind="guard" x="-569" y="-306">y == 10</label>
+			<label kind="assignment" x="-493" y="-357">flow_traffic(), 
+update_weights(), 
+create_adjacency_matrix(),
+y = 0</label>
 		</transition>
 		<transition controllable="false">
 			<source ref="id5"/>
@@ -248,21 +282,20 @@ void check_reroute()
 		<transition controllable="false">
 			<source ref="id1"/>
 			<target ref="id2"/>
-			<label kind="assignment" x="-697" y="-458">constructor()</label>
+			<label kind="assignment" x="-697" y="-408">constructor()</label>
 		</transition>
 	</template>
 	<template>
 		<name>Rerouter</name>
 		<declaration>int connectingNodes[3];
 int extendedNodes[3];
-int cost[nodes][nodes];
 const int max = 16000;
 
 void getConnectingNodes(int node, int prevNode)
 {
     int i = 0;
     int foundNodes = 0;
-    int edge[6];
+    int edge[7];
     connectingNodes[0] = -1;
     connectingNodes[1] = -1;
     connectingNodes[2] = -1;
@@ -283,7 +316,7 @@ void getExtendedNodes(int node, int prevNode)
 {
     int i = 0;
     int foundNodes = 0;
-    int edge[6];
+    int edge[7];
     extendedNodes[0] = -1;
     extendedNodes[1] = -1;
     extendedNodes[2] = -1;
@@ -324,6 +357,7 @@ int getBestConnection(int destNode, int rerouteNode)
     int bestExtension = 0;
     int edgeWeights[3];
     int extendedEdgeWeights[3];
+    int closedEdge = 0;
 
     for (j = 0; j &lt; 3; j++)
     {   
@@ -333,6 +367,7 @@ int getBestConnection(int destNode, int rerouteNode)
             edgeId = getEdgeIndex(rerouteNode, connectingNodes[j]);
 
             edgeWeight = networkEdges[edgeId][3];
+            closedEdge = networkEdges[edgeId][6];
 
             edgeWeights[j] = manhattanDistance(connectingNodes[j], destNode) + edgeWeight;
 
@@ -354,7 +389,7 @@ int getBestConnection(int destNode, int rerouteNode)
 
                     for(k = 0; k &lt; 20; k++)
                     {
-                        if(extendedNodes[i] == inNodes[k][0] &amp;&amp; inNodes[k][0] != destNode &amp;&amp; inNodes[k][1] != destNode)
+                        if((extendedNodes[i] == inNodes[k][0] &amp;&amp; inNodes[k][0] != destNode &amp;&amp; inNodes[k][1] != destNode) &amp;&amp; closedEdge == 1)
                         {
                             illegalInNode = 1;
                         }
@@ -378,7 +413,7 @@ int getBestConnection(int destNode, int rerouteNode)
 
             for(k = 0; k &lt; 20; k++)
             {
-                if(connectingNodes[j] == inNodes[k][0] &amp;&amp; inNodes[k][0] != destNode &amp;&amp; inNodes[k][1] != destNode)
+                if((connectingNodes[j] == inNodes[k][0] &amp;&amp; inNodes[k][0] != destNode &amp;&amp; inNodes[k][1] != destNode) &amp;&amp; closedEdge == 1)
                 {
                     illegalInNode = 1;
                 }
@@ -535,33 +570,7 @@ void dijkstra()
 
 
 
-void create_adjacency_matrix()
-{
-    int x = 0, y = 0, w;
-    int edgeId;
 
-    for(x=0; x&lt; nodes; x++)
-    {
-        for(y=0; y&lt; nodes; y++)
-        {
-            edgeId = getEdgeIndex(x, y);
-
-            if (edgeId != -1)
-            {    
-                w = manhattanDistance(x, y) + networkEdges[edgeId][3];
-            }
-            else if ( x == y)
-            {
-                w  = 0;
-            } 
-            else
-            {
-                w = max;
-            }
-            cost [x][y] = w;
-        }
-    }
-}
 
 
 void choose_route(int strategy)
@@ -658,7 +667,6 @@ void choose_route(int strategy)
 			<source ref="id6"/>
 			<target ref="id7"/>
 			<label kind="synchronisation" x="-841" y="-187">Reroute?</label>
-			<label kind="assignment" x="-909" y="-229">create_adjacency_matrix()</label>
 		</transition>
 	</template>
 	<system>// Place template instantiations here.
