@@ -86,27 +86,12 @@ int delchoice = 0;
 
  
 //PLACE HOLDERS
-<<<<<<< HEAD
 //HOLDER_INITIAL_PHASE
-int carsAreal[signal_t] = {5, 10, 11, 0, 0, 0, 1, 1};
-int carsJammed[signal_t] = {5, 10, 11, 0, 0, 0, 1, 0};
-//first delay is dinamic in contrast to the 15 min for the floor heating, a yellow phase has to follow. i.e. fd = delay + yellow
-//HOLDER_FIRST_DELAY
-//SIM_STEP=394
-=======
-<<<<<<< HEAD
-//HOLDER_INITIAL_PHASE
-=======
-const max_signal_conf_t initialPhase = 0;
-int greenTimer = 15;
->>>>>>> 12c118a241fcbe27352462bc5bd7ceb44d4034a6
-int carsAreal[signal_t] = {0, 0, 0, 0, 0, 0, 0, 0};
+int carsAreal[signal_t] = {0, 1, 0, 0, 0, 0, 0, 0};
 int carsJammed[signal_t] = {0, 0, 0, 0, 0, 0, 0, 0};
 //first delay is dinamic in contrast to the 15 min for the floor heating, a yellow phase has to follow. i.e. fd = delay + yellow
 //HOLDER_FIRST_DELAY
-<<<<<<< HEAD
-//SIM_STEP=24
->>>>>>> c15bddb30ba7c6449d49fea2747be3c103a0b445
+//SIM_STEP=93
 
 max_signal_conf_t phasechoice;
 
@@ -114,12 +99,6 @@ max_signal_conf_t phasechoice;
 
 
 </declaration>
-<<<<<<< HEAD
-=======
-=======
-//SIM_STEP=210</declaration>
->>>>>>> 12c118a241fcbe27352462bc5bd7ceb44d4034a6
->>>>>>> c15bddb30ba7c6449d49fea2747be3c103a0b445
 	<template>
 		<name x="5" y="5">trafficLights</name>
 		<declaration>clock x;
