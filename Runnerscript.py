@@ -37,7 +37,7 @@ rootDir = os.path.abspath(os.getcwd())
 pathToResults = os.path.join(rootDir,'results')
 pathToModels = os.path.join(rootDir,'UppaalModels')
 mainQuery = os.path.join(pathToModels, 'TNC.q')
-mainModel = os.path.join(pathToModels, 'TNC.xml')
+mainModel = os.path.join(pathToModels, 'TNC_OneChoice.xml')
 listOfCarTimeLists = []
 
 
@@ -162,7 +162,7 @@ def run(options):
             closedEdges = []
             CarsInNetworkList = traci.vehicle.getIDList()
             #if(step > 300 and step < 700):
-            closedEdges = [('n11','n56'), ('n56','n11'), ('n7','n56'), ('n56','n7')]
+            #closedEdges = [('n11','n56'), ('n56','n11'), ('n7','n56'), ('n56','n7')]
 
 
 

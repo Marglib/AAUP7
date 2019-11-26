@@ -224,7 +224,7 @@ def replace_edge_strings(str_model,networkGraph, closedEdges):
     value = "int networkEdges[" + str(len(edges)) + "][7] = {"
     for i in range(0,len(edges)):
         closed = 1 if (edges[i] in closedEdges) else 0  
-        print(str(edges[i]) + str(closed))
+        #print(str(edges[i]) + str(closed))
         nrOfLanes = traci.edge.getLaneNumber(edges[i][0] + "-" + edges[i][1])
         weight = networkGraph.get_edge_data(edges[i][0], edges[i][1])
         length = round(traci.lane.getLength(edges[i][0] + "-" + edges[i][1] + "_0"))
