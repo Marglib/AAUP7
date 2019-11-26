@@ -289,7 +289,6 @@ def insert_adjacency_matrix(str_model, networkGraph):
         value = value[:-1]
     value += "};"
     str_model = str.replace(str_model, toReplace, value, 1)
-    print(value)
     return str_model
 
 
