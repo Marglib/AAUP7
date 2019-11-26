@@ -266,9 +266,9 @@ def insert_adjacency_matrix(str_model, networkGraph):
     value = "{"
     nodes = list(networkGraph.nodes)
 
-    for i in range(0,(len(nodes)-1)):
+    for i in range(0,len(nodes)):
         value += "{"
-        for j in range(0,(len(nodes)-1)):
+        for j in range(0,len(nodes)):
             edgeData = networkGraph.get_edge_data(nodes[i], nodes[j])
             if edgeData != None:
                 length = round(traci.lane.getLength(nodes[i] + "-" + nodes[j] + "_0"))
@@ -277,16 +277,11 @@ def insert_adjacency_matrix(str_model, networkGraph):
             else:
                 adjacencyValue = 16000
             value += str(adjacencyValue) + ","
-
+            
         value = value[:-1]
-        value += "},"
+        value += "},\n"   
 
-        if(i % 50 == 0):
-            value += "\n"    
-    if(value.endswith("\n")):
-        value = value[:-2]
-    else:
-        value = value[:-1]
+    value = value[:-2]
     value += "};"
     str_model = str.replace(str_model, toReplace, value, 1)
     return str_model
