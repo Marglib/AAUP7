@@ -9,10 +9,14 @@ const int numEdges = //HOLDER_NUMBER_OF_EDGES
 //HOLDER_NUMBER_OF_CARS
 const int pid[N] = //HOLDER_CAR_PID 
 int route[N][routeLenght] = //HOLDER_CAR_ROUTE 
+int newRoute[N][routeLenght] = //HOLDER_NEW_ROUTE 
 //HOLDER_NODE_POSITIONS
 int timePassed[N] = //HOLDER_TIME_PASSED
 int currentStartNode[N][2] = //HOLDER_CURRENT_START_NODE
+int cost[nodes][nodes] = //HOLDER_ADJACENCY_MATRIX
 typedef int[0,nodes] node_t;
+
+int travelHist[N][2]; 
 
 //networkEdges constains touples of the form (fromNodeId, toNodeId, lanes, edgeweight, carsOnEdge)
 //HOLDER_EDGES
@@ -23,12 +27,13 @@ int reroute[N];
 int carDone[N];
 const int horizon = 40;
 int Done = 0;
-double totalTravelTime = 0.0;
+double rerouteTime = 0.0;
 /*const int INT32_MAX = 2147483647;
 typedef int[0, INT32_MAX] int32_t;
 int32_t totalTravelTime = 0;
 */
-int cost[nodes][nodes];
+double totalTravelTime = 0.0;
+
 int inNodes[20][2] = {{17,0}, {18,0}, {54,19}, {20,0}, {34,0}, {35,0}, {36,0}, {37,0}, {53,38}, {39,0}, {45,0}, {44,0}, {57,43}, {42,0}, {41,0}, {40,0}, {51,27}, {25,0}, {23,0}, {21,0}};
 
 typedef int[0, N-1] id_car;
@@ -109,9 +114,9 @@ void constructor()
     {
         reroute[i] = 0;
         carDone[i] = 0;
+        travelHist[i][0] = 0; 
+        travelHist[i][1] = 0; 
     }
-
-    create_adjacency_matrix();
 }
 
 
@@ -153,7 +158,7 @@ void flow_traffic()
                 {
                     currentStartNode[i][0] = toNode;
                     currentStartNode[i][1]++;
-                    totalTravelTime = totalTravelTime + (timePassedCarI/100);
+                    //totalTravelTime = totalTravelTime + (timePassedCarI/100);
                     timePassed[i] = 0;
                     networkEdges[edgeId][4] = networkEdges[edgeId][4] - 1;
                     nextToNode = route[i][fromIndex+2];
@@ -162,6 +167,8 @@ void flow_traffic()
                     {
                         edgeId = getEdgeIndex(toNode, nextToNode);
                         networkEdges[edgeId][4] = networkEdges[edgeId][4] + 1;
+                        travelHist[i][0] += 1;
+                        travelHist[i][1] += networkEdges[edgeId][3];
                     }
                 }
                 else
@@ -237,63 +244,74 @@ void check_reroute()
       
     }
        
+}
+
+void get_routing_result()
+{
+    int i = 0;
+    int avgEdgeTT;
+
+    for(i = 0; i &lt; N; i++)
+    {
+        avgEdgeTT = (travelHist[i][1] / travelHist[i][0]);
+        totalTravelTime = totalTravelTime + (avgEdgeTT/10); 
+    }
+
 }</declaration>
-		<location id="id0" x="-501" y="-246">
-			<label kind="invariant" x="-511" y="-229">y &lt;= 10</label>
+		<location id="id0" x="-204" y="-510">
+			<label kind="invariant" x="-280" y="-569">y &lt;= 10 &amp;&amp; x &lt;= horizon</label>
 		</location>
-		<location id="id1" x="-773" y="-433">
-			<name x="-783" y="-467">Init</name>
+		<location id="id1" x="-808" y="-510">
+			<name x="-818" y="-544">Init</name>
 			<committed/>
 		</location>
-		<location id="id2" x="-501" y="-433">
+		<location id="id2" x="-646" y="-510">
 			<urgent/>
 		</location>
-		<location id="id3" x="-264" y="-433">
+		<location id="id3" x="-476" y="-510">
 			<urgent/>
 		</location>
-		<location id="id4" x="34" y="-433">
-			<name x="24" y="-467">End</name>
+		<location id="id4" x="8" y="-510">
+			<name x="-2" y="-544">End</name>
 		</location>
-		<location id="id5" x="-179" y="-305">
+		<location id="id5" x="-366" y="-510">
 			<urgent/>
 		</location>
 		<init ref="id1"/>
 		<transition controllable="false">
 			<source ref="id0"/>
-			<target ref="id2"/>
-			<label kind="guard" x="-569" y="-306">y == 10</label>
-			<label kind="assignment" x="-493" y="-357">flow_traffic(), 
-update_weights(), 
-create_adjacency_matrix(),
+			<target ref="id0"/>
+			<label kind="guard" x="-144" y="-459">y == 10 &amp;&amp; x &lt; horizon</label>
+			<label kind="assignment" x="-272" y="-382">flow_traffic(), 
+update_weights(),
 y = 0</label>
+			<nail x="-290" y="-395"/>
+			<nail x="-112" y="-395"/>
+		</transition>
+		<transition controllable="false">
+			<source ref="id0"/>
+			<target ref="id4"/>
+			<label kind="guard" x="-195" y="-535">x == horizon || Done == 1</label>
 		</transition>
 		<transition controllable="false">
 			<source ref="id5"/>
 			<target ref="id0"/>
-			<label kind="synchronisation" x="-306" y="-212">DoneRerouting?</label>
-			<nail x="-179" y="-246"/>
+			<label kind="synchronisation" x="-349" y="-535">DoneRerouting?</label>
 		</transition>
 		<transition controllable="false">
 			<source ref="id3"/>
 			<target ref="id5"/>
-			<label kind="guard" x="-162" y="-390">x &lt; horizon &amp;&amp; Done == 0</label>
-			<label kind="synchronisation" x="-162" y="-373">Reroute!</label>
-			<nail x="-179" y="-373"/>
-		</transition>
-		<transition controllable="false">
-			<source ref="id3"/>
-			<target ref="id4"/>
-			<label kind="guard" x="-221" y="-458">x &gt;= horizon || Done == 1</label>
+			<label kind="synchronisation" x="-459" y="-535">Reroute!</label>
 		</transition>
 		<transition controllable="false">
 			<source ref="id2"/>
 			<target ref="id3"/>
-			<label kind="assignment" x="-450" y="-458">check_reroute()</label>
+			<label kind="assignment" x="-621" y="-535">check_reroute()</label>
 		</transition>
 		<transition controllable="false">
 			<source ref="id1"/>
 			<target ref="id2"/>
-			<label kind="assignment" x="-697" y="-408">constructor()</label>
+			<label kind="assignment" x="-774" y="-535">constructor()</label>
 		</transition>
 	</template>
 	<template>
@@ -489,7 +507,7 @@ void simpleReroute()
             curIndex++;
         }         
 
-        route[curr_car] = carRoute;
+        newRoute[curr_car] = carRoute;
 
     }
     
@@ -498,7 +516,7 @@ void simpleReroute()
 void dijkstra()
 {
     int carRoute[routeLenght] = route[curr_car];
-    int newRoute[routeLenght];
+    int suggestedRoute[routeLenght];
     int selected[nodes], dist[nodes], prev[nodes];
     int i = 0, min, m , d, j;
     int destNode;
@@ -556,7 +574,7 @@ void dijkstra()
 
     while (rerouteNode != curNode)
     {
-        newRoute[j] = rerouteNode;
+        suggestedRoute[j] = rerouteNode;
         rerouteNode = prev[rerouteNode];
         j++;        
     }
@@ -565,7 +583,7 @@ void dijkstra()
     while (j &gt; 0)
     {
         j--;
-        carRoute[curIndex+1] = newRoute[j];
+        carRoute[curIndex+1] = suggestedRoute[j];
         curIndex++;        
     }
 
@@ -575,7 +593,7 @@ void dijkstra()
         curIndex++;
     }         
 
-    route[curr_car] = carRoute;
+    newRoute[curr_car] = carRoute;
 
 }
 
@@ -604,16 +622,18 @@ void choose_route()
 			<urgent/>
 		</location>
 		<location id="id9" x="-510" y="-306">
+			<name x="-520" y="-340">DoReroute</name>
 			<urgent/>
 		</location>
-		<location id="id10" x="-314" y="-110">
+		<location id="id10" x="-178" y="-110">
+			<name x="-221" y="-93">NoReroute</name>
 			<urgent/>
 		</location>
 		<location id="id11" x="-110" y="-195">
 			<urgent/>
 		</location>
 		<location id="id12" x="59" y="-195">
-			<committed/>
+			<urgent/>
 		</location>
 		<location id="id13" x="-204" y="-306">
 			<urgent/>
@@ -621,9 +641,16 @@ void choose_route()
 		<location id="id14" x="-382" y="-195">
 			<urgent/>
 		</location>
-		<branchpoint id="id15" x="-382" y="-306">
+		<location id="id15" x="187" y="-195">
+			<name x="177" y="-229">Done</name>
+		</location>
+		<branchpoint id="id16" x="-382" y="-306">
 		</branchpoint>
 		<init ref="id6"/>
+		<transition controllable="false">
+			<source ref="id12"/>
+			<target ref="id15"/>
+		</transition>
 		<transition controllable="false">
 			<source ref="id13"/>
 			<target ref="id11"/>
@@ -631,22 +658,22 @@ void choose_route()
 		<transition controllable="false">
 			<source ref="id14"/>
 			<target ref="id11"/>
-			<label kind="assignment" x="-364" y="-195">choose_route()</label>
-			<nail x="-263" y="-195"/>
+			<label kind="assignment" x="-433" y="-178">route[curr_car] = newRoute[curr_car]</label>
 		</transition>
 		<transition>
-			<source ref="id15"/>
+			<source ref="id16"/>
 			<target ref="id14"/>
-			<label kind="probability" x="-399" y="-263">9</label>
+			<label kind="probability" x="-374" y="-272">9</label>
 		</transition>
 		<transition>
-			<source ref="id15"/>
+			<source ref="id16"/>
 			<target ref="id13"/>
 			<label kind="probability" x="-323" y="-331">1</label>
 		</transition>
 		<transition controllable="false">
 			<source ref="id9"/>
-			<target ref="id15"/>
+			<target ref="id16"/>
+			<label kind="assignment" x="-493" y="-297">choose_route()</label>
 		</transition>
 		<transition controllable="false">
 			<source ref="id7"/>
@@ -659,13 +686,6 @@ void choose_route()
 			<source ref="id7"/>
 			<target ref="id8"/>
 			<label kind="guard" x="-696" y="-229">reroute[curr_car] == 1</label>
-		</transition>
-		<transition controllable="false">
-			<source ref="id12"/>
-			<target ref="id6"/>
-			<label kind="assignment" x="-408" y="85">curr_car = 0</label>
-			<nail x="59" y="76"/>
-			<nail x="-909" y="76"/>
 		</transition>
 		<transition controllable="false">
 			<source ref="id11"/>
