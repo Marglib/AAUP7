@@ -298,7 +298,7 @@ def createModel(master_model,expId,simStep,cars,networkGraph,nodePositions, clos
     str_model = replace_node_strings(str_model,nodePositions,cars)
     str_model = replace_edge_strings(str_model,networkGraph, closedEdges)
     str_model = replace_time_passed_current_edge(str_model,cars)
-    insert_adjacency_matrix(str_model,networkGraph)    
+    str_model = insert_adjacency_matrix(str_model,networkGraph)    
 
     modelName = os.path.join(pathToModels, 'tempModel' + str(expId) + '.xml')
     text_file = open(modelName, "w")

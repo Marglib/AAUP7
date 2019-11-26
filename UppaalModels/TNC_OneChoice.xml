@@ -13,6 +13,7 @@ int newRoute[N][routeLenght] = //HOLDER_NEW_ROUTE
 //HOLDER_NODE_POSITIONS
 int timePassed[N] = //HOLDER_TIME_PASSED
 int currentStartNode[N][2] = //HOLDER_CURRENT_START_NODE
+int cost[nodes][nodes] = //HOLDER_ADJACENCY_MATRIX
 typedef int[0,nodes] node_t;
 
 int travelHist[N][2]; 
@@ -32,7 +33,7 @@ typedef int[0, INT32_MAX] int32_t;
 int32_t totalTravelTime = 0;
 */
 double totalTravelTime = 0.0;
-int cost[nodes][nodes];
+
 int inNodes[20][2] = {{17,0}, {18,0}, {54,19}, {20,0}, {34,0}, {35,0}, {36,0}, {37,0}, {53,38}, {39,0}, {45,0}, {44,0}, {57,43}, {42,0}, {41,0}, {40,0}, {51,27}, {25,0}, {23,0}, {21,0}};
 
 typedef int[0, N-1] id_car;
@@ -116,8 +117,6 @@ void constructor()
         travelHist[i][0] = 0; 
         travelHist[i][1] = 0; 
     }
-
-    create_adjacency_matrix();
 }
 
 
