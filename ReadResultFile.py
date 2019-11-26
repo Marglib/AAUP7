@@ -116,7 +116,7 @@ if __name__ == "__main__":
 	queueFileDir = "results/" + options.queuefile + ".xml"
 	tripResults = "results/Results_" + str(options.tripinfofile) + ".csv"
 
-	experimentID = int(filter(str.isdigit, tripFileDir))
+	experimentID = ''.join(filter(lambda i: i.isdigit(), tripFileDir)) 
 	
 	generate_results(tripResults, tripFileDir, queueFileDir, experimentID)
 
