@@ -226,9 +226,9 @@ def replace_edge_strings(str_model,networkGraph, closedEdges):
         closed = 1 if (edges[i] in closedEdges) else 0  
         #print(str(edges[i]) + str(closed))
         nrOfLanes = traci.edge.getLaneNumber(edges[i][0] + "-" + edges[i][1])
-        weight = networkGraph.get_edge_data(edges[i][0], edges[i][1])
+        edgeData = networkGraph.get_edge_data(edges[i][0], edges[i][1])
         length = round(traci.lane.getLength(edges[i][0] + "-" + edges[i][1] + "_0"))
-        value += "{" + str(edges[i][0][1:]) + "," +  str(edges[i][1][1:]) + "," + str(nrOfLanes) + "," + str(int(weight.get('weight'))) + "," + str(len(traci.edge.getLastStepVehicleIDs(edges[i][0] + "-" + edges[i][1]))) + "," + str(length) + "," + str(closed) +"},"
+        value += "{" + str(edges[i][0][1:]) + "," +  str(edges[i][1][1:]) + "," + str(nrOfLanes) + "," + str(int(edgeData.get('weight'))) + "," + str(len(traci.edge.getLastStepVehicleIDs(edges[i][0] + "-" + edges[i][1]))) + "," + str(length) + "," + str(closed) +"},"
         if(i % 50 == 0):
             value += "\n"    
     if(value.endswith("\n")):
@@ -263,13 +263,31 @@ def replace_time_passed_current_edge(str_model, cars):
 
 def insert_adjacency_matrix(str_model, networkGraph):
     toReplace = "//HOLDER_ADJACENCY_MATRIX"
+    value = "{"
     nodes = list(networkGraph.nodes)
-    for i in range(1,(len(nodes)-1)):
-        edgeData = networkGraph.get_edge_data(nodes[i], nodes[i+1])
-        print(edgeData)
-        #length = round(traci.lane.getLength(nodes[i] + "-" + nodes[i] + "_0"))
 
- 
+    for i in range(0,(len(nodes)-1)):
+        for j in range(0,(len(nodes)-1)):
+            edgeData = networkGraph.get_edge_data(nodes[i], nodes[j])
+            if edgeData != None:
+                length = round(traci.lane.getLength(nodes[i] + "-" + nodes[j] + "_0"))
+                weight = int(edgeData.get('weight'))
+                adjacencyValue = weight + length
+            else:
+                adjacencyValue = 16000
+            value += str(adjacencyValue) + ","
+
+        if(i % 80 == 0):
+            value += "\n"    
+    if(value.endswith("\n")):
+        value = value[:-2]
+    else:
+        value = value[:-1]
+    value += "};"
+    str_model = str.replace(str_model, toReplace, value, 1)
+
+    return str_model
+
 
 def createModel(master_model,expId,simStep,cars,networkGraph,nodePositions, closedEdges):
     fo = open(master_model, "r+")
@@ -279,7 +297,8 @@ def createModel(master_model,expId,simStep,cars,networkGraph,nodePositions, clos
     str_model = replace_car_strings(str_model,cars,nodePositions)
     str_model = replace_node_strings(str_model,nodePositions,cars)
     str_model = replace_edge_strings(str_model,networkGraph, closedEdges)
-    str_model = replace_time_passed_current_edge(str_model,cars)    
+    str_model = replace_time_passed_current_edge(str_model,cars)
+    insert_adjacency_matrix(str_model,networkGraph)    
 
     modelName = os.path.join(pathToModels, 'tempModel' + str(expId) + '.xml')
     text_file = open(modelName, "w")
