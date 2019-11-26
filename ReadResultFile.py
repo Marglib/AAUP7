@@ -7,10 +7,11 @@ import math
 import pandas as pd
 
 def find_value(line, parameter, digits):
-  	start = line.find(parameter) + len(parameter) + 2
-  	line = line[start:start+digits]
-  	line = line.replace('"', '')
-  	return line
+	start = line.find(parameter) + len(parameter) + 2
+	fisk = line.find("\"",start)
+	line = line[start:fisk]
+  	#line = line.replace('"', '')
+	return line
 
 
 def generate_results(tripResultDir, tripFileDir, queueFileDir, experimentID):
@@ -49,7 +50,11 @@ def generate_results(tripResultDir, tripFileDir, queueFileDir, experimentID):
 	for line in r:
 		if "<lane id" in line:
 			currQueueLength = float(find_value(line, "queueing_length", 5))
-			currQueueLengthExp = float(find_value(line, "queueing_length_experimental", 5))
+			try:
+				currQueueLengthExp = float(find_value(line, "queueing_length_experimental", 5))
+			except:
+				print(find_value(line, "queueing_length_experimental", 5))
+				print(line)
 			if(currQueueLength > maxQueueLength):
 				maxQueueLength = currQueueLength
 			if(currQueueLengthExp > maxQueueLengthExp):
