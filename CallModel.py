@@ -265,13 +265,15 @@ def insert_adjacency_matrix(str_model, networkGraph):
     toReplace = "//HOLDER_ADJACENCY_MATRIX"
     value = "{"
     nodes = list(networkGraph.nodes)
+    nodes = [int(s[1:]) for s in nodes]
+    nodes.sort()
 
     for i in range(0,len(nodes)):
         value += "{"
         for j in range(0,len(nodes)):
-            edgeData = networkGraph.get_edge_data(nodes[i], nodes[j])
+            edgeData = networkGraph.get_edge_data("n" + str(nodes[i]), "n" + str(nodes[j]))
             if edgeData != None:
-                length = round(traci.lane.getLength(nodes[i] + "-" + nodes[j] + "_0"))
+                length = round(traci.lane.getLength("n" + str(nodes[i]) + "-" + "n" + str(nodes[j]) + "_0"))
                 weight = int(edgeData.get('weight'))
                 adjacencyValue = weight + length
             else:
