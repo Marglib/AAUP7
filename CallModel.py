@@ -260,6 +260,17 @@ def replace_time_passed_current_edge(str_model, cars):
 
     return str_model
 
+
+def insert_adjacency_matrix(str_model, networkGraph):
+    toReplace = "//HOLDER_ADJACENCY_MATRIX"
+    nodes = list(networkGraph.nodes)
+    for i in range(1,(len(nodes)-1)):
+        edgeData = networkGraph.get_edge_data(nodes[i], nodes[i+1])
+        print(edgeData)
+        #length = round(traci.lane.getLength(nodes[i] + "-" + nodes[i] + "_0"))
+
+ 
+
 def createModel(master_model,expId,simStep,cars,networkGraph,nodePositions, closedEdges):
     fo = open(master_model, "r+")
     str_model = fo.read()
@@ -286,7 +297,7 @@ def createQuery(master_query,cars,nodePositions,expId):
     for i in range(0,len(cars)):
         value += " pid[" + str(int(cars[i][0]) + 1000) + "],"
         for j in range(0,len(nodePositions)):
-            value += " newroute[" + str(i) + "][" + str(j) + "],"
+            value += " newRoute[" + str(i) + "][" + str(j) + "],"
     value = value[:-1]
     str_query = str.replace(str_query, toReplace, value, 1)
 
