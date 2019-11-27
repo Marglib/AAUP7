@@ -253,7 +253,15 @@ void get_routing_result()
 
     for(i = 0; i &lt; N; i++)
     {
-        avgEdgeTT = (travelHist[i][1] / travelHist[i][0]);
+        if(travelHist[i][0] == 0)
+        {
+            avgEdgeTT = 0;
+        }
+        else
+        {
+            avgEdgeTT = (travelHist[i][1] / travelHist[i][0]);
+        }
+        
         totalTravelTime = totalTravelTime + (avgEdgeTT/10); 
     }
 
@@ -292,6 +300,7 @@ y = 0</label>
 			<source ref="id0"/>
 			<target ref="id4"/>
 			<label kind="guard" x="-195" y="-535">x == horizon || Done == 1</label>
+			<label kind="assignment" x="-178" y="-510">get_routing_result()</label>
 		</transition>
 		<transition controllable="false">
 			<source ref="id5"/>
