@@ -46,11 +46,7 @@ class smartTL:
         carsAreal = self.get_cars_areal_in_radius(self.tlID, self.radius)[::-1]
         carsJammed = self.get_lane_func(traci.lane.getLastStepHaltingNumber, self.tlID)[::-1]
         phasePlaceholder = 0
-<<<<<<< HEAD
 	#if(self.tlID == 'n15'):
-=======
-        #if(self.tlID == 'n15'):
->>>>>>> UppaalModel
         #    print(carsAreal)
         #    print(carsJammed)
         
@@ -67,11 +63,6 @@ class smartTL:
                     self.nextPhase = phasePlaceholder
                 else:
                     print("No strategy found")
-<<<<<<< HEAD
-                
-=======
-
->>>>>>> UppaalModel
                 self.duration = 10
                 self.inYellow = False
                 self.strategoGreenTimer = 0
@@ -87,14 +78,8 @@ class smartTL:
                                             greenTimer=self.strategoGreenTimer)
                 if phasePlaceholder != -1:
                     self.nextPhase = phasePlaceholder
-<<<<<<< HEAD
                 else:
                     print("No strategy was found")
-=======
-                else: 
-                    print("No strategy found")  
-
->>>>>>> UppaalModel
                 if self.nextPhase == self.phase:
                     self.duration = 5
                 else:
