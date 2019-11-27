@@ -26,10 +26,19 @@ def get_stats(resultFiles, startID, endID):
         li.append(df)
 
     frame = pd.concat(li, axis=0, ignore_index=True)
-    frame.loc['mean'] = frame.mean()
-    frame.loc['max'] = frame.max()
+    #Group every third
+    frame = frame.groupby(frame.index // 3)
 
-    frame.to_csv("results/resultsMerge_start" + str(startID) + "_end" + str(endID))
+    results = []
+    for grp in frame.groups:
+        results.append(frame.get_group(grp).mean())
+
+    resultFrame = pd.DataFrame(results)
+    resultFrame.loc['mean'] = resultFrame.mean()
+    resultFrame.loc['max'] = resultFrame.max()
+    resultFrame = round(resultFrame,3)
+
+    resultFrame.to_csv("results/resultsMerge_start" + str(startID) + "_end" + str(endID)+ ".csv")
 
 if __name__ == "__main__":
     resultFiles, startID, endID = generate_multi_results()
