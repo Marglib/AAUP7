@@ -21,25 +21,24 @@ def generate_multi_results():
 
 def get_stats(resultFiles, startID, endID):
     li = []
-    if len(resultFiles) % 3 != 0:
-        sys.exit("Wrong amount of files entered")
-    
-
-
-    for fileNumber in range(0 , len(resultFiles) , 3):
-        df1 = pd.read_csv(fileNumber[fileNumber], index_col=None, header=0)
-        df2 = pd.read_csv(fileNumber[fileNumber+1], index_col=None, header=0)
-        df3 = pd.read_csv(fileNumber[fileNumber+2], index_col=None, header=0)
-
-        result_df = pd.concat([df1, df2, df3], axis=0, ignore_index=True)
-        li.append(result_df.mean())
-       
+    for filename in resultFiles:
+        df = pd.read_csv(filename, index_col=None, header=0)
+        li.append(df)
 
     frame = pd.concat(li, axis=0, ignore_index=True)
-    frame.loc['mean'] = frame.mean()
-    frame.loc['max'] = frame.max()
+    #Group every third
+    frame = frame.groupby(frame.index // 3)
 
-    frame.to_csv("results/resultsMerge_start" + str(startID) + "_end" + str(endID))
+    results = []
+    for grp in frame.groups:
+        results.append(frame.get_group(grp).mean())
+
+    resultFrame = pd.DataFrame(results)
+    resultFrame.loc['mean'] = resultFrame.mean()
+    resultFrame.loc['max'] = resultFrame.max()
+    resultFrame = round(resultFrame,3)
+
+    resultFrame.to_csv("results/resultsMerge_start" + str(startID) + "_end" + str(endID)+ ".csv")
 
 if __name__ == "__main__":
     resultFiles, startID, endID = generate_multi_results()
