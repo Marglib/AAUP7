@@ -11,11 +11,24 @@ import time
 import math
 import copy
 import webbrowser
+import xml.etree.cElementTree as ET
 import pandas as pd
+import numpy as np
 from numpy.random import choice
 
+# we need to import python modules from the $SUMO_HOME/tools directory
+try:
+     tools = os.path.join(os.environ['SUMO_HOME'], "tools")
+     sys.path.append(tools)
+except:   
+     sys.exit("please declare environment variable 'SUMO_HOME'")
+
+from sumolib import checkBinary
+import sumolib
+import traci
+
 rootDir = os.path.abspath(os.getcwd())
-pathToFiles = os.path.join(rootDir,'SUMOfiles')
+pathToFiles = rootDir
 routeFile = os.path.join(pathToFiles,"RouteFileTemplate.rou.xml")
 
 
@@ -54,6 +67,9 @@ def generateTrips(options, edgeFileDir):
 
     toReplace = "//TRIPS_PLACEHOLDER"
     value = ""
+    
+    if (options.closeRoads):
+        generateRerouter()
 
     if options.useProbFile:
         df = pd.read_csv(os.path.join(pathToFiles,"inOutNodes.txt"))
@@ -134,6 +150,56 @@ def verifyProbabilitys(df):
 
     return True
 
+def findIncomingEdges(edgesToClose):
+    dom = minidom.parse("MasterNetFile.net.xml")
+    junctions = dom.getElementsByTagName("junction")
+   
+    result = ""
+    for junc in  junctions:
+        inclanes = junc.getAttribute("incLanes")
+        if ':' in inclanes:
+            pass
+        else:
+            inclanes = inclanes.split(' ')
+            incEdges = []
+            for lane in inclanes:
+                incEdges.append(lane.split('_')[0])
+
+            incEdges = np.unique(incEdges)
+            incEdges = list(incEdges)
+            for edge in edgesToClose:
+                nodes = edge.split("-")
+                edgeToCheck = nodes[1] + "-" + nodes[0]
+
+                if edgeToCheck in incEdges:
+                    incEdges.remove(edgeToCheck)
+                    for IE in incEdges:
+                        if result == "":
+                            result = IE
+                        else:
+                            result = result + " " + IE
+    return result
+
+def generateRerouter():
+    outFile = "reRouteTest.xml"
+    edgesToClose = ["n6-n7", "n8-n12"]
+    minCloseLength = 50
+    maxCloseLength = 150
+    simLength = 1000
+
+    
+    root = ET.Element("rerouter", id= "generatedReRouter", edges=findIncomingEdges(edgesToClose))
+    
+    for edge in edgesToClose:
+        intervalLength = random.randrange(minCloseLength, maxCloseLength +1, 1)
+        beginStep = random.randrange(0, simLength - intervalLength, 1)
+        stopStep = beginStep + intervalLength
+        intervalTag = ET.SubElement(root, "interval", begin = str(beginStep) , end= str(stopStep))
+        ET.SubElement(intervalTag, "closingReroute",id=edge)
+    
+    tree = ET.ElementTree(root)
+    tree.write(outFile)
+
 def removeIntersectionNodes(listOfNodes):
     return [i for i in listOfNodes if listOfNodes.count(i) <= 1]
 
@@ -154,6 +220,7 @@ def get_options():
                          help="Opens a success song so you can feel good.")
     optParser.add_option("--useProbFile", action="store_true", dest = "useProbFile", default=False, help="when used will use probabilities you define in inOutNodes.txt all remainding probility not set will be evenly distributed between undefined nodes in inOutNodes")
     optParser.add_option("--standard" , action = "store_true", dest="standard", default=False)
+    optParser.add_option("--closeRoads", action = "store_true", dest="closeRoads",default=False, help="will generate a new reroute file and close all edges specefied in the generateReroute function" )
     options, args = optParser.parse_args()
     return options
 

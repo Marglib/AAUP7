@@ -1,6 +1,7 @@
 import math
 import os
 import sys
+import random
 
 try:
      tools = "/user/d704e19/sumo/tools" 
@@ -19,8 +20,13 @@ class car:
         self.listOfReroutes = listOfReroutes
         self.currRoute = currRouteIn
         self.rerouted = False
+<<<<<<< HEAD
         self.routeChange = 0   
  
+=======
+        self.routeChange = 0 #Used to check the difference between the currroute and the newroute
+    
+>>>>>>> UppaalModel
     def update_route(self):
         newRoute = self.currRoute 
 
@@ -31,8 +37,11 @@ class car:
         
         newRouteAsEdges = self.nodes_to_edges(newRoute[traci.vehicle.getRouteIndex(self.pid):])
         try:
-            traci.vehicle.setRoute(self.pid,newRouteAsEdges)
-            print("new route: " + str(newRouteAsEdges))
+            if self.decision(0.9):
+                traci.vehicle.setRoute(self.pid,newRouteAsEdges)
+                print("new route: " + str(newRouteAsEdges))
+            else:
+                print("The car chose not to follow the suggested route")
             self.rerouted = True
             self.routeChange = abs(len(newRoute) - currRouteLen)
         except:
@@ -44,6 +53,9 @@ class car:
             edge = "n" + str(nodes[i]) + "-" + "n" + str(nodes[i + 1])
             edges.append(edge)
         return edges
+    
+    def decision(self,probability):
+        return random.random() < probability
 
     def to_string(self):
         print("pid:" + str(self.pid))

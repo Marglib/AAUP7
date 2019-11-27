@@ -1,6 +1,8 @@
 The indeces for the different experiments:
-#100
-    Empty for now
+#100 - Giant experiments
+    #100 - smart tl and TNC on a 20000-10000trip file
+    #101 - No nothing
+    #102 - Smart tl alone
 #200 - Capacity experiments
     
 #300 - simple rerouting experiments
@@ -10,37 +12,46 @@ The indeces for the different experiments:
     #311 - 1000 time steps with 1000 trips for a simplererouting controller
     #312 - 1000 time steps with 2000 trips for a simplererouting controller
 
+#600 - Small experiments to check performance
+    #600-604 - No controller & smart trafficlight
+    #605-609 - TNC & smart trafficlight
+    #610-614 - No nothing
+
 #4000 - Smart traffic lights and simple Uppaal implementation
-    #4000-4099
-        #4000-4009 - Normal tl & default controller
-        #4010-4019 - Normal tl & TrafficNetworkController
-        #4020-4029 - Smart tl & default controller
-        #4030-4039 - Smart tl & TrafficNetworkController
-    #4100-4199
-        #4100-4109 - Normal tl & default controller
-        #4110-4119 - Normal tl & TrafficNetworkController
-        #4120-4129 - Smart tl & default controller
-        #4130-4139 - Smart tl & TrafficNetworkController
-    #4200-4299
-        #4200-4209 - Normal tl & default controller
-        #4210-4219 - Normal tl & TrafficNetworkController
-        #4220-4229 - Smart tl & default controller
-        #4230-4239 - Smart tl & TrafficNetworkController
-    #4300-4399
-        #4300-4309 - Normal tl & default controller
-        #4310-4319 - Normal tl & TrafficNetworkController
-        #4320-4329 - Smart tl & default controller
-        #4330-4339 - Smart tl & TrafficNetworkController
-    #4400-4499
-        #4400-4409 - Normal tl & default controller
-        #4410-4419 - Normal tl & TrafficNetworkController
-        #4420-4429 - Smart tl & default controller
-        #4430-4439 - Smart tl & TrafficNetworkController
-    #4500-4599
-        #4500-4509 - Normal tl & default controller
-        #4510-4519 - Normal tl & TrafficNetworkController
-        #4520-4529 - Smart tl & default controller
-        #4530-4539 - Smart tl & TrafficNetworkController
+    #4000-4020 - All results for smart tl and TrafficNetworkController
+        #4000-4002 - Load 1000-2000 - smartroute
+        #4003-4005 - Load 2000-2000 - smartroute
+        #4006-4008 - Load 2500-2000 - smartroute
+        #4009-4011 - Load 3000-2000 - smartroute
+        #4012-4014 - Load 3500-2000 - smartroute
+        #4015-4017 - Load 4000-2000 - smartroute
+        #4018-4020 - Load 5000-2000 - smartroute
+    #4021 - 4041 - All results for TrafficNetworkController and default trafficlights
+        #4021-4023 - Load 1000-2000 - route
+        #4024-4026 - Load 2000-2000 - route
+        #4027-4029 - Load 2500-2000 - route
+        #4030-4032 - Load 3000-2000 - route
+        #4033-4035 - Load 3500-2000 - route
+        #4036-4038 - Load 4000-2000 - route
+        #4039-4041 - Load 5000-2000 - route
+    #4042 - 4062 - All results for smart trafficlights and default controller
+        #4042-4044 - Load 1000-2000 - smart
+        #4045-4047 - Load 2000-2000 - smart
+        #4048-4050 - Load 2500-2000 - smart
+        #4051-4053 - Load 3000-2000 - smart
+        #4054-4056 - Load 3500-2000 - smart
+        #4057-4059 - Load 4000-2000 - smart
+        #4060-4062 - Load 5000-2000 - smart
+    #4063 - 4083 - All results for no controller and default trafficlights
+        #4063-4065 - Load 1000-2000 - none
+        #4066-4068 - Load 2000-2000 - none
+        #4069-4071 - Load 2500-2000 - none
+        #4072-4074 - Load 3000-2000 - none
+        #4075-4077 - Load 3500-2000 - none
+        #4078-4080 - Load 4000-2000 - none
+        #4081-4083 - Load 5000-2000 - none
+    
+
 
 
 

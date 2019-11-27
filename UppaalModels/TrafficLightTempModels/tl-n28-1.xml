@@ -86,6 +86,7 @@ int delchoice = 0;
 
  
 //PLACE HOLDERS
+<<<<<<< HEAD
 //HOLDER_INITIAL_PHASE
 int carsAreal[signal_t] = {0, 6, 12, 12, 8, 0, 12, 12};
 int carsJammed[signal_t] = {0, 6, 12, 12, 8, 0, 12, 12};
@@ -99,6 +100,15 @@ max_signal_conf_t phasechoice;
 
 
 </declaration>
+=======
+const max_signal_conf_t initialPhase = 0;
+int greenTimer = 25;
+int carsAreal[signal_t] = {1, 0, 0, 0, 1, 0, 0, 0};
+int carsJammed[signal_t] = {1, 0, 0, 0, 0, 0, 0, 0};
+//first delay is dinamic in contrast to the 15 min for the floor heating, a yellow phase has to follow. i.e. fd = delay + yellow
+//HOLDER_FIRST_DELAY
+//SIM_STEP=362</declaration>
+>>>>>>> UppaalModel
 	<template>
 		<name x="5" y="5">trafficLights</name>
 		<declaration>clock x;

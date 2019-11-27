@@ -37,7 +37,7 @@ PORT = 8873
 pathToResults = '/user/d704e19/experiments/AAUP7/results'
 pathToModels = '/user/d704e19/experiments/AAUP7/UppaalModels'
 mainQuery = os.path.join(pathToModels, 'TNC.q')
-mainModel = os.path.join(pathToModels, 'TNC.xml')
+mainModel = os.path.join(pathToModels, 'TNC_OneChoice.xml')
 listOfCarTimeLists = []
 
 
@@ -50,6 +50,8 @@ def run(options, command):
     traci.start(command,numRetries=1000)
     step = 0
     ListOfCarsPlaceholder = []
+    amountOfReroutes = 0
+    totalRouteDif = 0
     newRoutes = []
     networkGraph = preprocess()    
     pathsToFind = 3
@@ -158,16 +160,21 @@ def run(options, command):
 
         #THE DEFAULT CONTROLLER - doesnt do anything 
         if options.controller == "default":
-            pass
+            print(traci.trafficlight.getProgram('n3'))
 
         #THE MAIN CONTROLLER
         if (options.controller == "TrafficNetworkController"):
             #Update graph weights according to current traffic
+            closedEdges = []
+            CarsInNetworkList = traci.vehicle.getIDList()
+            #if(step > 300 and step < 700):
+            #closedEdges = [('n11','n56'), ('n56','n11'), ('n7','n56'), ('n56','n7')]
+
+
+
             edges = list(networkGraph.edges)
             for i in range(0,len(edges)):
                 networkGraph[edges[i][0]][edges[i][1]]['weight'] = get_weight(edges[i][0],edges[i][1], "travelTime")
-
-            CarsInNetworkList = traci.vehicle.getIDList()
             NodeIDs = networkGraph.nodes()      
         
             if len(CarsInNetworkList) > 0:
@@ -182,7 +189,7 @@ def run(options, command):
                 if(step % 10 == 0):      
                     for car in newRoutes:
                         car.kill()              
-                    newRoutes = modelCaller(mainModel, mainQuery, options.expid, step, Cars, networkGraph, networkNodes)
+                    newRoutes = modelCaller(mainModel, mainQuery, options.expid, step, Cars, networkGraph, networkNodes, closedEdges)
 
                 for car in newRoutes:
                     car.update_route()
@@ -220,10 +227,9 @@ def run(options, command):
         totalTeleports += traci.simulation.getEndingTeleportNumber()
         if amountOfReroutes > 0:
             print("Amount of reroutes so far: " + str(amountOfReroutes))
-            print("Average route deviation: " + str(totalRouteDif/amountOfReroutes))
         print("Amount of teleports so far: " + str(totalTeleports))
         traci.simulationStep()
-        step += 1    
+        step += 1
     traci.close()
     sys.stdout.flush()
 

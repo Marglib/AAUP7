@@ -3,9 +3,10 @@
 <configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/sumoConfiguration.xsd">
 
     <input>
-        <net-file value="MasterNetFile.net.xml"/>
-        <route-files value="trip1000-1000.rou.xml"/>
-    <gui-settings-file value="GuiFile.set.xml"/>
+        <net-file value="MasterNetFile10.net.xml"/>
+        <route-files value="ExperimentSUMOfiles/trip4000-2000-1.rou.xml"/>
+        <gui-settings-file value="GuiFile.set.xml"/>
+        <!--<additional-files value="RerouteFile.set.xml"/>-->
     </input>
 
     <time>
@@ -18,3 +19,4 @@
     </report>
 
 </configuration>
+

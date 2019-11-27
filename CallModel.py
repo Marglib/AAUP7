@@ -47,8 +47,8 @@ def runModel(com, args, query, simStep):
     #out = f.read()
     return out
 
-def modelCaller(model,query,expId,simStep,cars, networkGraph, nodePositions):
-    newModel = createModel(model,expId,simStep,cars, networkGraph, nodePositions)
+def modelCaller(model,query,expId,simStep,cars, networkGraph, nodePositions, closedEdges):
+    newModel = createModel(model,expId,simStep,cars, networkGraph, nodePositions, closedEdges)
     newQuery = createQuery(query,cars,nodePositions,expId)
     veri = VP.veri
     com = veri +  '   --learning-method ' + str(3) \
@@ -76,7 +76,7 @@ def get_strategy(outStr, cars):
 
     for i in range (0,len(cars)):
         strStart = "pid[" + str(int(cars[i][0]) + 1000) + "]"
-        strEnd = "route[" + str(i) + "][48]"
+        strEnd = "newRoute[" + str(i) + "][48]"
         pid = str(int(cars[i][0]))
         route = cars[i][1]
         numCar = str(i)
@@ -93,7 +93,7 @@ def extract_strategy(strat,numCar,pid,route):
 
     for i in range(0,48):
         value = ""
-        curr = "route[" + numCar + "][" + str(i) + "]:\\n[0]:"
+        curr = "newRoute[" + numCar + "][" + str(i) + "]:\\n[0]:"
         currLen = len(curr)
         start = strat.find(curr)
         end = strat.find(endOfStr, start+currLen)
@@ -163,6 +163,18 @@ def replace_car_strings(str_model,cars,nodePositions):
     value += "};"
     str_model = str.replace(str_model, toReplace, value, 1)
 
+    toReplace = "//HOLDER_NEW_ROUTE"
+    value = "{"
+    for i in range (0,len(cars)):
+        value += "\n{"
+        for j in range (0, 25):
+            value += str(cars[i][1][j]) + ","
+        value = value[:-1]
+        value += "},"
+    value = value[:-1]
+    value += "};"
+    str_model = str.replace(str_model, toReplace, value, 1)
+
     return str_model
 
 def replace_node_strings(str_model,nodePositions,cars):
@@ -202,19 +214,21 @@ def replace_node_strings(str_model,nodePositions,cars):
 
     return str_model
 
-def replace_edge_strings(str_model,networkGraph):
+def replace_edge_strings(str_model,networkGraph, closedEdges):
     toReplace = "//HOLDER_NUMBER_OF_EDGES"
     value = str(len(networkGraph.edges())) + ";"
     str_model = str.replace(str_model, toReplace, value, 1)
 
     toReplace = "//HOLDER_EDGES"
     edges = list(networkGraph.edges)
-    value = "int networkEdges[" + str(len(edges)) + "][6] = {"
+    value = "int networkEdges[" + str(len(edges)) + "][7] = {"
     for i in range(0,len(edges)):
+        closed = 1 if (edges[i] in closedEdges) else 0  
+        #print(str(edges[i]) + str(closed))
         nrOfLanes = traci.edge.getLaneNumber(edges[i][0] + "-" + edges[i][1])
-        weight = networkGraph.get_edge_data(edges[i][0], edges[i][1])
+        edgeData = networkGraph.get_edge_data(edges[i][0], edges[i][1])
         length = round(traci.lane.getLength(edges[i][0] + "-" + edges[i][1] + "_0"))
-        value += "{" + str(edges[i][0][1:]) + "," +  str(edges[i][1][1:]) + "," + str(nrOfLanes) + "," + str(int(weight.get('weight'))) + "," + str(len(traci.edge.getLastStepVehicleIDs(edges[i][0] + "-" + edges[i][1]))) + "," + str(length) + "},"
+        value += "{" + str(edges[i][0][1:]) + "," +  str(edges[i][1][1:]) + "," + str(nrOfLanes) + "," + str(int(edgeData.get('weight'))) + "," + str(len(traci.edge.getLastStepVehicleIDs(edges[i][0] + "-" + edges[i][1]))) + "," + str(length) + "," + str(closed) +"},"
         if(i % 50 == 0):
             value += "\n"    
     if(value.endswith("\n")):
@@ -246,15 +260,45 @@ def replace_time_passed_current_edge(str_model, cars):
 
     return str_model
 
-def createModel(master_model,expId,simStep,cars,networkGraph,nodePositions):
+
+def insert_adjacency_matrix(str_model, networkGraph):
+    toReplace = "//HOLDER_ADJACENCY_MATRIX"
+    value = "{"
+    nodes = list(networkGraph.nodes)
+    nodes = [int(s[1:]) for s in nodes]
+    nodes.sort()
+
+    for i in range(0,len(nodes)):
+        value += "{"
+        for j in range(0,len(nodes)):
+            edgeData = networkGraph.get_edge_data("n" + str(nodes[i]), "n" + str(nodes[j]))
+            if edgeData != None:
+                length = round(traci.lane.getLength("n" + str(nodes[i]) + "-" + "n" + str(nodes[j]) + "_0"))
+                weight = int(edgeData.get('weight'))
+                adjacencyValue = weight + length
+            else:
+                adjacencyValue = 16000
+            value += str(adjacencyValue) + ","
+            
+        value = value[:-1]
+        value += "},\n"   
+
+    value = value[:-2]
+    value += "};"
+    str_model = str.replace(str_model, toReplace, value, 1)
+    return str_model
+
+
+def createModel(master_model,expId,simStep,cars,networkGraph,nodePositions, closedEdges):
     fo = open(master_model, "r+")
     str_model = fo.read()
     fo.close()
 
     str_model = replace_car_strings(str_model,cars,nodePositions)
     str_model = replace_node_strings(str_model,nodePositions,cars)
-    str_model = replace_edge_strings(str_model,networkGraph)
-    str_model = replace_time_passed_current_edge(str_model,cars)    
+    str_model = replace_edge_strings(str_model,networkGraph, closedEdges)
+    str_model = replace_time_passed_current_edge(str_model,cars)
+    str_model = insert_adjacency_matrix(str_model,networkGraph)    
 
     modelName = os.path.join(pathToModels, 'tempModel' + str(expId) + '.xml')
     text_file = open(modelName, "w")
@@ -272,7 +316,7 @@ def createQuery(master_query,cars,nodePositions,expId):
     for i in range(0,len(cars)):
         value += " pid[" + str(int(cars[i][0]) + 1000) + "],"
         for j in range(0,len(nodePositions)):
-            value += " route[" + str(i) + "][" + str(j) + "],"
+            value += " newRoute[" + str(i) + "][" + str(j) + "],"
     value = value[:-1]
     str_query = str.replace(str_query, toReplace, value, 1)
 

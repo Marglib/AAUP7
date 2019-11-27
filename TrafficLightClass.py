@@ -46,7 +46,11 @@ class smartTL:
         carsAreal = self.get_cars_areal_in_radius(self.tlID, self.radius)[::-1]
         carsJammed = self.get_lane_func(traci.lane.getLastStepHaltingNumber, self.tlID)[::-1]
         phasePlaceholder = 0
+<<<<<<< HEAD
 	#if(self.tlID == 'n15'):
+=======
+        #if(self.tlID == 'n15'):
+>>>>>>> UppaalModel
         #    print(carsAreal)
         #    print(carsJammed)
         
@@ -63,7 +67,11 @@ class smartTL:
                     self.nextPhase = phasePlaceholder
                 else:
                     print("No strategy found")
+<<<<<<< HEAD
                 
+=======
+
+>>>>>>> UppaalModel
                 self.duration = 10
                 self.inYellow = False
                 self.strategoGreenTimer = 0
@@ -79,13 +87,20 @@ class smartTL:
                                             greenTimer=self.strategoGreenTimer)
                 if phasePlaceholder != -1:
                     self.nextPhase = phasePlaceholder
+<<<<<<< HEAD
                 else:
                     print("No strategy was found")
+=======
+                else: 
+                    print("No strategy found")  
+
+>>>>>>> UppaalModel
                 if self.nextPhase == self.phase:
                     self.duration = 5
                 else:
                     self.nextPhase = self.phase +1 
-                    self.duration = self.yellow              
+                    self.duration = self.yellow   
+                        
         if self.phaseTimer == 0:
             self.phase = self.nextPhase
             traci.trafficlight.setPhase(self.tlID,self.phase)
@@ -129,7 +144,7 @@ class smartTL:
                 connectionsList.append(currentConnections)
 
             lastLane = currLane
-
+        
         #Creating the binary phases and their indices
         binaryPhases = []
         binaryPhaseIndices = []
@@ -156,20 +171,9 @@ class smartTL:
                 binaryPhaseIndices.remove(i)
                 yellowOnlyPhases.append(i)
 
-        print(len(connectionsList))
+        #print(len(connectionsList))
         return binaryPhases, binaryToDecimalPhases, binaryPhaseIndices, yellowOnlyPhases, len(connectionsList)
-                                                
-
-    def get_max_green(self):
-        if self.programID == 'max':
-            return 64,40
-        if self.programID == 'mid':
-            return 54,26
-        if self.programID == 'low':
-            return 36,20
-        if self.programID == '0':
-            return 54,26 
-    
+                                                 
     def get_lane_func(self, func, tlID):
         controlledLanes = self.get_controlled_lanes(tlID)
         res = [0] * len(controlledLanes)
@@ -190,6 +194,9 @@ class smartTL:
     
     def get_cars_areal_in_radius(self, tlID, radius):
         controlledLanes = self.get_controlled_lanes(tlID)
+
+        jammedOppositeCars = self.get_opposite_cars_jammed(controlledLanes)
+
         res = [0] * len(controlledLanes)
         junctionPosition = traci.junction.getPosition(tlID)
         for i in range (0, len(controlledLanes)):
@@ -201,6 +208,40 @@ class smartTL:
                 if(distance < radius):
                     numberOfCars = numberOfCars + 1
             
-            res[i] = numberOfCars
+            value = numberOfCars - jammedOppositeCars[i]
+            if(jammedOppositeCars[i] >= 6):
+                res[i] = max(value,0)
+            else:
+                res[i] = numberOfCars
+        
+        #print(res)
         return res
+
+    def get_opposite_cars_jammed(self, controlledLanes):
+        links = traci.trafficlight.getControlledLinks(self.tlID)
+        dictOfLanes = {}
+        jammedCars = []
+
+        for i in range(0,len(links)):
+            currLane = links[i][0][0]
+            outLane = links[i][0][1]
+            if currLane in dictOfLanes:
+                dictOfLanes[currLane].append(outLane)
+            else: 
+                dictOfLanes[currLane] = [outLane]
+        
+        for lane in controlledLanes:
+            jammed = []
+            averageJam = 0
+            for link in dictOfLanes[lane]:
+                jammed.append(traci.lane.getLastStepHaltingNumber(link))
+            
+            averageJam = sum(jammed) / len(jammed)
+            jammedCars.append(int(round(averageJam)))
+
+        return jammedCars
+
+
+                
+            
 

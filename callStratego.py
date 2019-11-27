@@ -53,12 +53,13 @@ def getTuple(mstr, pos):
     pos1 = mstr.find(startKey,pos)
     pos2 = mstr.find(splitKey,pos1)
     pos3 = mstr.find(endKey,pos2)
+
     if -1 in {pos1,pos2,pos3}:
         return -1,-1,-1
     else:
-    	val1 = mstr[pos1+1:pos2]
-    	val2 = mstr[pos2+1:pos3]
-    	return int(val1),int(val2), pos3
+        val1 = mstr[pos1+1:pos2]
+        val2 = mstr[pos2+1:pos3]
+        return int(val1),int(val2), pos3
 
 def getSignalStrategy(signaliStr):
     found = False
@@ -179,7 +180,7 @@ def createQuery(master_query,nrOfSignals,tlID, expId):
     value = value[:-1]
     str_query = str.replace(str_query, toReplace, value, 1)
 
-    queryName = "/user/d704e19/experiments/AAUP7/UppaalModels/TrafficLightTempModels/tempQuery" + str(tlID) +  "-" + str(expId) + '.q'
+    queryName = "/user/d704e19/AAUP7/UppaalModels/TrafficLightTempModels/tempQuery" + str(tlID) +  "-" + str(expId) + '.q'
     text_file = open(queryName, "w")
     text_file.write(str_query)
     text_file.close()
@@ -208,21 +209,10 @@ def cStratego(model,query,learningMet,succRuns,maxRuns,goodRuns,evalRuns,maxIter
     time_avg_sim, out1 = runStratego(com,args,query)
     sigEnabled,sigDuration = getStrategy(out1,greenModel,nrOfSignals)
     #print(sigDuration)
-    #we hardcode the output to the concrete crossing where:
-    #signals 1 2 are WE EW and 3 4 are NS SN
-    # if no flag --stratego is provided, the programm would be the following:
-    #    <tlLogic id="0" type="static" programID="0" offset="0">
-    # the locations of the tls are      NESW
-    #        <phase duration="31" state="GrGr"/>
-    #        <phase duration="6"  state="yryr"/>
-    #        <phase duration="31" state="rGrG"/>
-    #        <phase duration="6"  state="ryry"/>
-    #    </tlLogic>
-    # we start with phase 2 where EW has green
+
     phase = 0
     duration = 0
     yellowPhase = 0
-    #todo: check if we need yellowPhase
     signalsInBinary = ""
     for sig in sigEnabled:
         if sig == -1:
@@ -238,16 +228,6 @@ def cStratego(model,query,learningMet,succRuns,maxRuns,goodRuns,evalRuns,maxIter
         if(binaryPhases[i] == signalsInBinary):
             phase = i
 
-    """
-    if sigEnabled[0]:
-        phase = 0
-        yellowPhase = 1
-        duration = sigDuration[0]
-    else:
-        phase = 2
-        yellowPhase = 4
-        duration = sigDuration[5]
-    """
     return phase,duration,yellowPhase
 
             

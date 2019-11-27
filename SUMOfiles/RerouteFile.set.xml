@@ -1,0 +1,14 @@
+<rerouter id="myrerouter" edges="n12-n11 n10-n11 n46-n11 n8-n7 n55-n7 n6-n7">
+   <interval begin="300" end="700">
+      <closingReroute id="n56-n11"/>
+   </interval>
+   <interval begin="300" end="700">
+      <closingReroute id="n11-n56"/>
+   </interval>
+   <interval begin="300" end="700">
+      <closingReroute id="n7-n56"/>
+   </interval>
+   <interval begin="300" end="700">
+      <closingReroute id="n56-n7"/>
+   </interval>
+</rerouter>

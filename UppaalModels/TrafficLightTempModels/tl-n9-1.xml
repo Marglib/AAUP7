@@ -87,11 +87,19 @@ int delchoice = 0;
  
 //PLACE HOLDERS
 //HOLDER_INITIAL_PHASE
+<<<<<<< HEAD
 int carsAreal[signal_t] = {6, 26, 24, 25};
 int carsJammed[signal_t] = {6, 41, 24, 25};
 //first delay is dinamic in contrast to the 15 min for the floor heating, a yellow phase has to follow. i.e. fd = delay + yellow
 //HOLDER_FIRST_DELAY
 //SIM_STEP=8924
+=======
+int carsAreal[signal_t] = {1, 1, 2, 1};
+int carsJammed[signal_t] = {0, 0, 0, 0};
+//first delay is dinamic in contrast to the 15 min for the floor heating, a yellow phase has to follow. i.e. fd = delay + yellow
+//HOLDER_FIRST_DELAY
+//SIM_STEP=367
+>>>>>>> UppaalModel
 
 max_signal_conf_t phasechoice;
 

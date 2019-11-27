@@ -21,6 +21,7 @@ int curr_car = 0;
 int uniquetest = 0;
 int reroute[N];
 int carDone[N];
+int carPick[N];
 const int horizon = 40;
 int Done = 0;
 double totalTravelTime = 0.0;
@@ -64,29 +65,39 @@ import "/Libraries/lib.so" {
 
 void create_adjacency_matrix()
 {
-    int x = 0, y = 0, w;
-    int edgeId;
+    int x = 0, y = 0, w1, w2;
+    int edgeId1, edgeId2;
 
     for(x=0; x&lt; nodes; x++)
     {
-        for(y=0; y&lt; nodes; y++)
+        for(y=x+1; y&lt; nodes; y++)
         {
-            edgeId = getEdgeIndex(x, y);
+            edgeId1 = getEdgeIndex(x, y);
+            edgeId2 = getEdgeIndex(y, x);
 
-            if (edgeId != -1)
+            if (edgeId1 != -1)
             {    
                 //w = manhattanDistance(x, y) + networkEdges[edgeId][3];
-                w = networkEdges[edgeId][5] + networkEdges[edgeId][3];
+                w1 = networkEdges[edgeId1][5] + networkEdges[edgeId1][3];
             }
-            else if ( x == y)
+            /*else if ( x == y)
             {
                 w  = 0;
-            } 
+            } */
             else
             {
-                w = max;
+                w1 = max;
             }
-            cost [x][y] = w;
+            if(edgeId2 != -1)
+            {
+                w2 = networkEdges[edgeId2][5] + networkEdges[edgeId2][3];
+            }
+            else
+            {
+                w2 = max;
+            }
+            cost [x][y] = w1;
+            cost [y][x] = w2;
         }
     }
 }
@@ -99,6 +110,7 @@ void constructor()
     {
         reroute[i] = 0;
         carDone[i] = 0;
+        carPick[i] = 0;
     }
 
     create_adjacency_matrix();
@@ -273,12 +285,12 @@ y = 0</label>
 		<transition controllable="false">
 			<source ref="id3"/>
 			<target ref="id4"/>
-			<label kind="guard" x="-221" y="-458">x &gt;= horizon || Done == 1</label>
+			<label kind="guard" x="-212" y="-459">x &gt;= horizon || Done == 1</label>
 		</transition>
 		<transition controllable="false">
 			<source ref="id2"/>
 			<target ref="id3"/>
-			<label kind="assignment" x="-450" y="-458">check_reroute()</label>
+			<label kind="assignment" x="-442" y="-459">check_reroute()</label>
 		</transition>
 		<transition controllable="false">
 			<source ref="id1"/>
@@ -585,24 +597,24 @@ void choose_route()
     }
                 
 }</declaration>
-		<location id="id6" x="-909" y="-195">
+		<location id="id6" x="-841" y="-195">
 		</location>
 		<location id="id7" x="-714" y="-195">
 			<urgent/>
 		</location>
-		<location id="id8" x="-510" y="-195">
+		<location id="id8" x="-535" y="-195">
 			<urgent/>
 		</location>
 		<location id="id9" x="-510" y="-306">
 			<urgent/>
 		</location>
-		<location id="id10" x="-314" y="-110">
+		<location id="id10" x="-119" y="-93">
 			<urgent/>
 		</location>
-		<location id="id11" x="-110" y="-195">
+		<location id="id11" x="-42" y="-195">
 			<urgent/>
 		</location>
-		<location id="id12" x="59" y="-195">
+		<location id="id12" x="136" y="-195">
 			<committed/>
 		</location>
 		<location id="id13" x="-204" y="-306">
@@ -641,9 +653,9 @@ void choose_route()
 		<transition controllable="false">
 			<source ref="id7"/>
 			<target ref="id11"/>
-			<label kind="guard" x="-696" y="-416">reroute[curr_car] == 0</label>
-			<nail x="-714" y="-382"/>
-			<nail x="-110" y="-382"/>
+			<label kind="guard" x="-442" y="-442">reroute[curr_car] == 0</label>
+			<nail x="-714" y="-416"/>
+			<nail x="-42" y="-416"/>
 		</transition>
 		<transition controllable="false">
 			<source ref="id7"/>
@@ -653,22 +665,22 @@ void choose_route()
 		<transition controllable="false">
 			<source ref="id12"/>
 			<target ref="id6"/>
-			<label kind="assignment" x="-408" y="85">curr_car = 0</label>
-			<nail x="59" y="76"/>
-			<nail x="-909" y="76"/>
+			<label kind="assignment" x="-408" y="68">curr_car = 0</label>
+			<nail x="59" y="59"/>
+			<nail x="-841" y="59"/>
 		</transition>
 		<transition controllable="false">
 			<source ref="id11"/>
 			<target ref="id12"/>
-			<label kind="guard" x="-68" y="-221">curr_car &gt;= (N-1)</label>
-			<label kind="synchronisation" x="-76" y="-238">DoneRerouting!</label>
+			<label kind="guard" x="-17" y="-221">curr_car &gt;= (N-1)</label>
+			<label kind="synchronisation" x="-17" y="-238">DoneRerouting!</label>
 		</transition>
 		<transition controllable="false">
 			<source ref="id11"/>
 			<target ref="id7"/>
 			<label kind="guard" x="-450" y="8">curr_car &lt; (N-1)</label>
 			<label kind="assignment" x="-450" y="-17">curr_car++</label>
-			<nail x="-110" y="-25"/>
+			<nail x="-42" y="-25"/>
 			<nail x="-714" y="-25"/>
 		</transition>
 		<transition controllable="false">

@@ -7,13 +7,14 @@ import math
 import csv
 
 def find_value(line, parameter, digits):
-  	start = line.find(parameter) + len(parameter) + 2
-  	line = line[start:start+digits]
-  	line = line.replace('"', '')
-  	return line
+	start = line.find(parameter) + len(parameter) + 2
+	fisk = line.find("\"",start)
+	line = line[start:fisk]
+  	#line = line.replace('"', '')
+	return line
 
 
-def generate_results(options, tripResultDir, tripFileDir, queueFileDir):
+def generate_results(tripResultDir, tripFileDir, queueFileDir, experimentID):
 	f = open(tripFileDir, "r+")
 	r = open(queueFileDir, "r+")
 
@@ -49,7 +50,11 @@ def generate_results(options, tripResultDir, tripFileDir, queueFileDir):
 	for line in r:
 		if "<lane id" in line:
 			currQueueLength = float(find_value(line, "queueing_length", 5))
-			currQueueLengthExp = float(find_value(line, "queueing_length_experimental", 5))
+			try:
+				currQueueLengthExp = float(find_value(line, "queueing_length_experimental", 5))
+			except:
+				print(find_value(line, "queueing_length_experimental", 5))
+				print(line)
 			if(currQueueLength > maxQueueLength):
 				maxQueueLength = currQueueLength
 			if(currQueueLengthExp > maxQueueLengthExp):
@@ -59,7 +64,8 @@ def generate_results(options, tripResultDir, tripFileDir, queueFileDir):
 			queueLengthExpList.append(find_value(line, "queueing_length_experimental", 5))
 
 
-	d = {'AverageDuration':[Average(durationList)],
+	d = {'ExperimentID' : [experimentID],
+		'AverageDuration':[Average(durationList)],
 		'AverageTimeLoss':[Average(timeLossList)],
 		'AverageWaitingTime':[Average(waitingTimeList)],
 		'AverageQueueLength':[Average(queueLengthList)],
@@ -111,16 +117,19 @@ def get_options():
                   
 # this is the main entry point of this script
 if __name__ == "__main__":
-    options = get_options()
+	options = get_options()
 
-    if(options.tripinfofile == ""):
-	    sys.exit("A tripfile file is neccesary")
-    if(options.queuefile == ""):
-	    sys.exit("A queue file is neccesary")
+	if(options.tripinfofile == ""):
+		sys.exit("A tripfile file is neccesary")
+	if(options.queuefile == ""):
+		sys.exit("A queue file is neccesary")
 
-    tripFileDir = "results/" + options.tripinfofile + ".xml"
-    queueFileDir = "results/" + options.queuefile + ".xml"
-    tripResults = "results/Results_" + str(options.tripinfofile) + ".csv"
-    generate_results(options, tripResults, tripFileDir, queueFileDir)
+	tripFileDir = "results/" + options.tripinfofile + ".xml"
+	queueFileDir = "results/" + options.queuefile + ".xml"
+	tripResults = "results/Results_" + str(options.tripinfofile) + ".csv"
+
+	experimentID = ''.join(filter(lambda i: i.isdigit(), tripFileDir)) 
+	
+	generate_results(tripResults, tripFileDir, queueFileDir, experimentID)
 
 
