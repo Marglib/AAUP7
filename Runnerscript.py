@@ -34,8 +34,8 @@ from TrafficLightClass import smartTL
 PORT = 8873
 
 
-pathToResults = '/user/d704e19/experiments/AAUP7/results'
-pathToModels = '/user/d704e19/experiments/AAUP7/UppaalModels'
+pathToResults = '/user/d704e19/AAUP7/results'
+pathToModels = '/user/d704e19/AAUP7/UppaalModels'
 mainQuery = os.path.join(pathToModels, 'TNC.q')
 mainModel = os.path.join(pathToModels, 'TNC_OneChoice.xml')
 listOfCarTimeLists = []

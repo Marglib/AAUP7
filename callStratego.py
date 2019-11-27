@@ -8,8 +8,8 @@ import VerifierPath as VP
 from os.path import expanduser
 
 home = expanduser("~")
-pathToResults = '/user/d704e19/experiments/AAUP7/results'
-pathToModels = '/user/d704e19/experiments/AAUP7/UppaalModels'
+pathToResults = '/user/d704e19/AAUP7/results'
+pathToModels = '/user/d704e19/AAUP7/UppaalModels'
 
 def runStratego(com, args, query):
     #print('calling stratego with command: ' + com + args + query) 
@@ -162,7 +162,7 @@ def createModel(master_model,expId,carsAreal,carsJammed,phase,duration,simStep,b
     value = value[:-1]
     str_model = str.replace(str_model, toReplace, value, 1)
         
-    modelName = "/user/d704e19/experiments/AAUP7/UppaalModels/TrafficLightTempModels/tl-" + str(tlID) + "-" + str(expId) + ".xml"
+    modelName = "/user/d704e19/AAUP7/UppaalModels/TrafficLightTempModels/tl-" + str(tlID) + "-" + str(expId) + ".xml"
     text_file = open(modelName, "w")
     text_file.write(str_model)
     text_file.close()

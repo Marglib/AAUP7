@@ -20,13 +20,8 @@ class car:
         self.listOfReroutes = listOfReroutes
         self.currRoute = currRouteIn
         self.rerouted = False
-<<<<<<< HEAD
-        self.routeChange = 0   
- 
-=======
         self.routeChange = 0 #Used to check the difference between the currroute and the newroute
     
->>>>>>> UppaalModel
     def update_route(self):
         newRoute = self.currRoute 
 
