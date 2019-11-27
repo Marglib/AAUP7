@@ -233,7 +233,7 @@ void check_reroute()
 
             weight = networkEdges[edgeId][3];
 
-            threshold = get_threshold(networkEdges[edgeId][5]);
+            threshold = get_threshold(networkEdges[edgeId][5]) - 3;
 
             if((weight &gt; threshold &amp;&amp; outNode == 0) || networkEdges[edgeId][6] == 1)
             {
@@ -522,7 +522,6 @@ void dijkstra()
     int destNode;
     int curNode;
     int curIndex = currentStartNode[curr_car][1];
-    int prevNode = curNode;
     int rerouteNode;
 
     for (i = 0; i &lt; nodes; i++)
@@ -543,6 +542,9 @@ void dijkstra()
 
     curIndex++;
     curNode = carRoute[curIndex];
+    //Subtract 1 from curNode and destNode to make it work with the 0 indexed arrays
+    curNode--;
+    destNode--;
     rerouteNode = curNode;
     selected[rerouteNode] = 1;
     dist[rerouteNode] = 0;
@@ -574,8 +576,10 @@ void dijkstra()
 
     while (rerouteNode != curNode)
     {
+        //Add 1 to rerouteNode to convert it back to our node numbers
+        rerouteNode++;
         suggestedRoute[j] = rerouteNode;
-        rerouteNode = prev[rerouteNode];
+        rerouteNode = prev[(rerouteNode -1)];
         j++;        
     }
 

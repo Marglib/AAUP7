@@ -76,7 +76,7 @@ def get_strategy(outStr, cars):
 
     for i in range (0,len(cars)):
         strStart = "pid[" + str(int(cars[i][0]) + 1000) + "]"
-        strEnd = "route[" + str(i) + "][48]"
+        strEnd = "newRoute[" + str(i) + "][48]"
         pid = str(int(cars[i][0]))
         route = cars[i][1]
         numCar = str(i)
@@ -93,7 +93,7 @@ def extract_strategy(strat,numCar,pid,route):
 
     for i in range(0,48):
         value = ""
-        curr = "route[" + numCar + "][" + str(i) + "]:\\n[0]:"
+        curr = "newRoute[" + numCar + "][" + str(i) + "]:\\n[0]:"
         currLen = len(curr)
         start = strat.find(curr)
         end = strat.find(endOfStr, start+currLen)
