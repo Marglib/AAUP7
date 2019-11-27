@@ -60,7 +60,7 @@ def run(options, command):
     totalTeleports = 0
 
     #-------------------------------Write to file by Borch---------------------------------------
-    sys.stdout = open('stdoutexpid' + options.expid, 'w')
+    sys.stdout = open('stdoutexpid' + str(options.expid), 'w')
     #---------------------------- END ------------------------------
 
     #-------------------------------STRATEGO info---------------------------------------
