@@ -253,7 +253,15 @@ void get_routing_result()
 
     for(i = 0; i &lt; N; i++)
     {
-        avgEdgeTT = (travelHist[i][1] / travelHist[i][0]);
+        if(travelHist[i][0] == 0)
+        {
+            avgEdgeTT = 0;
+        }
+        else
+        {
+            avgEdgeTT = (travelHist[i][1] / travelHist[i][0]);
+        }
+        
         totalTravelTime = totalTravelTime + (avgEdgeTT/10); 
     }
 
