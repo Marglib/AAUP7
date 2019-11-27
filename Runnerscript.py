@@ -60,23 +60,6 @@ def run(options, command):
     totalTeleports = 0
 
     #-------------------------------Write to file by Borch---------------------------------------
-    li = []
-        for filename in resultFiles:
-            df = pd.read_csv(filename, index_col=None, header=0)
-            li.append(df)
-
-        frame = pd.concat(li, axis=0, ignore_index=True)
-        print(frame)
-        frame.loc['mean'] = frame.mean()
-        frame.loc['max'] = frame.max()
-
-        frame.to_csv("results/resultsMerge_start" + str(startID) + "_end" + str(endID))
-
-    if name == "main":
-        resultFiles, startID, endID = generate_multi_results()
-        get_stats(resultFiles, startID, endID)
-
-    sys.stdout = open('file', 'w')
     sys.stdout = open('stdoutexpid' + options.expid, 'w')
     #---------------------------- END ------------------------------
 
