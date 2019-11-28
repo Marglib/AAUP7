@@ -17,6 +17,8 @@ int cost[nodes][nodes] = //HOLDER_ADJACENCY_MATRIX
 typedef int[0,nodes] node_t;
 
 int travelHist[N][2]; 
+//Hard coded in nodes
+int inNodes[20][2] = {{17,0}, {18,0}, {54,19}, {20,0}, {34,0}, {35,0}, {36,0}, {37,0}, {53,38}, {39,0}, {45,0}, {44,0}, {57,43}, {42,0}, {41,0}, {40,0}, {51,27}, {25,0}, {23,0}, {21,0}};
 
 //networkEdges constains touples of the form (fromNodeId, toNodeId, lanes, edgeweight, carsOnEdge)
 //HOLDER_EDGES
