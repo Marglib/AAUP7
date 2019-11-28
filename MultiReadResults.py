@@ -10,8 +10,8 @@ from ReadResultFile import generate_results
 
 def generate_multi_results():
     resultFiles = []
-    startID = 4063
-    endID = 4083
+    startID = 4000
+    endID = 4017
     for i in range(startID,endID+1): #4000, 4084
         resultDestFile = "results/Results_" + str(i)+ ".csv"
         resultFiles.append(resultDestFile)
