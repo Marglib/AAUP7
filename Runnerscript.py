@@ -165,8 +165,6 @@ def run(options):
             #if(step > 300 and step < 700):
             #closedEdges = [('n11','n56'), ('n56','n11'), ('n7','n56'), ('n56','n7')]
 
-
-
             edges = list(networkGraph.edges)
             for i in range(0,len(edges)):
                 networkGraph[edges[i][0]][edges[i][1]]['weight'] = get_weight(edges[i][0],edges[i][1], "travelTime")
@@ -179,7 +177,8 @@ def run(options):
                 for id in NodeIDs:
                     networkNodes.append([id[1:], traci.junction.getPosition(id)])
                 for car in CarsInNetworkList:
-                    Cars.append([car, get_route_nodes(car), get_time_on_edge(car)])
+                    onClosed = route_contains_closed_edge(car,closedEdges)
+                    Cars.append([car, get_route_nodes(car), get_time_on_edge(car), onClosed])
                 
                 if(step % 10 == 0):      
                     for car in newRoutes:
@@ -247,7 +246,19 @@ def get_weight(node1, node2, measure):
         elif(traci.edge.getLaneNumber(edge) == 4):
             return (5.69  * (traci.lane.getLength(edge + "_0") / 100)) + 0.84 * traci.edge.getLastStepVehicleNumber(edge) * (100/traci.lane.getLength(edge + "_0"))
         
-    
+def route_contains_closed_edge(car, closedEdges):
+    for edge in traci.vehicle.getRoute(car):
+        if edge in nodestuples_to_edges(closedEdges):
+            return 2
+        else:
+            return 0
+  
+def nodestuples_to_edges(nodes):
+    edges = []
+    for i in range(0, len(nodes)):
+        edge = nodes[i][0] + "-" + nodes[i][1]
+        edges.append(edge)
+    return edges
 
 def find_k_shortest_paths(G, source, target, k):
     return list(islice(nx.shortest_simple_paths(G, source, target, weight='weight'), k))

@@ -17,7 +17,7 @@ The indeces for the different experiments:
     #605-609 - TNC & smart trafficlight
     #610-614 - No nothing
 
-#4000 - Smart traffic lights and simple Uppaal implementation
+#4000-4099 - Smart traffic lights and simple Uppaal implementation - Old Controller
     #4000-4020 - All results for smart tl and TrafficNetworkController
         #4000-4002 - Load 1000-2000 - smartroute
         #4003-4005 - Load 2000-2000 - smartroute
@@ -25,7 +25,7 @@ The indeces for the different experiments:
         #4009-4011 - Load 3000-2000 - smartroute
         #4012-4014 - Load 3500-2000 - smartroute
         #4015-4017 - Load 4000-2000 - smartroute
-        #4018-4020 - Load 5000-2000 - smartroute
+        #4018-4020 - Load 5000-2000 - smartroute - No results
     #4021 - 4041 - All results for TrafficNetworkController and default trafficlights
         #4021-4023 - Load 1000-2000 - route
         #4024-4026 - Load 2000-2000 - route
@@ -33,7 +33,7 @@ The indeces for the different experiments:
         #4030-4032 - Load 3000-2000 - route
         #4033-4035 - Load 3500-2000 - route
         #4036-4038 - Load 4000-2000 - route
-        #4039-4041 - Load 5000-2000 - route
+        #4039-4041 - Load 5000-2000 - route - No results
     #4042 - 4062 - All results for smart trafficlights and default controller
         #4042-4044 - Load 1000-2000 - smart
         #4045-4047 - Load 2000-2000 - smart
@@ -50,7 +50,29 @@ The indeces for the different experiments:
         #4075-4077 - Load 3500-2000 - none
         #4078-4080 - Load 4000-2000 - none
         #4081-4083 - Load 5000-2000 - none
-    
+
+#4100-4199 - Smart trafficlight and TNC_OneChoice
+    #4100-4117 - All results for smart tl and TrafficNetworkController
+        #4100-4102 - Load 1000-2000 - smartroute
+        #4103-4105 - Load 2000-2000 - smartroute
+        #4106-4108 - Load 2500-2000 - smartroute
+        #4109-4111 - Load 3000-2000 - smartroute
+        #4112-4114 - Load 3500-2000 - smartroute
+        #4115-4117 - Load 4000-2000 - smartroute
+    #4118 - 4035 - All results for TrafficNetworkController and default trafficlights
+        #4118-4120 - Load 1000-2000 - route
+        #4121-4123 - Load 2000-2000 - route
+        #4124-4126 - Load 2500-2000 - route
+        #4127-4129 - Load 3000-2000 - route
+        #4130-4132 - Load 3500-2000 - route
+        #4133-4135 - Load 4000-2000 - route
+    #4136 - 4153 - All results for smart trafficlights and default controller
+        #4136-4138 - Load 1000-2000 - smart
+        #4139-4141 - Load 2000-2000 - smart
+        #4142-4144 - Load 2500-2000 - smart
+        #4145-4147 - Load 3000-2000 - smart
+        #4148-4150 - Load 3500-2000 - smart
+        #4151-4153 - Load 4000-2000 - smart
 
 
 

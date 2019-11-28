@@ -175,6 +175,14 @@ def replace_car_strings(str_model,cars,nodePositions):
     value += "};"
     str_model = str.replace(str_model, toReplace, value, 1)
 
+    toReplace = "//HOLDER_REROUTE"
+    value = "{"
+    for i in range(0,len(cars)):
+        value += str(cars[i][3]) + ","
+    value = value[:-1]
+    value += "};"
+    str_model = str.replace(str_model, toReplace, value, 1)
+
     return str_model
 
 def replace_node_strings(str_model,nodePositions,cars):
