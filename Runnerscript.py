@@ -6,6 +6,7 @@ import os
 import sys
 import optparse
 import subprocess
+import csv
 import random
 import time
 import math
@@ -123,6 +124,19 @@ def run(options):
         if((edge[0] == ":") == False):
             listOfEdges.append(edge)
     #-------------------- END -------------------------------------------------------
+
+    #------------------------------setup for closing roads------------------------------
+    closingEdgeInfo = []
+    if options.controller == "TrafficNetworkController":
+        dom = minidom.parse(options.sumocfg)
+        rerouterTag = dom.getElementsByTagName("additional-files")
+        rerouteFileName = rerouterTag[0].getAttribute("value")
+        nameForCSV = rerouteFileName.split(".")[0]
+        
+        with open("SUMOfiles/"+nameForCSV+".csv", 'r') as f:
+            reader = csv.reader(f)
+            closingEdgeInfo = list(reader)
+    #--------------------------------END-------------------------------------------------
     print("Starting simulation expid=" + str(options.expid))
 
     while traci.simulation.getMinExpectedNumber() > 0:
@@ -164,6 +178,14 @@ def run(options):
             CarsInNetworkList = traci.vehicle.getIDList()
             #if(step > 300 and step < 700):
             #closedEdges = [('n11','n56'), ('n56','n11'), ('n7','n56'), ('n56','n7')]
+            if len(closingEdgeInfo) > 0:
+                iterator = 0
+                for line in closingEdgeInfo:
+                    if iterator != 0:
+                        #NOTE -20 is here to give info that road is closing 20 secs before
+                        if int(line[0]) - 20 <= step and int(line[2]) >= step:
+                            closedEdges.append(tuple(line[1].split("-")))
+                    iterator += 1
 
             edges = list(networkGraph.edges)
             for i in range(0,len(edges)):

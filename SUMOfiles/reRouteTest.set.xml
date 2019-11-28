@@ -1,0 +1,8 @@
+<rerouter edges="n10-n6 n2-n6 n5-n6 n24-n8 n4-n8 n7-n8" id="generatedReRouter">
+    <interval begin="0" end="7">
+        <closingReroute id="n6-n7" />
+    </interval>
+    <interval begin="6" end="20">
+        <closingReroute id="n8-n12" />
+    </interval>
+</rerouter>

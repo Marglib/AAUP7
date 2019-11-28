@@ -181,7 +181,8 @@ def findIncomingEdges(edgesToClose):
     return result
 
 def generateRerouter():
-    outFile = "reRouteTest.xml"
+    outXML = "reRouteTest.set.xml" #must have same name as outCSV
+    outCSV = "reRouteTest.csv" #must have same name as outXML
     edgesToClose = ["n6-n7", "n8-n12"]
     minCloseLength = 50
     maxCloseLength = 150
@@ -189,16 +190,25 @@ def generateRerouter():
 
     
     root = ET.Element("rerouter", id= "generatedReRouter", edges=findIncomingEdges(edgesToClose))
-    
+    infoList = []
     for edge in edgesToClose:
         intervalLength = random.randrange(minCloseLength, maxCloseLength +1, 1)
         beginStep = random.randrange(0, simLength - intervalLength, 1)
         stopStep = beginStep + intervalLength
         intervalTag = ET.SubElement(root, "interval", begin = str(beginStep) , end= str(stopStep))
         ET.SubElement(intervalTag, "closingReroute",id=edge)
+
+        d = {
+            "edgeID" : edge,
+            "beginStep" : beginStep,
+            "stopStep" : stopStep
+        }
+        infoList.append(d)
     
+    df = pd.DataFrame(infoList)
+    df.to_csv(outCSV, index = False)
     tree = ET.ElementTree(root)
-    tree.write(outFile)
+    tree.write(outXML)
 
 def removeIntersectionNodes(listOfNodes):
     return [i for i in listOfNodes if listOfNodes.count(i) <= 1]
