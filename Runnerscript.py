@@ -43,6 +43,7 @@ listOfCarTimeLists = []
 
 def run(options):
     """execute the TraCI control loop"""
+    #sys.stdout = open('stdoutFileTest', 'w')
     print("starting run")
     traci.init(options.port)
     step = 0

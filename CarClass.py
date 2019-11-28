@@ -36,7 +36,7 @@ class car:
                 traci.vehicle.setRoute(self.pid,newRouteAsEdges)
                 print("new route: " + str(newRouteAsEdges))
             else:
-                print("The car chose not to follow the new route")
+                print("The car chose not to follow the suggested route")
             self.rerouted = True
             self.routeChange = abs(len(newRoute) - currRouteLen)
         except:
