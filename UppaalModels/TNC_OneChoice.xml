@@ -23,7 +23,7 @@ int travelHist[N][2];
 
 int curr_car = 0;
 int uniquetest = 0;
-int reroute[N];
+int reroute[N] = //HOLDER_REROUTE
 int carDone[N];
 const int horizon = 40;
 int Done = 0;
