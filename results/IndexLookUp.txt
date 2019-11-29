@@ -107,6 +107,14 @@ The indeces for the different experiments:
         #4275-4277 - Load 3500-2000 - none
         #4278-4280 - Load 4000-2000 - none
         #4281-4283 - Load 5000-2000 - none
+    #4284 - 4304 - All results for SUMO rerouter
+        #4284-4286 - Load 1000-2000 - none
+        #4287-4289 - Load 2000-2000 - none
+        #4290-4292 - Load 2500-2000 - none
+        #4293-4295 - Load 3000-2000 - none
+        #4296-4298 - Load 3500-2000 - none
+        #4299-4301 - Load 4000-2000 - none
+        #4302-4304 - Load 5000-2000 - none
 
 
 
