@@ -18,7 +18,7 @@ def getPercentageDataFrame(baseline, newData):
     df = baseline
     for col in baseline.columns:
         df[col] = (100 - (newData[col] / baseline[col] * 100))
-    
+
     return df
 
 
@@ -30,16 +30,16 @@ def makeResultGraph(listOfDataFrames, columnToPlot):
     for df in listOfDataFrames:
         if "Unnamed: 0" in df.columns:
             df = df.drop("Unnamed: 0", axis =1)
-        
-        # if columnToPlot not in df.columns:
-        #     print("Column to plot does not exist in one of the dataframes given")
-        #     return None
+
+        if columnToPlot not in df.columns:
+            print("Column to plot does not exist in one of the dataframes given")
+            return
         print(df)
         df = df[:-2] # drop last two rows of dataframe
         print(df)
         myLines += plt.plot(xValues[:len(df[columnToPlot])], df[columnToPlot], label = labels[i])
         i += 1
-    
+
     plt.xlabel("Cars per second")
     plt.ylabel(columnToPlot)
     labels = [l.get_label() for l in myLines]
@@ -47,7 +47,7 @@ def makeResultGraph(listOfDataFrames, columnToPlot):
 
     plt.show()
 
-        
 
-#makeResultGraph([testBaseline, testNewData], "AverageDuration")
+
+makeResultGraph([testBaseline, testNewData], "AverageDuration")
 #print(getPercentageDataFrame(testBaseline,testNewData))
