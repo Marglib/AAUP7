@@ -402,7 +402,7 @@ int getBestConnection(int destNode, int rerouteNode)
 
                     for(k = 0; k &lt; 20; k++)
                     {
-                        if((extendedNodes[i] == inNodes[k][0] &amp;&amp; inNodes[k][0] != destNode &amp;&amp; inNodes[k][1] != destNode) &amp;&amp; closedEdge == 1)
+                        if((extendedNodes[i] == inNodes[k][0] &amp;&amp; inNodes[k][0] != destNode &amp;&amp; inNodes[k][1] != destNode) || closedEdge == 1)
                         {
                             illegalInNode = 1;
                         }
@@ -426,7 +426,7 @@ int getBestConnection(int destNode, int rerouteNode)
 
             for(k = 0; k &lt; 20; k++)
             {
-                if((connectingNodes[j] == inNodes[k][0] &amp;&amp; inNodes[k][0] != destNode &amp;&amp; inNodes[k][1] != destNode) &amp;&amp; closedEdge == 1)
+                if((connectingNodes[j] == inNodes[k][0] &amp;&amp; inNodes[k][0] != destNode &amp;&amp; inNodes[k][1] != destNode) || closedEdge == 1)
                 {
                     illegalInNode = 1;
                 }

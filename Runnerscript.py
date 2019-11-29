@@ -7,6 +7,7 @@ import sys
 sys.path.append('/user/d704e19/.local/lib/python2.7/site-packages/')
 import optparse
 import subprocess
+import csv
 import random
 import time
 import math
@@ -45,12 +46,15 @@ listOfCarTimeLists = []
 
 def run(options, command):
     """execute the TraCI control loop"""
+    #sys.stdout = open('stdoutFileTest', 'w')
     print("starting run")
     #traci.init(options.port)
     traci.start(command,numRetries=1000)
     step = 0
     ListOfCarsPlaceholder = []
     amountOfReroutes = 0
+    amountOfSuggestedReroutes = 0
+    totalTeleports = 0
     totalRouteDif = 0
     newRoutes = []
     networkGraph = preprocess()    
@@ -132,6 +136,20 @@ def run(options, command):
         if((edge[0] == ":") == False):
             listOfEdges.append(edge)
     #-------------------- END -------------------------------------------------------
+
+    #------------------------------setup for closing roads------------------------------
+    closingEdgeInfo = []
+    if options.controller == "TrafficNetworkController":
+        dom = minidom.parse(options.sumocfg)
+        rerouterTag = dom.getElementsByTagName("additional-files")
+        rerouteFileName = rerouterTag[0].getAttribute("value")
+        nameForCSV = rerouteFileName.split(".")[0]
+        print(get_directory() + nameForCSV + ".csv")
+        
+        with open(get_directory() + nameForCSV + ".csv", 'r') as f:
+            reader = csv.reader(f)
+            closingEdgeInfo = list(reader)
+    #--------------------------------END-------------------------------------------------
     print("Starting simulation expid=" + str(options.expid))
 
     while traci.simulation.getMinExpectedNumber() > 0:
@@ -178,8 +196,15 @@ def run(options, command):
             CarsInNetworkList = traci.vehicle.getIDList()
             #if(step > 300 and step < 700):
             #closedEdges = [('n11','n56'), ('n56','n11'), ('n7','n56'), ('n56','n7')]
-
-
+            if len(closingEdgeInfo) > 0:
+                iterator = 0
+                for line in closingEdgeInfo:
+                    if iterator != 0:
+                        #NOTE -20 is here to give info that road is closing 20 secs before
+                        if int(line[1]) - 20 <= step and int(line[2]) >= step:
+                            closedEdges.append(tuple(line[0].split("-")))
+                            print(closedEdges)
+                    iterator += 1
 
             edges = list(networkGraph.edges)
             for i in range(0,len(edges)):
@@ -193,9 +218,10 @@ def run(options, command):
                 for id in NodeIDs:
                     networkNodes.append([id[1:], traci.junction.getPosition(id)])
                 for car in CarsInNetworkList:
-                    Cars.append([car, get_route_nodes(car), get_time_on_edge(car)])
+                    rerouteVal = check_reroute(car,closedEdges, 2)
+                    Cars.append([car, get_route_nodes(car), get_time_on_edge(car), rerouteVal])
                 
-                if(step % 10 == 0):      
+                if(step % 10 == 0 and step > 370):      
                     for car in newRoutes:
                         car.kill()              
                     newRoutes = modelCaller(mainModel, mainQuery, options.expid, step, Cars, networkGraph, networkNodes, closedEdges)
@@ -203,8 +229,11 @@ def run(options, command):
                 for car in newRoutes:
                     car.update_route()
                     if car.rerouted:
-                        amountOfReroutes += 1
+                        amountOfSuggestedReroutes += 1
                         totalRouteDif += car.routeChange
+                        if(car.choice):
+                            amountOfReroutes += 1
+                        
 
                 newRoutes = [car for car in newRoutes if not car.rerouted]
             
@@ -232,9 +261,9 @@ def run(options, command):
                 assign_random_new_route(car, kShortestPaths)
 
             ListOfCarsPlaceholder = list(CarsInNetworkList)
-
         totalTeleports += traci.simulation.getEndingTeleportNumber()
-        if amountOfReroutes > 0:
+        if (amountOfReroutes > 0):
+            print("Amount of suggested reroutes so far: " + str(amountOfSuggestedReroutes))
             print("Amount of reroutes so far: " + str(amountOfReroutes))
         print("Amount of teleports so far: " + str(totalTeleports))
         traci.simulationStep()
@@ -261,7 +290,37 @@ def get_weight(node1, node2, measure):
         elif(traci.edge.getLaneNumber(edge) == 4):
             return (5.69  * (traci.lane.getLength(edge + "_0") / 100)) + 0.84 * traci.edge.getLastStepVehicleNumber(edge) * (100/traci.lane.getLength(edge + "_0"))
         
-    
+def check_reroute(car, closedEdges, numEdgesToCheck):
+    route = traci.vehicle.getRoute(car)
+    for edge in route[traci.vehicle.getRouteIndex(car):]:
+        numEdgesToCheck -= 1
+        if edge in nodestuples_to_edges(closedEdges):
+            return 2
+        elif numEdgesToCheck > 0 and  check_edge_reroute(edge):
+            return 1
+        else:
+            return 0
+
+def check_edge_reroute(edge):
+    keyLoc = edge.find("-")
+    threshold = get_threshold(traci.lane.getLength(edge + "_0"))
+    weight = get_weight(edge[:keyLoc], edge[keyLoc + 1:], "travelTime")
+    return weight > threshold
+
+def get_threshold(edge_length):
+    ret = 0.0
+    threshold = 12.0
+
+    ret = threshold * (edge_length/100.0)
+
+    return ret
+
+def nodestuples_to_edges(nodes):
+    edges = []
+    for i in range(0, len(nodes)):
+        edge = nodes[i][0] + "-" + nodes[i][1]
+        edges.append(edge)
+    return edges
 
 def find_k_shortest_paths(G, source, target, k):
     return list(islice(nx.shortest_simple_paths(G, source, target, weight='weight'), k))

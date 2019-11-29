@@ -4,9 +4,9 @@
 
     <input>
         <net-file value="MasterNetFile10.net.xml"/>
-        <route-files value="ExperimentSUMOfiles/trip4000-2000-1.rou.xml"/>
+        <route-files value="MasterTripFile.rou.xml"/>
         <gui-settings-file value="GuiFile.set.xml"/>
-        <!--<additional-files value="RerouteFile.set.xml"/>-->
+        <additional-files value="reRouteTest.set.xml"/>
     </input>
 
     <time>
