@@ -21,6 +21,7 @@ class car:
         self.currRoute = currRouteIn
         self.rerouted = False
         self.routeChange = 0 #Used to check the difference between the currroute and the newroute
+        self.choice = self.decision(0.9)
     
     def update_route(self):
         newRoute = self.currRoute 
@@ -32,7 +33,7 @@ class car:
         
         newRouteAsEdges = self.nodes_to_edges(newRoute[traci.vehicle.getRouteIndex(self.pid):])
         try:
-            if self.decision(0.9):
+            if self.choice:
                 traci.vehicle.setRoute(self.pid,newRouteAsEdges)
                 print("new route: " + str(newRouteAsEdges))
             else:
