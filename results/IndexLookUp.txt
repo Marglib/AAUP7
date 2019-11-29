@@ -2,7 +2,7 @@ The indeces for the different experiments:
 #100 - Giant experiments
     #100 - smart tl and TNC on a 20000-10000trip file
     #101 - No nothing
-    #102 - Smart tl alone
+    #104 - Smart tl alone
 #200 - Capacity experiments
     
 #300 - simple rerouting experiments
@@ -73,6 +73,40 @@ The indeces for the different experiments:
         #4151-4153 - Load 3000-2000 - smart
         #4154-4156 - Load 3500-2000 - smart
         #4157-4159 - Load 4000-2000 - smart
+
+#4200-4299 - Smart trafficlight and TNC_OneChoice with closed edges. The closed edge configuration can be seen in rerouteExp4200.csv
+    #4200-4220 - All results for smart tl and TrafficNetworkController
+        #4200-4202 - Load 1000-2000 - smartroute
+        #4203-4205 - Load 2000-2000 - smartroute
+        #4206-4208 - Load 2500-2000 - smartroute
+        #4209-4211 - Load 3000-2000 - smartroute
+        #4212-4214 - Load 3500-2000 - smartroute
+        #4215-4217 - Load 4000-2000 - smartroute
+        #4218-4220 - Load 5000-2000 - smartroute
+    #4221 - 4241 - All results for TrafficNetworkController and default trafficlights
+        #4221-4223 - Load 1000-2000 - route
+        #4224-4226 - Load 2000-2000 - route
+        #4227-4229 - Load 2500-2000 - route
+        #4230-4232 - Load 3000-2000 - route
+        #4233-4235 - Load 3500-2000 - route
+        #4236-4238 - Load 4000-2000 - route
+        #4239-4241 - Load 5000-2000 - route 
+    #4242 - 4262 - All results for smart trafficlights and default controller
+        #4242-4244 - Load 1000-2000 - smart
+        #4245-4247 - Load 2000-2000 - smart
+        #4248-4250 - Load 2500-2000 - smart
+        #4251-4253 - Load 3000-2000 - smart
+        #4254-4256 - Load 3500-2000 - smart
+        #4257-4259 - Load 4000-2000 - smart
+        #4260-4262 - Load 5000-2000 - smart
+    #4263 - 4283 - All results for no controller and default trafficlights
+        #4263-4265 - Load 1000-2000 - none
+        #4266-4268 - Load 2000-2000 - none
+        #4269-4271 - Load 2500-2000 - none
+        #4272-4274 - Load 3000-2000 - none
+        #4275-4277 - Load 3500-2000 - none
+        #4278-4280 - Load 4000-2000 - none
+        #4281-4283 - Load 5000-2000 - none
 
 
 
