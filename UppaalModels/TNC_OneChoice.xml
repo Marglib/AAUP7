@@ -178,56 +178,56 @@ void get_routing_result()
     }
 
 }</declaration>
-		<location id="id0" x="-586" y="-544">
-			<name x="-637" y="-578">SimulateTraffic</name>
-			<label kind="invariant" x="-671" y="-603">y &lt;= 10 &amp;&amp; x &lt;= horizon</label>
+		<location id="id0" x="-561" y="-552">
+			<name x="-612" y="-586">SimulateTraffic</name>
+			<label kind="invariant" x="-646" y="-611">y &lt;= 10 &amp;&amp; x &lt;= horizon</label>
 		</location>
-		<location id="id1" x="-994" y="-544">
-			<name x="-1004" y="-578">Init</name>
+		<location id="id1" x="-986" y="-552">
+			<name x="-996" y="-586">Init</name>
 			<committed/>
 		</location>
-		<location id="id2" x="-646" y="-510">
-			<name x="-688" y="-544">Constructed</name>
+		<location id="id2" x="-850" y="-552">
+			<name x="-892" y="-586">Constructed</name>
 			<urgent/>
 		</location>
-		<location id="id3" x="8" y="-510">
-			<name x="-2" y="-544">End</name>
+		<location id="id3" x="-349" y="-552">
+			<name x="-359" y="-586">End</name>
 		</location>
-		<location id="id4" x="-366" y="-510">
-			<name x="-408" y="-544">RerouteWait</name>
+		<location id="id4" x="-723" y="-552">
+			<name x="-765" y="-586">RerouteWait</name>
 			<urgent/>
 		</location>
 		<init ref="id1"/>
 		<transition controllable="false">
 			<source ref="id2"/>
 			<target ref="id4"/>
-			<label kind="synchronisation" x="-535" y="-535">Reroute!</label>
+			<label kind="synchronisation" x="-824" y="-543">Reroute!</label>
 		</transition>
 		<transition controllable="false">
 			<source ref="id0"/>
 			<target ref="id0"/>
-			<label kind="guard" x="-560" y="-425">y == 10 &amp;&amp; x &lt; horizon</label>
-			<label kind="assignment" x="-696" y="-425">flow_traffic(), 
+			<label kind="guard" x="-535" y="-433">y == 10 &amp;&amp; x &lt; horizon</label>
+			<label kind="assignment" x="-671" y="-433">flow_traffic(), 
 update_weights(),
 y = 0</label>
-			<nail x="-672" y="-429"/>
-			<nail x="-494" y="-429"/>
+			<nail x="-647" y="-437"/>
+			<nail x="-469" y="-437"/>
 		</transition>
 		<transition controllable="false">
 			<source ref="id0"/>
 			<target ref="id3"/>
-			<label kind="guard" x="-153" y="-493">x == horizon || Done == 1</label>
-			<label kind="assignment" x="-153" y="-510">get_routing_result()</label>
+			<label kind="guard" x="-510" y="-535">x == horizon || Done == 1</label>
+			<label kind="assignment" x="-510" y="-552">get_routing_result()</label>
 		</transition>
 		<transition controllable="false">
 			<source ref="id4"/>
 			<target ref="id0"/>
-			<label kind="synchronisation" x="-348" y="-501">DoneRerouting?</label>
+			<label kind="synchronisation" x="-705" y="-543">DoneRerouting?</label>
 		</transition>
 		<transition controllable="false">
 			<source ref="id1"/>
 			<target ref="id2"/>
-			<label kind="assignment" x="-773" y="-501">constructor()</label>
+			<label kind="assignment" x="-969" y="-543">constructor()</label>
 		</transition>
 	</template>
 	<template>
@@ -423,21 +423,28 @@ void choose_route()
 		<transition controllable="false">
 			<source ref="id6"/>
 			<target ref="id10"/>
+			<label kind="guard" x="-467" y="-391">reroute[curr_car] == 0</label>
 			<nail x="-680" y="-365"/>
 			<nail x="-110" y="-365"/>
+		</transition>
+		<transition controllable="false">
+			<source ref="id6"/>
+			<target ref="id7"/>
 			<label kind="guard" x="-714" y="-221">reroute[curr_car] == 1</label>
 		</transition>
 		<transition controllable="false">
 			<source ref="id10"/>
 			<target ref="id11"/>
+			<label kind="guard" x="-68" y="-238">curr_car &gt;= (N-1)</label>
 			<label kind="synchronisation" x="-68" y="-221">DoneRerouting!</label>
 		</transition>
+		<transition controllable="false">
+			<source ref="id10"/>
+			<target ref="id6"/>
 			<label kind="guard" x="-450" y="-8">curr_car &lt; (N-1)</label>
 			<label kind="assignment" x="-450" y="-25">curr_car++</label>
-			<label kind="guard" x="-450" y="8">curr_car &lt; (N-1)</label>
-			<label kind="assignment" x="-450" y="-17">curr_car++</label>
 			<nail x="-110" y="-25"/>
-			<nail x="-714" y="-25"/>
+			<nail x="-748" y="-25"/>
 		</transition>
 		<transition controllable="false">
 			<source ref="id9"/>
