@@ -201,8 +201,8 @@ def run(options):
                 for id in NodeIDs:
                     networkNodes.append([id[1:], traci.junction.getPosition(id)])
                 for car in CarsInNetworkList:
-                    onClosed = route_contains_closed_edge(car,closedEdges)
-                    Cars.append([car, get_route_nodes(car), get_time_on_edge(car), onClosed])
+                    rerouteVal = check_reroute(car,closedEdges, 2)
+                    Cars.append([car, get_route_nodes(car), get_time_on_edge(car), rerouteVal])
                 
                 if(step % 10 == 0 and step > 370):      
                     for car in newRoutes:
@@ -270,13 +270,31 @@ def get_weight(node1, node2, measure):
         elif(traci.edge.getLaneNumber(edge) == 4):
             return (5.69  * (traci.lane.getLength(edge + "_0") / 100)) + 0.84 * traci.edge.getLastStepVehicleNumber(edge) * (100/traci.lane.getLength(edge + "_0"))
         
-def route_contains_closed_edge(car, closedEdges):
-    for edge in traci.vehicle.getRoute(car):
+def check_reroute(car, closedEdges, numEdgesToCheck):
+    route = traci.vehicle.getRoute(car)
+    for edge in route[traci.vehicle.getRouteIndex(car):]:
+        numEdgesToCheck -= 1
         if edge in nodestuples_to_edges(closedEdges):
             return 2
+        elif numEdgesToCheck > 0 and  check_edge_reroute(edge):
+            return 1
         else:
             return 0
-  
+
+def check_edge_reroute(edge):
+    keyLoc = edge.find("-")
+    threshold = get_threshold(traci.lane.getLength(edge + "_0"))
+    weight = get_weight(edge[:keyLoc], edge[keyLoc + 1:], "travelTime")
+    return weight > threshold
+
+def get_threshold(edge_length):
+    ret = 0.0
+    threshold = 12.0
+
+    ret = threshold * (edge_length/100.0)
+
+    return ret
+
 def nodestuples_to_edges(nodes):
     edges = []
     for i in range(0, len(nodes)):
