@@ -50,6 +50,7 @@ def run(options):
     step = 0
     ListOfCarsPlaceholder = []
     amountOfReroutes = 0
+    totalTeleports = 0
     totalRouteDif = 0
     newRoutes = []
     networkGraph = preprocess()    
@@ -183,8 +184,9 @@ def run(options):
                 for line in closingEdgeInfo:
                     if iterator != 0:
                         #NOTE -20 is here to give info that road is closing 20 secs before
-                        if int(line[0]) - 20 <= step and int(line[2]) >= step:
-                            closedEdges.append(tuple(line[1].split("-")))
+                        if int(line[1]) - 20 <= step and int(line[2]) >= step:
+                            closedEdges.append(tuple(line[0].split("-")))
+                            print(closedEdges)
                     iterator += 1
 
             edges = list(networkGraph.edges)
@@ -202,7 +204,7 @@ def run(options):
                     onClosed = route_contains_closed_edge(car,closedEdges)
                     Cars.append([car, get_route_nodes(car), get_time_on_edge(car), onClosed])
                 
-                if(step % 10 == 0):      
+                if(step % 10 == 0 and step > 370):      
                     for car in newRoutes:
                         car.kill()              
                     newRoutes = modelCaller(mainModel, mainQuery, options.expid, step, Cars, networkGraph, networkNodes, closedEdges)
@@ -240,10 +242,10 @@ def run(options):
                 assign_random_new_route(car, kShortestPaths)
 
             ListOfCarsPlaceholder = list(CarsInNetworkList)
-
-        if (amountOfReroutes > 0 and options.trafficlight == "smart"):
+        totalTeleports += traci.simulation.getEndingTeleportNumber()
+        if (amountOfReroutes > 0):
             print("Amount of reroutes so far: " + str(amountOfReroutes))
-            print("Average route deviation: " + str(totalRouteDif/amountOfReroutes))
+        print("Amount of teleports so far: " + str(totalTeleports))
         traci.simulationStep()
         step += 1
     traci.close()

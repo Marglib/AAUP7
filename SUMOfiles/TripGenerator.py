@@ -183,9 +183,9 @@ def findIncomingEdges(edgesToClose):
 def generateRerouter():
     outXML = "reRouteTest.set.xml" #must have same name as outCSV
     outCSV = "reRouteTest.csv" #must have same name as outXML
-    edgesToClose = ["n6-n7", "n8-n12"]
-    minCloseLength = 50
-    maxCloseLength = 150
+    edgesToClose = ["n6-n7", "n8-n12", "n12-n8", "n31-n48"]
+    minCloseLength = 100
+    maxCloseLength = 250
     simLength = 1000
 
     

@@ -1,3 +1,5 @@
-beginStep,edgeID,stopStep
-25,n6-n7,276
-20,n8-n12,98
+edgeID,beginStep,stopStep
+n6-n7,394,628
+n8-n12,803,906
+n12-n8,604,771
+n31-n48,598,783

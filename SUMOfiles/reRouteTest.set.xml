@@ -1,8 +1,1 @@
-<rerouter edges="n10-n6 n2-n6 n5-n6 n24-n8 n4-n8 n7-n8" id="generatedReRouter">
-    <interval begin="0" end="7">
-        <closingReroute id="n6-n7" />
-    </interval>
-    <interval begin="6" end="20">
-        <closingReroute id="n8-n12" />
-    </interval>
-</rerouter>
+<rerouter edges="n11-n12 n16-n12 n26-n12 n30-n31 n32-n31 n57-n31 n10-n6 n2-n6 n5-n6 n24-n8 n4-n8 n7-n8" id="generatedReRouter"><interval begin="394" end="628"><closingReroute id="n6-n7" /></interval><interval begin="803" end="906"><closingReroute id="n8-n12" /></interval><interval begin="604" end="771"><closingReroute id="n12-n8" /></interval><interval begin="598" end="783"><closingReroute id="n31-n48" /></interval></rerouter>
