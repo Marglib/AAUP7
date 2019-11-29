@@ -59,20 +59,20 @@ The indeces for the different experiments:
         #4109-4111 - Load 3000-2000 - smartroute
         #4112-4114 - Load 3500-2000 - smartroute
         #4115-4117 - Load 4000-2000 - smartroute
-    #4118 - 4035 - All results for TrafficNetworkController and default trafficlights
-        #4118-4120 - Load 1000-2000 - route
-        #4121-4123 - Load 2000-2000 - route
-        #4124-4126 - Load 2500-2000 - route
-        #4127-4129 - Load 3000-2000 - route
-        #4130-4132 - Load 3500-2000 - route
-        #4133-4135 - Load 4000-2000 - route
-    #4136 - 4153 - All results for smart trafficlights and default controller
-        #4136-4138 - Load 1000-2000 - smart
-        #4139-4141 - Load 2000-2000 - smart
-        #4142-4144 - Load 2500-2000 - smart
-        #4145-4147 - Load 3000-2000 - smart
-        #4148-4150 - Load 3500-2000 - smart
-        #4151-4153 - Load 4000-2000 - smart
+    #4121 - 4038 - All results for TrafficNetworkController and default trafficlights
+        #4121-4123 - Load 1000-2000 - route
+        #4124-4126 - Load 2000-2000 - route
+        #4127-4129 - Load 2500-2000 - route
+        #4130-4132 - Load 3000-2000 - route
+        #4133-4135 - Load 3500-2000 - route
+        #4136-4138 - Load 4000-2000 - route
+    #4142 - 4159 - All results for smart trafficlights and default controller
+        #4142-4144 - Load 1000-2000 - smart
+        #4145-4147 - Load 2000-2000 - smart
+        #4148-4150 - Load 2500-2000 - smart
+        #4151-4153 - Load 3000-2000 - smart
+        #4154-4156 - Load 3500-2000 - smart
+        #4157-4159 - Load 4000-2000 - smart
 
 
 
