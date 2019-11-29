@@ -166,6 +166,11 @@ def run(options, command):
         if options.controller == "default":
             print(traci.trafficlight.getProgram('n3'))
 
+        if (options.controller == "SUMOrerouter" and step % 10 == 0):
+            CarsInNetworkList = traci.vehicle.getIDList()
+            for car in CarsInNetworkList:
+                traci.vehicle.rerouteTraveltime(car)
+
         #THE MAIN CONTROLLER
         if (options.controller == "TrafficNetworkController"):
             #Update graph weights according to current traffic
