@@ -269,7 +269,7 @@ def replace_time_passed_current_edge(str_model, cars):
     return str_model
 
 
-def insert_adjacency_matrix(str_model, networkGraph):
+def insert_adjacency_matrix(str_model,networkGraph,closedEdges):
     toReplace = "//HOLDER_ADJACENCY_MATRIX"
     value = "{"
     nodes = list(networkGraph.nodes)
@@ -280,7 +280,8 @@ def insert_adjacency_matrix(str_model, networkGraph):
         value += "{"
         for j in range(0,len(nodes)):
             edgeData = networkGraph.get_edge_data("n" + str(nodes[i]), "n" + str(nodes[j]))
-            if edgeData != None:
+            nodeTuple = ("n" + str(nodes[i]), "n" + str(nodes[j]))
+            if ((edgeData != None) and (nodeTuple not in closedEdges)):
                 length = round(traci.lane.getLength("n" + str(nodes[i]) + "-" + "n" + str(nodes[j]) + "_0"))
                 weight = int(edgeData.get('weight'))
                 adjacencyValue = weight + length
@@ -306,7 +307,7 @@ def createModel(master_model,expId,simStep,cars,networkGraph,nodePositions, clos
     str_model = replace_node_strings(str_model,nodePositions,cars)
     str_model = replace_edge_strings(str_model,networkGraph, closedEdges)
     str_model = replace_time_passed_current_edge(str_model,cars)
-    str_model = insert_adjacency_matrix(str_model,networkGraph)    
+    str_model = insert_adjacency_matrix(str_model,networkGraph,closedEdges)    
 
     modelName = os.path.join(pathToModels, 'tempModel' + str(expId) + '.xml')
     text_file = open(modelName, "w")
