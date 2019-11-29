@@ -134,8 +134,9 @@ def run(options):
         rerouterTag = dom.getElementsByTagName("additional-files")
         rerouteFileName = rerouterTag[0].getAttribute("value")
         nameForCSV = rerouteFileName.split(".")[0]
+        print(get_directory() + nameForCSV + ".csv")
         
-        with open("SUMOfiles/"+nameForCSV+".csv", 'r') as f:
+        with open(get_directory() + nameForCSV + ".csv", 'r') as f:
             reader = csv.reader(f)
             closingEdgeInfo = list(reader)
     #--------------------------------END-------------------------------------------------

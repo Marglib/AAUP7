@@ -5,6 +5,7 @@
     <input>
         <net-file value="MasterNetFile7.net.xml"/>
         <route-files value="trip2500-2000-1.rou.xml"/>
+        <additional-files value="rerouterExp4200.set.xml"/>
     </input>
 
     <time>
