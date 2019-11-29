@@ -238,18 +238,19 @@ void get_routing_result()
 			<name x="-688" y="-544">Constructed</name>
 			<urgent/>
 		</location>
-		<location id="id3" x="-493" y="-510">
-			<name x="-561" y="-544">RerouteChecked</name>
-			<urgent/>
-		</location>
-		<location id="id4" x="8" y="-510">
+		<location id="id3" x="8" y="-510">
 			<name x="-2" y="-544">End</name>
 		</location>
-		<location id="id5" x="-366" y="-510">
+		<location id="id4" x="-366" y="-510">
 			<name x="-408" y="-544">RerouteWait</name>
 			<urgent/>
 		</location>
 		<init ref="id1"/>
+		<transition controllable="false">
+			<source ref="id2"/>
+			<target ref="id4"/>
+			<label kind="synchronisation" x="-535" y="-535">Reroute!</label>
+		</transition>
 		<transition controllable="false">
 			<source ref="id0"/>
 			<target ref="id0"/>
@@ -262,24 +263,14 @@ y = 0</label>
 		</transition>
 		<transition controllable="false">
 			<source ref="id0"/>
-			<target ref="id4"/>
+			<target ref="id3"/>
 			<label kind="guard" x="-153" y="-493">x == horizon || Done == 1</label>
 			<label kind="assignment" x="-153" y="-510">get_routing_result()</label>
 		</transition>
 		<transition controllable="false">
-			<source ref="id5"/>
+			<source ref="id4"/>
 			<target ref="id0"/>
 			<label kind="synchronisation" x="-348" y="-501">DoneRerouting?</label>
-		</transition>
-		<transition controllable="false">
-			<source ref="id3"/>
-			<target ref="id5"/>
-			<label kind="synchronisation" x="-459" y="-501">Reroute!</label>
-		</transition>
-		<transition controllable="false">
-			<source ref="id2"/>
-			<target ref="id3"/>
-			<label kind="assignment" x="-629" y="-501">check_reroute()</label>
 		</transition>
 		<transition controllable="false">
 			<source ref="id1"/>
@@ -392,133 +383,133 @@ void choose_route()
     }
                 
 }</declaration>
-		<location id="id6" x="-909" y="-195">
+		<location id="id5" x="-909" y="-195">
 			<name x="-918" y="-187">Init</name>
 		</location>
-		<location id="id7" x="-748" y="-195">
+		<location id="id6" x="-748" y="-195">
 			<name x="-799" y="-187">Called</name>
 			<urgent/>
 		</location>
-		<location id="id8" x="-544" y="-195">
+		<location id="id7" x="-544" y="-195">
 			<name x="-535" y="-221">Rerouting</name>
 			<urgent/>
 		</location>
-		<location id="id9" x="-544" y="-297">
+		<location id="id8" x="-544" y="-297">
 			<name x="-586" y="-331">DoReroute</name>
 			<urgent/>
 		</location>
-		<location id="id10" x="-195" y="-102">
+		<location id="id9" x="-195" y="-102">
 			<name x="-229" y="-93">NoReroute</name>
 			<urgent/>
 		</location>
-		<location id="id11" x="-110" y="-195">
+		<location id="id10" x="-110" y="-195">
 			<name x="-102" y="-187">CarDone</name>
 			<urgent/>
 		</location>
-		<location id="id12" x="93" y="-195">
+		<location id="id11" x="93" y="-195">
 			<name x="51" y="-187">SimulatorSync</name>
 			<urgent/>
 		</location>
-		<location id="id13" x="-204" y="-297">
+		<location id="id12" x="-204" y="-297">
 			<name x="-246" y="-331">RejectRoute</name>
 			<urgent/>
 		</location>
-		<location id="id14" x="-416" y="-195">
+		<location id="id13" x="-416" y="-195">
 			<name x="-459" y="-187">AcceptRoute</name>
 			<urgent/>
 		</location>
-		<location id="id15" x="187" y="-195">
+		<location id="id14" x="187" y="-195">
 			<name x="170" y="-187">Done</name>
 		</location>
-		<location id="id16" x="-110" y="-433">
+		<location id="id15" x="-110" y="-433">
 			<name x="-153" y="-467">RoadClosed</name>
 			<urgent/>
 		</location>
-		<branchpoint id="id17" x="-416" y="-297">
+		<branchpoint id="id16" x="-416" y="-297">
 		</branchpoint>
-		<init ref="id6"/>
+		<init ref="id5"/>
 		<transition controllable="false">
-			<source ref="id7"/>
-			<target ref="id16"/>
+			<source ref="id6"/>
+			<target ref="id15"/>
 			<label kind="guard" x="-467" y="-459">reroute[curr_car] == 2</label>
 			<label kind="assignment" x="-467" y="-476">choose_route()</label>
 			<nail x="-748" y="-433"/>
 		</transition>
 		<transition controllable="false">
-			<source ref="id16"/>
-			<target ref="id11"/>
+			<source ref="id15"/>
+			<target ref="id10"/>
 			<label kind="assignment" x="-102" y="-408">route[curr_car] = newRoute[curr_car]</label>
 		</transition>
 		<transition controllable="false">
+			<source ref="id11"/>
+			<target ref="id14"/>
+		</transition>
+		<transition controllable="false">
 			<source ref="id12"/>
-			<target ref="id15"/>
+			<target ref="id10"/>
 		</transition>
 		<transition controllable="false">
 			<source ref="id13"/>
-			<target ref="id11"/>
-		</transition>
-		<transition controllable="false">
-			<source ref="id14"/>
-			<target ref="id11"/>
+			<target ref="id10"/>
 			<label kind="assignment" x="-391" y="-221">route[curr_car] = newRoute[curr_car]</label>
 		</transition>
 		<transition>
-			<source ref="id17"/>
-			<target ref="id14"/>
+			<source ref="id16"/>
+			<target ref="id13"/>
 			<label kind="probability" x="-408" y="-289">9</label>
 		</transition>
 		<transition>
-			<source ref="id17"/>
-			<target ref="id13"/>
+			<source ref="id16"/>
+			<target ref="id12"/>
 			<label kind="probability" x="-399" y="-323">1</label>
 		</transition>
 		<transition controllable="false">
-			<source ref="id9"/>
-			<target ref="id17"/>
+			<source ref="id8"/>
+			<target ref="id16"/>
 			<label kind="assignment" x="-527" y="-289">choose_route()</label>
 		</transition>
 		<transition controllable="false">
-			<source ref="id7"/>
-			<target ref="id11"/>
+			<source ref="id6"/>
+			<target ref="id10"/>
 			<label kind="guard" x="-467" y="-391">reroute[curr_car] == 0</label>
 			<nail x="-680" y="-365"/>
 			<nail x="-110" y="-365"/>
 		</transition>
 		<transition controllable="false">
-			<source ref="id7"/>
-			<target ref="id8"/>
+			<source ref="id6"/>
+			<target ref="id7"/>
 			<label kind="guard" x="-714" y="-221">reroute[curr_car] == 1</label>
 		</transition>
 		<transition controllable="false">
-			<source ref="id11"/>
-			<target ref="id12"/>
+			<source ref="id10"/>
+			<target ref="id11"/>
 			<label kind="guard" x="-68" y="-238">curr_car &gt;= (N-1)</label>
 			<label kind="synchronisation" x="-68" y="-221">DoneRerouting!</label>
 		</transition>
 		<transition controllable="false">
-			<source ref="id11"/>
-			<target ref="id7"/>
+			<source ref="id10"/>
+			<target ref="id6"/>
 			<label kind="guard" x="-450" y="-8">curr_car &lt; (N-1)</label>
 			<label kind="assignment" x="-450" y="-25">curr_car++</label>
 			<nail x="-110" y="-25"/>
 			<nail x="-748" y="-25"/>
 		</transition>
 		<transition controllable="false">
-			<source ref="id10"/>
-			<target ref="id11"/>
+			<source ref="id9"/>
+			<target ref="id10"/>
 		</transition>
 		<transition>
-			<source ref="id8"/>
-			<target ref="id10"/>
+			<source ref="id7"/>
+			<target ref="id9"/>
 			<nail x="-544" y="-102"/>
 		</transition>
 		<transition>
-			<source ref="id8"/>
-			<target ref="id9"/>
+			<source ref="id7"/>
+			<target ref="id8"/>
 		</transition>
 		<transition controllable="false">
-			<source ref="id6"/>
-			<target ref="id7"/>
+			<source ref="id5"/>
+			<target ref="id6"/>
 			<label kind="synchronisation" x="-867" y="-221">Reroute?</label>
 		</transition>
 	</template>
