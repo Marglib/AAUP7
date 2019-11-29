@@ -142,7 +142,7 @@ $ python3 Runnerscript.py --sumocfg SUMOfiles/ConfigMasterFile.sumocfg --expid 1
 * `--expid` - should be set according to the ID's in the [Experiment ID's section](#experiment-ids) 
 * `--controller` - The controller parameter should be set to the controller you want to run. [See the controller section](#controllers) for an overview of possible controllers.
 * `sumocfg`- The config file to use for the run. **Ensure that the config file is using the correct tripfile and netfile**
-* `--trafficlight` - The trafficlight parameter should be set to the traffic light you want to use. [See the traffic light section](#traffic lights) for an overview of possible traffic lights.
+* `--trafficlight` - The trafficlight parameter should be set to the traffic light you want to use. [See the traffic light section](#traffic_lights) for an overview of possible traffic lights.
 
 
 
