@@ -50,6 +50,7 @@ def run(options):
     step = 0
     ListOfCarsPlaceholder = []
     amountOfReroutes = 0
+    amountOfSuggestedReroutes = 0
     totalTeleports = 0
     totalRouteDif = 0
     newRoutes = []
@@ -212,8 +213,10 @@ def run(options):
                 for car in newRoutes:
                     car.update_route()
                     if car.rerouted:
-                        amountOfReroutes += 1
+                        amountOfSuggestedReroutes += 1
                         totalRouteDif += car.routeChange
+                        if(car.choice):
+                            amountOfReroutes += 1
                         
 
                 newRoutes = [car for car in newRoutes if not car.rerouted]
@@ -244,6 +247,7 @@ def run(options):
             ListOfCarsPlaceholder = list(CarsInNetworkList)
         totalTeleports += traci.simulation.getEndingTeleportNumber()
         if (amountOfReroutes > 0):
+            print("Amount of suggested reroutes so far: " + str(amountOfSuggestedReroutes))
             print("Amount of reroutes so far: " + str(amountOfReroutes))
         print("Amount of teleports so far: " + str(totalTeleports))
         traci.simulationStep()
