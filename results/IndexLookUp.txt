@@ -18,22 +18,22 @@ The indeces for the different experiments:
     #610-614 - No nothing
 
 #4000-4099 - Smart traffic lights and simple Uppaal implementation - Old Controller
-    #4000-4020 - All results for smart tl and TrafficNetworkController
+    #4000-4020 (4178-4180)- All results for smart tl and TrafficNetworkController
         #4000-4002 - Load 1000-2000 - smartroute
         #4003-4005 - Load 2000-2000 - smartroute
         #4006-4008 - Load 2500-2000 - smartroute
         #4009-4011 - Load 3000-2000 - smartroute
         #4012-4014 - Load 3500-2000 - smartroute
         #4015-4017 - Load 4000-2000 - smartroute
-        #4018-4020 - Load 5000-2000 - smartroute - No results
-    #4021 - 4041 - All results for TrafficNetworkController and default trafficlights
+        #4178-4180 - Load 5000-2000 - smartroute OBS OBS OBS
+    #4021 - 4041 (4181-4183) - All results for TrafficNetworkController and default trafficlights
         #4021-4023 - Load 1000-2000 - route
         #4024-4026 - Load 2000-2000 - route
         #4027-4029 - Load 2500-2000 - route
         #4030-4032 - Load 3000-2000 - route
         #4033-4035 - Load 3500-2000 - route
         #4036-4038 - Load 4000-2000 - route
-        #4039-4041 - Load 5000-2000 - route - No results
+        #4181-4183 - Load 5000-2000 - route OBS OBS OBS
     #4042 - 4062 - All results for smart trafficlights and default controller
         #4042-4044 - Load 1000-2000 - smart
         #4045-4047 - Load 2000-2000 - smart
