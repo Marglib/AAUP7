@@ -16,6 +16,7 @@ The indeces for the different experiments:
     #600-604 - No controller & smart trafficlight
     #605-609 - TNC & smart trafficlight
     #610-614 - No nothing
+    #630 - 4000-2000 new controller (no roads closing consider 2 ahead for reroute)
 
 #4000-4099 - Smart traffic lights and simple Uppaal implementation - Old Controller
     #4000-4020 (4178-4180)- All results for smart tl and TrafficNetworkController
