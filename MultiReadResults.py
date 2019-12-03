@@ -49,7 +49,9 @@ def prep_table(frame, destFileString):
     frame = frame.drop(['ExperimentID', 'AverageQueueLengthExp', 'maxQueueLengthExp','95thPercentileLengthExp'], axis=1)
     frame = frame.drop(['mean', 'max'], axis=0)
     frame = frame.rename(columns={"AverageDuration" : "ATT", "AverageTimeLoss":"AD", "AverageWaitingTime":"AWT", "AverageQueueLength":"AQL", "maxDuration":"MTT", "maxTimeLoss":"MD", "maxWaitingTime":"MWT", "maxQueueLength":"MQL","95thPercentileLength":"95%"})
-    frame.to_csv(os.path.splitext(destFileString)[0] + "_latexrdy.csv")
+    
+    #Comment in if you want it in a csv file
+    #frame.to_csv(os.path.splitext(destFileString)[0] + "_latexrdy.csv")
 
     return frame
 
