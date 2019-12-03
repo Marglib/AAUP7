@@ -47,11 +47,44 @@ def get_stats(resultFiles, startID, endID):
 
 def prep_table(frame, destFileString):
     frame = frame.drop(['ExperimentID', 'AverageQueueLengthExp', 'maxQueueLengthExp','95thPercentileLengthExp'], axis=1)
+    frame = frame.drop(['mean', 'max'], axis=0)
     frame = frame.rename(columns={"AverageDuration" : "ATT", "AverageTimeLoss":"AD", "AverageWaitingTime":"AWT", "AverageQueueLength":"AQL", "maxDuration":"MTT", "maxTimeLoss":"MD", "maxWaitingTime":"MWT", "maxQueueLength":"MQL","95thPercentileLength":"95%"})
     frame.to_csv(os.path.splitext(destFileString)[0] + "_latexrdy.csv")
+
+    return frame
+
+def to_latex_table(frame):
+    latexTable = frame.to_latex(index=True)
+
+    #remove lines
+    latexTable = latexTable.replace("\\midrule", "")
+    latexTable = latexTable.replace("\\toprule", "")
+    latexTable = latexTable.replace("\\bottomrule", "")
+    #Add title row
+    latexTable = latexTable.replace("\\begin{tabular}{lrrrrrrrrr}", "\\begin{tabular}{lrrrrrrrrr}\n\\multicolumn{10}{c}{\\textbf{Title}}\\\\ \\hline")
+
+    #Make column names bold
+    latexTable = latexTable.replace("ATT", "\\textbf{ATT}")
+    latexTable = latexTable.replace("AD", "\\textbf{AD}")
+    latexTable = latexTable.replace("AWT", "\\textbf{AWT}")
+    latexTable = latexTable.replace("AQL", "\\textbf{AQL}")
+    latexTable = latexTable.replace("MTT", "\\textbf{MTT}")
+    latexTable = latexTable.replace("MD", "\\textbf{MD}")
+    latexTable = latexTable.replace("MWT", "\\textbf{MWT}")
+    latexTable = latexTable.replace("MQL", "\\textbf{MQL}")
+    latexTable = latexTable.replace("95\\%", "\\textbf{95\\%}")
+
+    #add begin{table} and end{table} + caption and label
+    latexTable = "\\begin{table}[H]\n\\centering\n" + latexTable + "\n\\caption{Caption}\n\\label{tab:my_table}\n\\end{table}"
+
+    print(latexTable)
+
+    
+
 
 
 if __name__ == "__main__":
     resultFiles, startID, endID = generate_multi_results()
     frame, destFileString = get_stats(resultFiles, startID, endID)
-    prep_table(frame, destFileString)
+    preppedFrame = prep_table(frame, destFileString)
+    to_latex_table(preppedFrame)
