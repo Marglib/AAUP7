@@ -8,10 +8,12 @@ import pandas as pd
 
 from ReadResultFile import generate_results
 
+destFileString = ""
+
 def generate_multi_results():
     resultFiles = []
     startID = 4178
-    endID = 4183
+    endID = 4180
     for i in range(startID,endID+1): #4000, 4084
         resultDestFile = "results/Results_" + str(i)+ ".csv"
         resultFiles.append(resultDestFile)
@@ -37,9 +39,19 @@ def get_stats(resultFiles, startID, endID):
     resultFrame.loc['mean'] = resultFrame.mean()
     resultFrame.loc['max'] = resultFrame.max()
     resultFrame = round(resultFrame,3)
+    
+    destFileString = "results/resultsMerge_start" + str(startID) + "_end" + str(endID)+ ".csv"
+    resultFrame.to_csv(destFileString)
 
-    resultFrame.to_csv("results/resultsMerge_start" + str(startID) + "_end" + str(endID)+ ".csv")
+    return resultFrame, destFileString
+
+def prep_table(frame, destFileString):
+    frame = frame.drop(['ExperimentID', 'AverageQueueLengthExp', 'maxQueueLengthExp','95thPercentileLengthExp'], axis=1)
+    frame = frame.rename(columns={"AverageDuration" : "ATT", "AverageTimeLoss":"AD", "AverageWaitingTime":"AWT", "AverageQueueLength":"AQL", "maxDuration":"MTT", "maxTimeLoss":"MD", "maxWaitingTime":"MWT", "maxQueueLength":"MQL","95thPercentileLength":"95%"})
+    frame.to_csv(os.path.splitext(destFileString)[0] + "_latexrdy.csv")
+
 
 if __name__ == "__main__":
     resultFiles, startID, endID = generate_multi_results()
-    get_stats(resultFiles, startID, endID)
+    frame, destFileString = get_stats(resultFiles, startID, endID)
+    prep_table(frame, destFileString)
