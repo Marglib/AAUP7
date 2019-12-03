@@ -3,10 +3,15 @@
 <configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/sumoConfiguration.xsd">
 
     <input>
+<<<<<<< HEAD
         <net-file value="MasterNetFile10.net.xml"/>
         <route-files value="/home/thomas/AAUP7/SUMOfiles/ExperimentSUMOfiles/trip5000-2000-2.rou.xml"/>
+=======
+        <net-file value="MasterNetFile.net.xml"/>
+        <route-files value="ExperimentSUMOfiles/trip5000-2000-3.rou.xml"/>
+>>>>>>> b4203b144082386d1da6d7910bed2a98ccd78f59
         <gui-settings-file value="GuiFile.set.xml"/>
-        <additional-files value="reRouteTest.set.xml"/>
+        <!--<additional-files value="reRouteTest.set.xml"/>-->
     </input>
 
     <time>
