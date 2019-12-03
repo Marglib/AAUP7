@@ -120,6 +120,16 @@ The indeces for the different experiments:
         #4296-4298 - Load 3500-2000 - none
         #4299-4301 - Load 4000-2000 - none
         #4302-4304 - Load 5000-2000 - none
+    #Missing jobs
+	#4218 - config19
+	#4219 - config20
+	#4220 - config21
+	#4228 - config8
+	#4232 - config12
+	#4236 - config16
+	#4239 - config19
+	#4240 - config20
+	#4241 - config21
 
 
 
