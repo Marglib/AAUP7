@@ -142,13 +142,14 @@ def run(options, command):
     if options.controller == "TrafficNetworkController":
         dom = minidom.parse(options.sumocfg)
         rerouterTag = dom.getElementsByTagName("additional-files")
-        rerouteFileName = rerouterTag[0].getAttribute("value")
-        nameForCSV = rerouteFileName.split(".")[0]
-        print(get_directory() + nameForCSV + ".csv")
+        if len(rerouterTag) > 0:
+            rerouteFileName = rerouterTag[0].getAttribute("value")
+            nameForCSV = rerouteFileName.split(".")[0]
+            print(get_directory() + nameForCSV + ".csv")
         
-        with open(get_directory() + nameForCSV + ".csv", 'r') as f:
-            reader = csv.reader(f)
-            closingEdgeInfo = list(reader)
+            with open(get_directory() + nameForCSV + ".csv", 'r') as f:
+                reader = csv.reader(f)
+                closingEdgeInfo = list(reader)
     #--------------------------------END-------------------------------------------------
     print("Starting simulation expid=" + str(options.expid))
 
