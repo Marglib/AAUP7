@@ -12,8 +12,8 @@ destFileString = ""
 
 def generate_multi_results():
     resultFiles = []
-    startID = 4178
-    endID = 4180
+    startID = 4284
+    endID = 4304
     for i in range(startID,endID+1): #4000, 4084
         resultDestFile = "results/Results_" + str(i)+ ".csv"
         resultFiles.append(resultDestFile)
@@ -46,8 +46,12 @@ def get_stats(resultFiles, startID, endID):
     return resultFrame, destFileString
 
 def prep_table(frame, destFileString):
+
+    #Drops useless columns and rows
     frame = frame.drop(['ExperimentID', 'AverageQueueLengthExp', 'maxQueueLengthExp','95thPercentileLengthExp'], axis=1)
     frame = frame.drop(['mean', 'max'], axis=0)
+
+    #Rename to what we use in the paper
     frame = frame.rename(columns={"AverageDuration" : "ATT", "AverageTimeLoss":"AD", "AverageWaitingTime":"AWT", "AverageQueueLength":"AQL", "maxDuration":"MTT", "maxTimeLoss":"MD", "maxWaitingTime":"MWT", "maxQueueLength":"MQL","95thPercentileLength":"95%"})
     
     #Comment in if you want it in a csv file
