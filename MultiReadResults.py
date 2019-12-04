@@ -14,7 +14,7 @@ def generate_multi_results():
     resultFiles = []
     startID = 4284
     endID = 4304
-    for i in range(startID,endID+1): #4000, 4084
+    for i in range(startID,endID+1):
         resultDestFile = "results/Results_" + str(i)+ ".csv"
         resultFiles.append(resultDestFile)
         generate_results(resultDestFile, "results/tripinfo" + str(i) + ".xml", "results/queueinfo" + str(i) + ".xml", i)
@@ -38,7 +38,8 @@ def get_stats(resultFiles, startID, endID):
     resultFrame = pd.DataFrame(results)
     resultFrame.loc['mean'] = resultFrame.mean()
     resultFrame.loc['max'] = resultFrame.max()
-    resultFrame = round(resultFrame,3)
+    #1 significant digit
+    resultFrame = round(resultFrame,1)
     
     destFileString = "results/resultsMerge_start" + str(startID) + "_end" + str(endID)+ ".csv"
     resultFrame.to_csv(destFileString)
