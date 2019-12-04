@@ -79,6 +79,7 @@ def to_latex_table(frame):
     latexTable = latexTable.replace("MWT", "\\textbf{MWT}")
     latexTable = latexTable.replace("MQL", "\\textbf{MQL}")
     latexTable = latexTable.replace("95\\%", "\\textbf{95\\%}")
+    latexTable = latexTable.replace("\\end{tabular}", "\\hline\\end{tabular}")
 
     #add begin{table} and end{table} + caption and label
     latexTable = "\\begin{table}[H]\n\\centering\n" + latexTable + "\n\\caption{Caption}\n\\label{tab:my_table}\n\\end{table}"
