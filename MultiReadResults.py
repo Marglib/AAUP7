@@ -12,9 +12,9 @@ destFileString = ""
 
 def generate_multi_results():
     resultFiles = []
-    startID = 4178
-    endID = 4180
-    for i in range(startID,endID+1): #4000, 4084
+    startID = 4284
+    endID = 4304
+    for i in range(startID,endID+1):
         resultDestFile = "results/Results_" + str(i)+ ".csv"
         resultFiles.append(resultDestFile)
         generate_results(resultDestFile, "results/tripinfo" + str(i) + ".xml", "results/queueinfo" + str(i) + ".xml", i)
@@ -38,7 +38,8 @@ def get_stats(resultFiles, startID, endID):
     resultFrame = pd.DataFrame(results)
     resultFrame.loc['mean'] = resultFrame.mean()
     resultFrame.loc['max'] = resultFrame.max()
-    resultFrame = round(resultFrame,3)
+    #1 significant digit
+    resultFrame = round(resultFrame,1)
     
     destFileString = "results/resultsMerge_start" + str(startID) + "_end" + str(endID)+ ".csv"
     resultFrame.to_csv(destFileString)
@@ -46,8 +47,12 @@ def get_stats(resultFiles, startID, endID):
     return resultFrame, destFileString
 
 def prep_table(frame, destFileString):
+
+    #Drops useless columns and rows
     frame = frame.drop(['ExperimentID', 'AverageQueueLengthExp', 'maxQueueLengthExp','95thPercentileLengthExp'], axis=1)
     frame = frame.drop(['mean', 'max'], axis=0)
+
+    #Rename to what we use in the paper
     frame = frame.rename(columns={"AverageDuration" : "ATT", "AverageTimeLoss":"AD", "AverageWaitingTime":"AWT", "AverageQueueLength":"AQL", "maxDuration":"MTT", "maxTimeLoss":"MD", "maxWaitingTime":"MWT", "maxQueueLength":"MQL","95thPercentileLength":"95%"})
     
     #Comment in if you want it in a csv file
@@ -75,6 +80,7 @@ def to_latex_table(frame):
     latexTable = latexTable.replace("MWT", "\\textbf{MWT}")
     latexTable = latexTable.replace("MQL", "\\textbf{MQL}")
     latexTable = latexTable.replace("95\\%", "\\textbf{95\\%}")
+    latexTable = latexTable.replace("\\end{tabular}", "\\hline\\end{tabular}")
 
     #add begin{table} and end{table} + caption and label
     latexTable = "\\begin{table}[H]\n\\centering\n" + latexTable + "\n\\caption{Caption}\n\\label{tab:my_table}\n\\end{table}"
