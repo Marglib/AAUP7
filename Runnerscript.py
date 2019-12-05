@@ -206,10 +206,19 @@ def run(options):
                     rerouteVal = check_reroute(car,closedEdges, 2)
                     Cars.append([car, get_route_nodes(car), get_time_on_edge(car), rerouteVal])
                 
-                if(step % 10 == 0 and step > 370):      
+                if(step % 10 == 0):      
                     for car in newRoutes:
-                        car.kill()              
-                    newRoutes = modelCaller(mainModel, mainQuery, options.expid, step, Cars, networkGraph, networkNodes, closedEdges)
+                        car.kill()
+                    newRoutes = []
+                    if options.partition >= 1:
+                        partitions = create_partitions(Cars)
+                        for i in range(0,len(partitions)):          
+                            partNewRoutes = modelCaller(mainModel, mainQuery, options.expid, step, partitions[i], networkGraph, networkNodes, closedEdges)
+                            newRoutes = newRoutes + partNewRoutes
+                            if i != (len(partitions) - 1):
+                                partitions[i+1] = update_next_partition(newRoutes, partitions[i+1])
+                    else:
+                        newRoutes = modelCaller(mainModel, mainQuery, options.expid, step, Cars, networkGraph, networkNodes, closedEdges)
 
                 for car in newRoutes:
                     car.update_route()
@@ -306,6 +315,41 @@ def nodestuples_to_edges(nodes):
         edge = nodes[i][0] + "-" + nodes[i][1]
         edges.append(edge)
     return edges
+
+def create_partitions(cars):
+    flaggedCars = []
+    partitions = []
+    j = 0
+
+    #Find all cars that are flagged for reroute
+    for i in range(0,len(cars)):
+        if cars[i][3] in {1,2}:
+            flaggedCars.append(cars[i])
+
+    currFlagged = []
+    carsCopy = cars
+    for i in range(0,len(cars)):
+        if cars[i][3] in flaggedCars:
+            currFlagged.append(cars[i])
+            j += 1
+        #Creates partition of the option parsed in
+        if j % options.partition == 0:
+            for car in cars:
+                if car not in currFlagged:
+                    carsCopy[i][3] = 0
+
+            partitions.append(carsCopy)
+            currFlagged = []
+            carsCopy = cars
+    return partitions
+
+def update_next_partition(newRoutes, partition):
+    newParr = partition
+    for i in range(0,len(partition)):
+        for car in newRoutes:
+            if partition[i][0] == car.pid:
+                newParr[i][3] = car.newRoute
+    return newParr
 
 def find_k_shortest_paths(G, source, target, k):
     return list(islice(nx.shortest_simple_paths(G, source, target, weight='weight'), k))
@@ -440,6 +484,7 @@ def get_options():
     optParser.add_option("--load", type="string", dest="load",default="0")
     optParser.add_option("--controller", type="string", dest="controller",default="default")
     optParser.add_option("--trafficlight", type="string", dest="trafficlight",default="traditional")
+    optParser.add_option("--partition", type="int", dest="partition",default="0")
     options, args = optParser.parse_args()
     return options
 

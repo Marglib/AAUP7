@@ -47,7 +47,7 @@ def runModel(com, args, query, simStep):
     #out = f.read()
     return out
 
-def modelCaller(model,query,expId,simStep,cars, networkGraph, nodePositions, closedEdges):
+def modelCaller(model,query,expId,simStep,cars,networkGraph,nodePositions,closedEdges):
     newModel = createModel(model,expId,simStep,cars, networkGraph, nodePositions, closedEdges)
     newQuery = createQuery(query,cars,nodePositions,expId)
     veri = VP.veri

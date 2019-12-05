@@ -19,16 +19,17 @@ class car:
         self.pid = pid
         self.listOfReroutes = listOfReroutes
         self.currRoute = currRouteIn
+        self.newRoute = self.create_route()
         self.rerouted = False
         self.routeChange = 0 #Used to check the difference between the currroute and the newroute
         self.choice = self.decision(0.9)
     
-    def update_route(self):
-        newRoute = self.currRoute 
-
+    def create_route(self):
         for i in range(0,len(self.listOfReroutes)):
-            newRoute[self.listOfReroutes[i][0]] = self.listOfReroutes[i][1]
-        newRoute = [x for x in newRoute if x != -1]
+            self.newRoute[self.listOfReroutes[i][0]] = self.listOfReroutes[i][1]
+    
+    def update_route(self):
+        self.newRoute = [x for x in self.newRoute if x != -1]
         currRouteLen = len([x for x in self.currRoute if x != -1])
         
         newRouteAsEdges = self.nodes_to_edges(newRoute[traci.vehicle.getRouteIndex(self.pid):])
