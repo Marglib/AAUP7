@@ -1,2 +1,2 @@
-AverageDuration,AverageTimeLoss,AverageWaitingTime,AverageQueueLength,AverageQueueLengthExp,maxDuration,maxTimeLoss,maxWaitingTime,maxQueueLength,maxQueueLengthExp,95thPercentileLength,95thPercentileLengthExp
-379.9485,271.6893200000002,175.2425,42.82486260633315,44.942343220651985,1230.0,1113.0,828.0,392.6,299.6,193.6,230.15
+ExperimentID,AverageDuration,AverageTimeLoss,AverageWaitingTime,AverageQueueLength,AverageQueueLengthExp,maxDuration,maxTimeLoss,maxWaitingTime,maxQueueLength,maxQueueLengthExp,95thPercentileLength,95thPercentileLengthExp,CO2
+312,262.1715,186.36414999999957,123.1855,32.084018208902314,32.6494800439931,871.0,770.88,581.0,192.7,149.58,182.755,147.52,2.5347998876202515
