@@ -1,4 +1,4 @@
-# Rerouting Controller for Urban Traffic #
+# Rerouting Model for Urban Traffic #
 
 This project consists of a [Uppaal](http://www.uppaal.org/) model for rerouting vehicles and a [SUMO](https://www.dlr.de/ts/en/desktopdefault.aspx/tabid-9883/16931_read-41000/) simulation of urban traffic to test the rerouting.
 
