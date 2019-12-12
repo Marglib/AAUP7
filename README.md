@@ -57,7 +57,7 @@ $ python3 TripGenerator.py --trips 50 --time 50 --useProbFile --edgeFile ~/AAUP7
 
 
 ### Creating verifierpath.py
-In order to be able to run the simulation you must first create a file name verifierpath.py in the AAUP7 folder. This file should contain the following information
+In order to be able to run the simulation you must first create a file name verifierpath.py in the AAUP7 folder. This file should contain the following:
 
 ```
 import sys
