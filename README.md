@@ -56,6 +56,18 @@ $ python3 TripGenerator.py --trips 50 --time 50 --useProbFile --edgeFile ~/AAUP7
 * `-o` - The name of the generated tripfile 
 
 
+### Creating verifierpath.py
+In order to be able to run the simulation you must first create a file name verifierpath.py in the AAUP7 folder. This file should contain the following information
+
+```
+import sys
+import os
+from os.path import expanduser
+
+veri = '/path/to/uppaal64-4.1.20-stratego-6/bin-Linux/verifyta'
+veriStratego = '/path/to/uppaal-stratego-4-1-20-3/bin-Linux/verifyta'
+```
+
 ### Running the simulation
 
 To run the simulation make sure you are withing the AAUP7 folder and run the following command
