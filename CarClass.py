@@ -25,14 +25,16 @@ class car:
         self.choice = self.decision(0.9)
     
     def create_route(self):
+        localNewRoute = self.currRoute
         for i in range(0,len(self.listOfReroutes)):
-            self.newRoute[self.listOfReroutes[i][0]] = self.listOfReroutes[i][1]
+            localNewRoute[self.listOfReroutes[i][0]] = self.listOfReroutes[i][1]
+        return localNewRoute
     
     def update_route(self):
         self.newRoute = [x for x in self.newRoute if x != -1]
         currRouteLen = len([x for x in self.currRoute if x != -1])
         
-        newRouteAsEdges = self.nodes_to_edges(newRoute[traci.vehicle.getRouteIndex(self.pid):])
+        newRouteAsEdges = self.nodes_to_edges(self.newRoute[traci.vehicle.getRouteIndex(self.pid):])
         try:
             if self.choice:
                 traci.vehicle.setRoute(self.pid,newRouteAsEdges)
@@ -40,7 +42,7 @@ class car:
             else:
                 print("The car chose not to follow the suggested route")
             self.rerouted = True
-            self.routeChange = abs(len(newRoute) - currRouteLen)
+            self.routeChange = abs(len(self.newRoute) - currRouteLen)
         except:
             print("Could not reroute car " + str(self.pid) + "with route " + str(newRouteAsEdges))      
 
@@ -58,6 +60,8 @@ class car:
         print("pid:" + str(self.pid))
         print("reroutes:" + str(self.listOfReroutes))
         print("currRoute:" + str(self.currRoute))
+        print("New Route: " + str(self.newRoute))
+        print("Decision: " + str(self.choice))
 
     def kill(self):
         del self

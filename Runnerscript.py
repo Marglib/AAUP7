@@ -200,23 +200,31 @@ def run(options):
             if len(CarsInNetworkList) > 0:
                 Cars = []
                 networkNodes = []
+                rerouteNum = 0
                 update_time_on_edge(CarsInNetworkList)
                 for id in NodeIDs:
                     networkNodes.append([id[1:], traci.junction.getPosition(id)])
                 for car in CarsInNetworkList:
                     rerouteVal = check_reroute(car,closedEdges, 2)
                     Cars.append([car, get_route_nodes(car), get_time_on_edge(car), rerouteVal])
-                
+                    if rerouteVal != 0:
+                        rerouteNum += 1
+
+                print("Num reroutes: " + str(rerouteNum))
+
                 if(step % 10 == 0):      
                     for car in newRoutes:
                         car.kill()
                     newRoutes = []
                     if options.partition >= 1:
                         partitions = create_partitions(Cars)
-                        for i in range(0,len(partitions)):          
+                        print(len(partitions))
+                        for i in range(0,len(partitions)):       
                             partNewRoutes = modelCaller(mainModel, mainQuery, options.expid, step, partitions[i], networkGraph, networkNodes, closedEdges)
                             newRoutes = newRoutes + partNewRoutes
                             if i != (len(partitions) - 1):
+                                for car in newRoutes:
+                                    car.to_string()
                                 partitions[i+1] = update_next_partition(newRoutes, partitions[i+1])
                     else:
                         newRoutes = modelCaller(mainModel, mainQuery, options.expid, step, Cars, networkGraph, networkNodes, closedEdges)
@@ -328,29 +336,38 @@ def create_partitions(cars):
             flaggedCars.append(cars[i])
 
     currFlagged = []
-    carsCopy = cars
+    carsCopy = copy.deepcopy(cars)
     for i in range(0,len(cars)):
-        if cars[i][3] in flaggedCars:
+        if cars[i] in flaggedCars:
             currFlagged.append(cars[i])
             j += 1
         #Creates partition of the option parsed in
-        if j % options.partition == 0:
-            for car in cars:
-                if car not in currFlagged:
-                    carsCopy[i][3] = 0
-
+        if j == options.partition:
+            carsCopy = set_flags(carsCopy, cars, currFlagged)
             partitions.append(carsCopy)
             currFlagged = []
-            carsCopy = cars
+            carsCopy = copy.deepcopy(cars)
+            j = 0
+    if(len(currFlagged) > 0):
+        carsCopy = set_flags(carsCopy,cars,currFlagged)
+        partitions.append(carsCopy)
+
     return partitions
 
+def set_flags(carsCopy, cars, currFlagged):
+    for i in range(0,len(cars)):
+        if cars[i] not in currFlagged:
+            carsCopy[i][3] = 0
+        else:
+            carsCopy[i][3] = cars[i][3]
+    return carsCopy
+
 def update_next_partition(newRoutes, partition):
-    newParr = partition
     for i in range(0,len(partition)):
         for car in newRoutes:
             if partition[i][0] == car.pid:
-                newParr[i][3] = car.newRoute
-    return newParr
+                partition[i][1] = car.newRoute
+    return partition
 
 def find_k_shortest_paths(G, source, target, k):
     return list(islice(nx.shortest_simple_paths(G, source, target, weight='weight'), k))
