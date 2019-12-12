@@ -1,0 +1,2 @@
+ExperimentID,AverageDuration,AverageTimeLoss,AverageWaitingTime,AverageQueueLength,AverageQueueLengthExp,maxDuration,maxTimeLoss,maxWaitingTime,maxQueueLength,maxQueueLengthExp,95thPercentileLength,95thPercentileLengthExp
+4217,208.086,105.53677749999983,62.582,18.82156788891007,21.742403576356683,889.0,780.47,710.0,295.86,143.64,66.01,66.01

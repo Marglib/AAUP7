@@ -1,0 +1,486 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
+<nta>
+	<declaration>// Place global declarations here.
+const int nodes = //HOLDER_NUMBER_OF_NODES
+const int numEdges = //HOLDER_NUMBER_OF_EDGES
+//HOLDER_NUMBER_OF_CARS
+const int pid[N] = //HOLDER_CAR_PID 
+const int route[N][nodes] = //HOLDER_CAR_ROUTE 
+//HOLDER_NODE_POSITIONS
+
+typedef int[0,nodes] node_t;
+
+
+//HOLDER_EDGES
+
+int edges[numEdges][2]; //could not assign values to array when it had type double
+
+int currentCar = 0;
+int uniquetest = 0;
+int edgeIds[numEdges];
+int firstIntermediateNode = 46;
+
+typedef int[0, N-1] id_car;
+
+chan Reroute[N], RouteSet;
+
+
+int NodesToUniqueInt(int fromNode, int toNode)
+{
+    int x = 0;
+    if (fromNode &gt;= toNode)
+    {
+        x = fromNode * fromNode + fromNode + toNode;
+    }
+    else
+    {
+        x = fromNode + toNode * toNode;
+    }
+    return x;
+}
+
+int GetEdgeId(int fromNode, int toNode)
+{
+    int unique = NodesToUniqueInt(fromNode, toNode);
+    int i = 0;
+    uniquetest = unique;
+    while(i &lt; (numEdges-1) &amp;&amp; unique != edgeIds[i])
+    {
+        i++;
+    }
+    return i;
+}</declaration>
+	<template>
+		<name x="5" y="5">Simulator</name>
+		<declaration>// Place local declarations here.
+
+
+
+
+int CarDone = 0;
+int AllCarsDone = 0;
+int RerouteCar = 0;
+
+
+
+
+void Constructor()
+{
+    int i;
+    for(i = 0; i &lt; 60; i++)
+    {
+        edgeIds[i] = NodesToUniqueInt(networkEdges[i][0], networkEdges[i][1]);
+        edgeIds[60+i] = NodesToUniqueInt(networkEdges[i][1], networkEdges[i][0]);
+    }
+
+    for(i = 0; i &lt; 120; i++)
+    {
+        edges[i][1] = 10; 
+    }
+}
+
+void CheckReroute()
+{
+    int carRoute[nodes] = route[currentCar];
+    int i = 0;
+
+    while (carRoute[i+1] != -1 &amp;&amp; RerouteCar == 0)
+    {
+        int fromNode = carRoute[i];
+        int toNode = carRoute[i+1];
+        int edgeId = 0;
+        int edgeWeight = 0;
+        int edgeCriticalWeight = 0;
+        
+
+        // ensure that the nodes are not intermediate nodes
+        if(fromNode &gt;= firstIntermediateNode)
+        {
+            fromNode = carRoute[i-1];
+        }
+
+        if(toNode &gt;= firstIntermediateNode)
+        {
+            toNode = carRoute[i+1];
+        }
+
+        edgeId = GetEdgeId(fromNode, toNode);
+
+        edgeWeight = edges[edgeId][0];
+        edgeCriticalWeight = edges[edgeId][1];
+
+        if(edgeWeight &gt; edgeCriticalWeight)
+        {
+            RerouteCar = 1;
+        }
+
+        i++;
+    }
+
+
+}
+
+void AddRouteWeight() 
+{
+    int carRoute[nodes] = route[currentCar];
+    int i = 0;
+
+    while (carRoute[i+1] != -1)
+    {
+        int fromNode = carRoute[i];
+        int toNode = carRoute[i+1];
+        int edgeId = 0;        
+
+        // ensure that the nodes are not intermediate nodes
+        if(fromNode &gt;= firstIntermediateNode)
+        {
+            fromNode = carRoute[i-1];
+        }
+
+        if(toNode &gt;= firstIntermediateNode)
+        {
+            toNode = carRoute[i+1];
+        }
+
+        edgeId = GetEdgeId(fromNode, toNode);
+
+        edges[edgeId][0] += 1 ;
+
+        i++;
+    }
+
+    if(currentCar == (N-1))
+    {
+        AllCarsDone = 1;
+    }
+
+}</declaration>
+		<location id="id0" x="-909" y="-187">
+			<name x="-919" y="-221">InitSate</name>
+		</location>
+		<location id="id1" x="-748" y="-187">
+			<name x="-758" y="-221">GetRoute</name>
+		</location>
+		<location id="id2" x="-323" y="-187">
+			<name x="-333" y="-221">UpdateWeights</name>
+		</location>
+		<location id="id3" x="-93" y="-187">
+			<name x="-153" y="-221">CheckDone</name>
+		</location>
+		<location id="id4" x="187" y="-187">
+			<name x="177" y="-221">End</name>
+		</location>
+		<location id="id5" x="-586" y="-187">
+		</location>
+		<location id="id6" x="-467" y="-289">
+			<name x="-501" y="-323">Rerouting</name>
+		</location>
+		<init ref="id0"/>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id2"/>
+			<label kind="guard" x="-518" y="-178">RerouteCar == 0</label>
+		</transition>
+		<transition controllable="false">
+			<source ref="id6"/>
+			<target ref="id2"/>
+			<label kind="synchronisation" x="-408" y="-272">RouteSet?</label>
+		</transition>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id6"/>
+			<label kind="guard" x="-663" y="-289">RerouteCar == 1</label>
+			<label kind="synchronisation" x="-680" y="-272">Reroute[currentCar]!</label>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id5"/>
+			<label kind="assignment" x="-730" y="-187">CheckReroute()</label>
+		</transition>
+		<transition controllable="false">
+			<source ref="id3"/>
+			<target ref="id4"/>
+			<label kind="guard" x="-85" y="-161">CarDone == 1 &amp;&amp; AllCarsDone == 1</label>
+		</transition>
+		<transition controllable="false">
+			<source ref="id3"/>
+			<target ref="id1"/>
+			<label kind="guard" x="-561" y="-8">CarDone == 1 &amp;&amp; AllCarsDone == 0</label>
+			<label kind="assignment" x="-493" y="25">currentCar++,
+CarDone = 0</label>
+			<nail x="-93" y="17"/>
+			<nail x="-748" y="17"/>
+		</transition>
+		<transition controllable="false">
+			<source ref="id2"/>
+			<target ref="id3"/>
+			<label kind="assignment" x="-272" y="-178">CarDone = 1,
+RerouteCar = 0,
+AddRouteWeight()</label>
+		</transition>
+		<transition controllable="false">
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="assignment" x="-891" y="-187">Constructor()</label>
+		</transition>
+	</template>
+	<template>
+		<name>Rerouter</name>
+		<declaration>int connectingNodes[3];
+
+int getNodePosition(int node, int position[2])
+{
+    int i = 0;
+
+    while(i &lt; (nodes-1) &amp;&amp; node != nodePositions[i][0])
+    {
+        i++;
+    }
+
+    position[0] = nodePositions[i][1];
+    position[1] = nodePositions[i][2];
+
+    return 1;
+} 
+
+void getConnectingNodes(int node)
+{
+    int i = 0;
+    int foundNodes = 0;
+    int edge[2];
+    connectingNodes[0] = 0;
+    connectingNodes[1] = 0;
+    connectingNodes[2] = 0;
+
+    for(i = 0; i &lt; 60; i++)
+    {
+        edge = networkEdges[i];
+        if(edge[0] == node)
+        {
+            connectingNodes[foundNodes] = edge[1];
+            foundNodes++;
+        }
+        else if(edge[1] == node)
+        {
+            connectingNodes[foundNodes] = edge[0];
+            foundNodes++;
+        }
+    }
+
+}
+
+void SimpleRerouting(int destNode)
+{
+    int carRoute[nodes] = route[currentCar];
+    int destPosition[2];
+    int rerouting = 0;
+    int i, curNode;
+    int toNodeFlag = 0;
+    int x = 0; //used to get rid of warning
+    int position[2] = {0,0};
+    int edgeId = 0, edgeWeight = 0, edgeCriticalWeight = 0;
+    int j,y = 0;
+    int bestConnection = 0;
+    int cNodeWeights[3] = {0,0,0};
+
+    while (carRoute[i+1] != -1 &amp;&amp; !rerouting)
+    {
+        int fromNode = carRoute[i];
+        int toNode = carRoute[i+1];
+        int edgeId = 0;
+        int edgeWeight = 0;
+        int edgeCriticalWeight = 0;
+       
+        toNodeFlag = 0;
+
+        // ensure that the nodes are not intermediate nodes
+        if(fromNode &gt;= firstIntermediateNode)
+        {
+            fromNode = carRoute[i-1];
+        }
+
+        if(toNode &gt;= firstIntermediateNode)
+        {
+            toNode = carRoute[i+2];
+            toNodeFlag = 1;
+        }
+
+        edgeId = GetEdgeId(fromNode, toNode);
+
+        edgeWeight = edges[edgeId][0];
+        edgeCriticalWeight = edges[edgeId][1];
+
+        if(edgeWeight &gt; edgeCriticalWeight)
+        {
+            rerouting = 1;
+            curNode = fromNode;
+        }
+            
+        i++;
+    }
+
+
+
+    x = getNodePosition(destNode, destPosition);
+
+    while (curNode != destNode)
+    {
+        position[0] = 0;
+        position[1] = 0;
+        edgeId = 0;
+        edgeWeight = 0; 
+        edgeCriticalWeight = 0;
+        j = 0;
+        bestConnection = 0;
+        cNodeWeights[0] = 0;
+        cNodeWeights[1] = 0;
+        cNodeWeights[2] = 0;
+        getConnectingNodes(curNode);
+        
+        for (j = 0; j &lt; 3; j++)
+        {
+            y = 0;
+            y = getNodePosition(connectingNodes[j], position);
+            cNodeWeights[j] = abs(destPosition[0] + position[0]) + abs(destPosition[1] - position[1]);
+
+            edgeId = GetEdgeId(curNode, connectingNodes[j]);
+
+            edgeWeight = edges[edgeId][0];
+            edgeCriticalWeight = edges[edgeId][1];
+
+            cNodeWeights[j] = cNodeWeights[j] + (edgeWeight - edgeCriticalWeight);
+            
+            if( cNodeWeights[j] &lt;  cNodeWeights[bestConnection])
+            {
+                bestConnection = j;
+            }
+
+        } 
+        
+        carRoute[i + 1 + toNodeFlag] = connectingNodes[bestConnection];
+        curNode = connectingNodes[bestConnection];
+        i++;
+        
+        
+    }
+}
+
+
+void ChooseRoute(int strategy)
+{
+    int carRoute[nodes] = route[currentCar];
+    int i = 0;
+    int destNode;
+
+    if(strategy == 1)
+    {
+        i = 0;
+        while (i &lt; (nodes-1) &amp;&amp; carRoute[i+1] != -1)
+        {            
+            i++;
+        }
+
+        destNode = carRoute[i];
+
+        SimpleRerouting(destNode);
+        
+    }
+    else if (strategy == 2)
+    {
+        
+    }
+    else 
+    {
+        //dont reroute
+    }
+}
+
+
+
+</declaration>
+		<location id="id7" x="-450" y="-59">
+			<name x="-460" y="-93">InitState</name>
+		</location>
+		<location id="id8" x="-280" y="-59">
+			<name x="-331" y="-93">ComputeRoute</name>
+		</location>
+		<location id="id9" x="-127" y="-59">
+			<name x="-137" y="-93">SetRoute</name>
+		</location>
+		<location id="id10" x="25" y="-59">
+			<name x="15" y="-93">Done</name>
+		</location>
+		<location id="id11" x="-119" y="-153">
+			<name x="-129" y="-187">SetRouteSmart</name>
+		</location>
+		<location id="id12" x="-119" y="-229">
+			<name x="-129" y="-263">KeepRoute</name>
+		</location>
+		<init ref="id7"/>
+		<transition controllable="false">
+			<source ref="id9"/>
+			<target ref="id10"/>
+			<label kind="synchronisation" x="-109" y="-76">RouteSet!</label>
+		</transition>
+		<transition controllable="false">
+			<source ref="id11"/>
+			<target ref="id10"/>
+			<label kind="synchronisation" x="-101" y="-170">RouteSet!</label>
+			<nail x="-34" y="-153"/>
+		</transition>
+		<transition controllable="false">
+			<source ref="id12"/>
+			<target ref="id10"/>
+			<label kind="synchronisation" x="-101" y="-246">RouteSet!</label>
+			<nail x="25" y="-229"/>
+		</transition>
+		<transition>
+			<source ref="id8"/>
+			<target ref="id12"/>
+			<label kind="assignment" x="-262" y="-229">ChooseRoute(3)</label>
+			<nail x="-280" y="-229"/>
+		</transition>
+		<transition>
+			<source ref="id8"/>
+			<target ref="id11"/>
+			<label kind="assignment" x="-238" y="-144">ChooseRoute(2)</label>
+			<nail x="-229" y="-153"/>
+		</transition>
+		<transition controllable="false">
+			<source ref="id10"/>
+			<target ref="id8"/>
+			<label kind="select" x="-255" y="51">id : id_car</label>
+			<label kind="synchronisation" x="-178" y="51">Reroute[id]?</label>
+			<nail x="25" y="76"/>
+			<nail x="-280" y="76"/>
+		</transition>
+		<transition>
+			<source ref="id8"/>
+			<target ref="id9"/>
+			<label kind="assignment" x="-255" y="-51">ChooseRoute(1)</label>
+		</transition>
+		<transition controllable="false">
+			<source ref="id7"/>
+			<target ref="id8"/>
+			<label kind="select" x="-433" y="-17">id : id_car</label>
+			<label kind="synchronisation" x="-442" y="-42">Reroute[id]?</label>
+		</transition>
+	</template>
+	<system>// Place template instantiations here.
+
+
+
+
+// List one or more processes to be composed into a system.
+//Rerouters(int[0,N-1] id) = Rerouter(id);
+
+system Simulator, Rerouter;
+    </system>
+	<queries>
+		<query>
+			<formula>E&lt;&gt; Controller.End</formula>
+			<comment></comment>
+		</query>
+	</queries>
+</nta>

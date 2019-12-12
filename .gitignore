@@ -15,5 +15,13 @@ VerifierPath.py
 #xml files in results
 results/*.xml
 
+#log files
+LogFile.txt
+CPU-LogFile.txt
+
+
+#Temp model
+UppaalModels/tempModel1.xml
+
 #TL temp models
 UppaalModels/TrafficLightTempModels/

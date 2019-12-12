@@ -6,6 +6,7 @@ import os
 import sys
 import optparse
 import subprocess
+import csv
 import random
 import time
 import math
@@ -36,16 +37,23 @@ PORT = 8873
 rootDir = os.path.abspath(os.getcwd())
 pathToResults = os.path.join(rootDir,'results')
 pathToModels = os.path.join(rootDir,'UppaalModels')
-icavQuery = os.path.join(pathToModels, 'TNC.q')
-icavModel = os.path.join(pathToModels, 'TrafficNetworkController.xml')
+mainQuery = os.path.join(pathToModels, 'TNC.q')
+mainModel = os.path.join(pathToModels, 'TNC_OneChoice.xml')
+listOfCarTimeLists = []
 
 
 def run(options):
     """execute the TraCI control loop"""
+    #sys.stdout = open('stdoutFileTest', 'w')
     print("starting run")
     traci.init(options.port)
     step = 0
     ListOfCarsPlaceholder = []
+    amountOfReroutes = 0
+    amountOfSuggestedReroutes = 0
+    totalTeleports = 0
+    totalRouteDif = 0
+    newRoutes = []
     networkGraph = preprocess()    
     pathsToFind = 3
 
@@ -118,11 +126,26 @@ def run(options):
         if((edge[0] == ":") == False):
             listOfEdges.append(edge)
     #-------------------- END -------------------------------------------------------
+
+    #------------------------------setup for closing roads------------------------------
+    closingEdgeInfo = []
+    if options.controller == "TrafficNetworkController":
+        dom = minidom.parse(options.sumocfg)
+        rerouterTag = dom.getElementsByTagName("additional-files")
+        if (len(rerouterTag) > 0):
+            rerouteFileName = rerouterTag[0].getAttribute("value")
+            nameForCSV = rerouteFileName.split(".")[0]
+            print(get_directory() + nameForCSV + ".csv")
+            
+            with open(get_directory() + nameForCSV + ".csv", 'r') as f:
+                reader = csv.reader(f)
+                closingEdgeInfo = list(reader)
+    #--------------------------------END-------------------------------------------------
     print("Starting simulation expid=" + str(options.expid))
 
     while traci.simulation.getMinExpectedNumber() > 0:
         print(">>>simulation step: " + str(step))
-
+                
         #------------------------- SMART TRAFFIC LIGHT -----------------------------
         if options.trafficlight == "smart":
             with concurrent.futures.ThreadPoolExecutor(max_workers=len(ListOfTls)) as executor:
@@ -150,13 +173,73 @@ def run(options):
 
         #THE DEFAULT CONTROLLER - doesnt do anything 
         if options.controller == "default":
-            CarsInNetworkList = traci.vehicle.getIDList()
-            print(CarsInNetworkList)
+            print(traci.trafficlight.getProgram('n3'))
 
         #THE MAIN CONTROLLER
-        if options.controller == "TrafficNetworkController":
-            Cars = traci.vehicle.getIDList()
+        if (options.controller == "TrafficNetworkController"):
+            #Update graph weights according to current traffic
+            closedEdges = []
+            CarsInNetworkList = traci.vehicle.getIDList()
+            #if(step > 300 and step < 700):
+            #closedEdges = [('n11','n56'), ('n56','n11'), ('n7','n56'), ('n56','n7')]
+            if len(closingEdgeInfo) > 0:
+                iterator = 0
+                for line in closingEdgeInfo:
+                    if iterator != 0:
+                        #NOTE -20 is here to give info that road is closing 20 secs before
+                        if int(line[1]) - 20 <= step and int(line[2]) >= step:
+                            closedEdges.append(tuple(line[0].split("-")))
+                            print(closedEdges)
+                    iterator += 1
 
+            edges = list(networkGraph.edges)
+            for i in range(0,len(edges)):
+                networkGraph[edges[i][0]][edges[i][1]]['weight'] = get_weight(edges[i][0],edges[i][1], "travelTime")
+            NodeIDs = networkGraph.nodes()      
+        
+            if len(CarsInNetworkList) > 0:
+                Cars = []
+                networkNodes = []
+                rerouteNum = 0
+                update_time_on_edge(CarsInNetworkList)
+                for id in NodeIDs:
+                    networkNodes.append([id[1:], traci.junction.getPosition(id)])
+                for car in CarsInNetworkList:
+                    rerouteVal = check_reroute(car,closedEdges, 2)
+                    Cars.append([car, get_route_nodes(car), get_time_on_edge(car), rerouteVal])
+                    if rerouteVal != 0:
+                        rerouteNum += 1
+
+                print("Num reroutes: " + str(rerouteNum))
+
+                if(step % 10 == 0):      
+                    for car in newRoutes:
+                        car.kill()
+                    newRoutes = []
+                    if options.partition >= 1:
+                        partitions = create_partitions(Cars)
+                        print(len(partitions))
+                        for i in range(0,len(partitions)):       
+                            partNewRoutes = modelCaller(mainModel, mainQuery, options.expid, step, partitions[i], networkGraph, networkNodes, closedEdges)
+                            newRoutes = newRoutes + partNewRoutes
+                            if i != (len(partitions) - 1):
+                                for car in newRoutes:
+                                    car.to_string()
+                                partitions[i+1] = update_next_partition(newRoutes, partitions[i+1])
+                    else:
+                        newRoutes = modelCaller(mainModel, mainQuery, options.expid, step, Cars, networkGraph, networkNodes, closedEdges)
+
+                for car in newRoutes:
+                    car.update_route()
+                    if car.rerouted:
+                        amountOfSuggestedReroutes += 1
+                        totalRouteDif += car.routeChange
+                        if(car.choice):
+                            amountOfReroutes += 1
+                        
+
+                newRoutes = [car for car in newRoutes if not car.rerouted]
+            
         #Simple rerouting controller
         if options.controller == "SimpleRerouting":
             CarsInNetworkList = traci.vehicle.getIDList()  
@@ -181,10 +264,13 @@ def run(options):
                 assign_random_new_route(car, kShortestPaths)
 
             ListOfCarsPlaceholder = list(CarsInNetworkList)
-
-
+        totalTeleports += traci.simulation.getEndingTeleportNumber()
+        if (amountOfReroutes > 0):
+            print("Amount of suggested reroutes so far: " + str(amountOfSuggestedReroutes))
+            print("Amount of reroutes so far: " + str(amountOfReroutes))
+        print("Amount of teleports so far: " + str(totalTeleports))
         traci.simulationStep()
-        step += 1    
+        step += 1
     traci.close()
     sys.stdout.flush()
 
@@ -195,9 +281,93 @@ def preprocess():
 def get_weight(node1, node2, measure):
     if(measure == "euclidian"):
         #Find euclidian distance between nodes - node1[1][0] is the x coordinate for node1 as an example
-        return math.sqrt((pow(node1[0] - node2[0],2)) + (pow(node1[1] - node2[1],2)))
-    
-    return 9999
+        return math.sqrt((pow(node1[0] - node2[0],2)) + (pow(node1[1] - node2[1],2))) #expects the nodes as a set of coordinates
+    if(measure == "travelTime"):
+        edge = node1 +"-"+ node2
+        if(traci.edge.getLaneNumber(edge) == 1):
+            return (13.73 * (traci.lane.getLength(edge + "_0") / 200)) + 1.54 * traci.edge.getLastStepVehicleNumber(edge) * (200/traci.lane.getLength(edge + "_0"))
+        elif(traci.edge.getLaneNumber(edge) == 2):
+            return (7.37 * (traci.lane.getLength(edge + "_0") / 100)) + 0.17 * traci.edge.getLastStepVehicleNumber(edge) * (100/traci.lane.getLength(edge + "_0"))
+        elif(traci.edge.getLaneNumber(edge) == 3):
+            return (6.46 * (traci.lane.getLength(edge + "_0") / 100)) + 0.44 * traci.edge.getLastStepVehicleNumber(edge) * (100/traci.lane.getLength(edge + "_0"))
+        elif(traci.edge.getLaneNumber(edge) == 4):
+            return (5.69  * (traci.lane.getLength(edge + "_0") / 100)) + 0.84 * traci.edge.getLastStepVehicleNumber(edge) * (100/traci.lane.getLength(edge + "_0"))
+        
+def check_reroute(car, closedEdges, numEdgesToCheck):
+    route = traci.vehicle.getRoute(car)
+    for edge in route[traci.vehicle.getRouteIndex(car):]:
+        numEdgesToCheck -= 1
+        if edge in nodestuples_to_edges(closedEdges):
+            return 2
+        elif numEdgesToCheck > 0 and  check_edge_reroute(edge):
+            return 1
+        else:
+            return 0
+
+def check_edge_reroute(edge):
+    keyLoc = edge.find("-")
+    threshold = get_threshold(traci.lane.getLength(edge + "_0"))
+    weight = get_weight(edge[:keyLoc], edge[keyLoc + 1:], "travelTime")
+    return weight > threshold
+
+def get_threshold(edge_length):
+    ret = 0.0
+    threshold = 12.0
+
+    ret = threshold * (edge_length/100.0)
+
+    return ret
+
+def nodestuples_to_edges(nodes):
+    edges = []
+    for i in range(0, len(nodes)):
+        edge = nodes[i][0] + "-" + nodes[i][1]
+        edges.append(edge)
+    return edges
+
+def create_partitions(cars):
+    flaggedCars = []
+    partitions = []
+    j = 0
+
+    #Find all cars that are flagged for reroute
+    for i in range(0,len(cars)):
+        if cars[i][3] in {1,2}:
+            flaggedCars.append(cars[i])
+
+    currFlagged = []
+    carsCopy = copy.deepcopy(cars)
+    for i in range(0,len(cars)):
+        if cars[i] in flaggedCars:
+            currFlagged.append(cars[i])
+            j += 1
+        #Creates partition of the option parsed in
+        if j == options.partition:
+            carsCopy = set_flags(carsCopy, cars, currFlagged)
+            partitions.append(carsCopy)
+            currFlagged = []
+            carsCopy = copy.deepcopy(cars)
+            j = 0
+    if(len(currFlagged) > 0):
+        carsCopy = set_flags(carsCopy,cars,currFlagged)
+        partitions.append(carsCopy)
+
+    return partitions
+
+def set_flags(carsCopy, cars, currFlagged):
+    for i in range(0,len(cars)):
+        if cars[i] not in currFlagged:
+            carsCopy[i][3] = 0
+        else:
+            carsCopy[i][3] = cars[i][3]
+    return carsCopy
+
+def update_next_partition(newRoutes, partition):
+    for i in range(0,len(partition)):
+        for car in newRoutes:
+            if partition[i][0] == car.pid:
+                partition[i][1] = car.newRoute
+    return partition
 
 def find_k_shortest_paths(G, source, target, k):
     return list(islice(nx.shortest_simple_paths(G, source, target, weight='weight'), k))
@@ -238,7 +408,7 @@ def configure_graph_from_network():
 
     net = sumolib.net.readNet(netFileDirectory + netFile)
 
-    #Checks if the note is an internal node in one of the intersections
+    #Checks if the node is an internal node in one of the intersections
     for node in TupleOfNodes:
         if((node[0] == ":") == False):
             ListOfNodes.append(node)
@@ -247,7 +417,10 @@ def configure_graph_from_network():
     for edge in tupleOfEdges:
         if((edge[0] == ":") == False):
             keyLoc = edge.find("-")
-            EdgeTuple = (edge[:keyLoc], edge[keyLoc + 1:], float(get_weight(net.getNode(edge[:keyLoc]).getCoord(), net.getNode(edge[keyLoc + 1:]).getCoord(), "euclidian")))
+            #EdgeTuple = (edge[:keyLoc], edge[keyLoc + 1:], 
+            #             float(get_weight(net.getNode(edge[:keyLoc]).getCoord(), net.getNode(edge[keyLoc + 1:]).getCoord(), "euclidian")))
+            #This stuff initializes the weight to the euclidian distance between the nodes
+            EdgeTuple = (edge[:keyLoc], edge[keyLoc + 1:], float(get_weight(edge[:keyLoc], edge[keyLoc + 1:], "travelTime"))) #Creates the weights according to traveltime
             ListOfEdges.append(EdgeTuple)
 
     G.add_nodes_from(ListOfNodes)
@@ -257,6 +430,48 @@ def configure_graph_from_network():
     #plt.show()
 
     return G
+
+def get_route_nodes(car):
+    route = traci.vehicle.getRoute(car)
+    route_nodes = []
+    end_node = -1
+
+    for edge in route:
+        route_nodes.append(edge.split('-')[0][1:])
+        end_node = edge.split('-')[1][1:]
+    route_nodes.append(end_node)
+    #pad with -1 to keep uppaal happy
+    route_nodes += [-1] * (57 - len(route_nodes))  
+    
+    return route_nodes
+
+def update_time_on_edge(cars):
+    placeHolderList = listOfCarTimeLists.copy()
+    for car in cars:
+        hasEntry = False
+        if listOfCarTimeLists:
+            #print(len(placeHolderList))
+            for elem in placeHolderList:
+                if(elem[0] == car and elem[1] == traci.vehicle.getRoadID(car)):
+                    elem[2] = elem[2] + 1
+                    hasEntry = True
+                elif(elem[0] == car):
+                    hasEntry = True
+                    elem[1] = traci.vehicle.getRoadID(car)
+                    elem[2] = 0
+            if(hasEntry == False):
+                listOfCarTimeLists.append([car, 
+                                    traci.vehicle.getRoadID(car), 
+                                    0])
+        else:
+            listOfCarTimeLists.append([car, 
+                                    traci.vehicle.getRoadID(car), 
+                                    0])
+
+def get_time_on_edge(car):
+    for elem in listOfCarTimeLists:
+        if(elem[0] == car and elem[1] == traci.vehicle.getRoadID(car)):
+            return elem[2]
 
 def get_directory():
     key = "/"
@@ -287,6 +502,7 @@ def get_options():
     optParser.add_option("--load", type="string", dest="load",default="0")
     optParser.add_option("--controller", type="string", dest="controller",default="default")
     optParser.add_option("--trafficlight", type="string", dest="trafficlight",default="traditional")
+    optParser.add_option("--partition", type="int", dest="partition",default="0")
     options, args = optParser.parse_args()
     return options
 

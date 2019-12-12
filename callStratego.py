@@ -39,7 +39,7 @@ def myGetSubString(mstr, key, greenModel):
     key_len = len(key)
     found = mstr.find(key)
     if found == -1:
-        return "no-strategy"        
+        return -1        
     else:
         start = found + key_len     
         end = mstr.find(delim, start+5) +1 #To make sure we search the next line for linebreak 
@@ -53,9 +53,13 @@ def getTuple(mstr, pos):
     pos1 = mstr.find(startKey,pos)
     pos2 = mstr.find(splitKey,pos1)
     pos3 = mstr.find(endKey,pos2)
-    val1 = mstr[pos1+1:pos2]
-    val2 = mstr[pos2+1:pos3]
-    return int(val1),int(val2), pos3
+
+    if -1 in {pos1,pos2,pos3}:
+        return -1,-1,-1
+    else:
+        val1 = mstr[pos1+1:pos2]
+        val2 = mstr[pos2+1:pos3]
+        return int(val1),int(val2), pos3
 
 def getSignalStrategy(signaliStr):
     found = False
@@ -67,7 +71,9 @@ def getSignalStrategy(signaliStr):
     while not found:
         oldval1 = val1
         oldval2 = val2
-        val1,val2,pos=getTuple(signaliStr,pos)        
+        val1,val2,pos=getTuple(signaliStr,pos)  
+        if -1 in {val1,val2,pos}:
+            return -1,-1
         if val1 > oldval1:
             found = True
             if oldval2 == 1:
@@ -162,7 +168,7 @@ def createModel(master_model,expId,carsAreal,carsJammed,phase,duration,simStep,b
     text_file.close()
     return modelName
 
-def createQuery(master_query,nrOfSignals,tlID):
+def createQuery(master_query,nrOfSignals,tlID,expId):
     fo = open(master_query, "r+")
     str_query = fo.read()
     fo.close()
@@ -174,7 +180,7 @@ def createQuery(master_query,nrOfSignals,tlID):
     value = value[:-1]
     str_query = str.replace(str_query, toReplace, value, 1)
 
-    queryName = rootDir + "/UppaalModels/TrafficLightTempModels/tempQuery" + str(tlID) + '.q'
+    queryName = rootDir + "/UppaalModels/TrafficLightTempModels/tempQuery" + str(tlID) + "-" + str(expId) + '.q'
     text_file = open(queryName, "w")
     text_file.write(str_query)
     text_file.close()
@@ -185,7 +191,7 @@ def cStratego(model,query,learningMet,succRuns,maxRuns,goodRuns,evalRuns,maxIter
               carsAreal,carsJammed,phase,duration,simStep,nrOfSignals,binaryPhasesDecimal, 
               binaryPhases, binaryPhaseIndices,tlID,yellowTime,greenModel=False,greenTimer=0):      
     newModel = createModel(model,expId,carsAreal,carsJammed,phase,duration,simStep,binaryPhasesDecimal,binaryPhaseIndices,tlID,nrOfSignals,yellowTime,greenModel,greenTimer)
-    newQuery = createQuery(query,nrOfSignals,tlID)
+    newQuery = createQuery(query,nrOfSignals,tlID,expId)
     stratego = VP.veriStratego + " "
     #'time '
     com = stratego
@@ -202,28 +208,16 @@ def cStratego(model,query,learningMet,succRuns,maxRuns,goodRuns,evalRuns,maxIter
     #print("Calling stratego for traffic light strategy \n")
     time_avg_sim, out1 = runStratego(com,args,query)
     sigEnabled,sigDuration = getStrategy(out1,greenModel,nrOfSignals)
-    if(tlID == 'n15'):
-        print(out1)
-        print(sigEnabled)
     #print(sigDuration)
-    #we hardcode the output to the concrete crossing where:
-    #signals 1 2 are WE EW and 3 4 are NS SN
-    # if no flag --stratego is provided, the programm would be the following:
-    #    <tlLogic id="0" type="static" programID="0" offset="0">
-    # the locations of the tls are      NESW
-    #        <phase duration="31" state="GrGr"/>
-    #        <phase duration="6"  state="yryr"/>
-    #        <phase duration="31" state="rGrG"/>
-    #        <phase duration="6"  state="ryry"/>
-    #    </tlLogic>
-    # we start with phase 2 where EW has green
+
     phase = 0
     duration = 0
     yellowPhase = 0
-    #todo: check if we need yellowPhase
     signalsInBinary = ""
     for sig in sigEnabled:
-        if sig:
+        if sig == -1:
+            return -1
+        elif sig:
             signalsInBinary += "1"
         else:
             signalsInBinary += "0"
@@ -234,16 +228,6 @@ def cStratego(model,query,learningMet,succRuns,maxRuns,goodRuns,evalRuns,maxIter
         if(binaryPhases[i] == signalsInBinary):
             phase = i
 
-    """
-    if sigEnabled[0]:
-        phase = 0
-        yellowPhase = 1
-        duration = sigDuration[0]
-    else:
-        phase = 2
-        yellowPhase = 4
-        duration = sigDuration[5]
-    """
     return phase,duration,yellowPhase
 
             
