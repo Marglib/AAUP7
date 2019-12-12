@@ -17,7 +17,7 @@ def generate_multi_results():
     for i in range(startID,endID+1):
         resultDestFile = "results/Results_" + str(i)+ ".csv"
         resultFiles.append(resultDestFile)
-        generate_results(resultDestFile, "results/tripinfo" + str(i) + ".xml", "results/queueinfo" + str(i) + ".xml", i)
+        generate_results(resultDestFile, "results/tripinfo" + str(i) + ".xml", "results/queueinfo" + str(i) + ".xml", "results/emission" + str(i) + ".xml", i) #emission file empty for now
     
     return resultFiles, startID, endID
 

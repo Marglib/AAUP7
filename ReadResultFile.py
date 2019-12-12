@@ -14,10 +14,13 @@ def find_value(line, parameter, digits):
 	return line
 
 
-def generate_results(tripResultDir, tripFileDir, queueFileDir, experimentID):
+def generate_results(tripResultDir, tripFileDir, queueFileDir, emissionFileDir, experimentID):
 	f = open(tripFileDir, "r+")
 	r = open(queueFileDir, "r+")
 
+	
+
+	co2List = []
 	maxDuration = 0
 	maxTimeLoss = 0
 	maxWaitingTime = 0
@@ -81,6 +84,14 @@ def generate_results(tripResultDir, tripFileDir, queueFileDir, experimentID):
 		}
 	df = pd.DataFrame(d)
 
+	if(emissionFileDir != "results/.xml"):
+		e = open(emissionFileDir, "r+")
+		for line in e:
+			if "<vehicle id" in line:
+				co2List.append(find_value(line, "CO2", 5))
+		
+		df['CO2'] = [Average(co2List) / 1000]
+
 	df.to_csv(tripResultDir, index=False)
 	
 	f.close()
@@ -105,6 +116,7 @@ def get_options():
     optParser = optparse.OptionParser()
     optParser.add_option("--tripinfofile", type="string", dest="tripinfofile", default="", help="Parses the trip info. They are in the results directory")
     optParser.add_option("--queuefile", type="string", dest="queuefile", default="", help="Parses the queue info. They are in the results directory")
+    optParser.add_option("--emissionfile", type="string", dest="emissionfile", default="", help="Parses the emission info. They are in the results directory")
     options, args = optParser.parse_args()
     return options
                   
@@ -119,10 +131,12 @@ if __name__ == "__main__":
 
 	tripFileDir = "results/" + options.tripinfofile + ".xml"
 	queueFileDir = "results/" + options.queuefile + ".xml"
+	emissionFileDir = "results/" + options.emissionfile + ".xml"
 	tripResults = "results/Results_" + str(options.tripinfofile) + ".csv"
 
 	experimentID = ''.join(filter(lambda i: i.isdigit(), tripFileDir)) 
 	
-	generate_results(tripResults, tripFileDir, queueFileDir, experimentID)
+	generate_results(tripResults, tripFileDir, queueFileDir, emissionFileDir, experimentID)
+
 
 
