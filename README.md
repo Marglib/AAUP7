@@ -1,87 +1,11 @@
-# Rerouting Controller for Urban Traffic #
+# Rerouting Model for Urban Traffic #
 
 This project consists of a [Uppaal](http://www.uppaal.org/) model for rerouting vehicles and a [SUMO](https://www.dlr.de/ts/en/desktopdefault.aspx/tabid-9883/16931_read-41000/) simulation of urban traffic to test the rerouting.
 
 It also contains some a Python solution for establishing communication between the uppaal model and sumo.
 
 ### Experiment ID's
-
-* 1 - Used for just running a test
-The indeces for the different experiments:
-* 100s - Giant experiments
-    - 100 - smart tl and TNC on a 20000-10000trip file
-    - 101 - No nothing
-    - 102 - Smart tl alone
-* 200s - Capacity experiments
-    
-* 300s - simple rerouting experiments
-    - 301 - 1000 time steps with 1000 trips for a default controller
-    - 302 - 1000 time steps with 2000 trips for a default controller
-
-    - 311 - 1000 time steps with 1000 trips for a simplererouting controller
-    - 312 - 1000 time steps with 2000 trips for a simplererouting controller
-
-* 600s - Small experiments to check performance
-    - 600-604 - No controller & smart trafficlight
-    - 605-609 - TNC & smart trafficlight
-    - 610-614 - No nothing
-
-* 4000-4099 - Smart traffic lights and simple Uppaal implementation - Old Controller
-    - 4000-4020 - All results for smart tl and TrafficNetworkController
-        - 4000-4002 - Load 1000-2000 - smartroute
-        - 4003-4005 - Load 2000-2000 - smartroute
-        - 4006-4008 - Load 2500-2000 - smartroute
-        - 4009-4011 - Load 3000-2000 - smartroute
-        - 4012-4014 - Load 3500-2000 - smartroute
-        - 4015-4017 - Load 4000-2000 - smartroute
-        - 4018-4020 - Load 5000-2000 - smartroute - No results
-    - 4021 - 4041 - All results for TrafficNetworkController and default trafficlights
-        - 4021-4023 - Load 1000-2000 - route
-        - 4024-4026 - Load 2000-2000 - route
-        - 4027-4029 - Load 2500-2000 - route
-        - 4030-4032 - Load 3000-2000 - route
-        - 4033-4035 - Load 3500-2000 - route
-        - 4036-4038 - Load 4000-2000 - route
-        - 4039-4041 - Load 5000-2000 - route - No results
-    - 4042 - 4062 - All results for smart trafficlights and default controller
-        - 4042-4044 - Load 1000-2000 - smart
-        - 4045-4047 - Load 2000-2000 - smart
-        - 4048-4050 - Load 2500-2000 - smart
-        - 4051-4053 - Load 3000-2000 - smart
-        - 4054-4056 - Load 3500-2000 - smart
-        - 4057-4059 - Load 4000-2000 - smart
-        - 4060-4062 - Load 5000-2000 - smart
-    - 4063 - 4083 - All results for no controller and default trafficlights
-        - 4063-4065 - Load 1000-2000 - none
-        - 4066-4068 - Load 2000-2000 - none
-        - 4069-4071 - Load 2500-2000 - none
-        - 4072-4074 - Load 3000-2000 - none
-        - 4075-4077 - Load 3500-2000 - none
-        - 4078-4080 - Load 4000-2000 - none
-        - 4081-4083 - Load 5000-2000 - none
-
-* 4100-4199 - Smart trafficlight and TNC_OneChoice
-    - 4100-4117 - All results for smart tl and TrafficNetworkController
-        - 4100-4102 - Load 1000-2000 - smartroute
-        - 4103-4105 - Load 2000-2000 - smartroute
-        - 4106-4108 - Load 2500-2000 - smartroute
-        - 4109-4111 - Load 3000-2000 - smartroute
-        - 4112-4114 - Load 3500-2000 - smartroute
-        - 4115-4117 - Load 4000-2000 - smartroute
-    - 4121 - 4038 - All results for TrafficNetworkController and default trafficlights
-        - 4121-4123 - Load 1000-2000 - route
-        - 4124-4126 - Load 2000-2000 - route
-        - 4127-4129 - Load 2500-2000 - route
-        - 4130-4132 - Load 3000-2000 - route
-        - 4133-4135 - Load 3500-2000 - route
-        - 4136-4138 - Load 4000-2000 - route
-    - 4142 - 4159 - All results for smart trafficlights and default controller
-        - 4142-4144 - Load 1000-2000 - smart
-        - 4145-4147 - Load 2000-2000 - smart
-        - 4148-4150 - Load 2500-2000 - smart
-        - 4151-4153 - Load 3000-2000 - smart
-        - 4154-4156 - Load 3500-2000 - smart
-        - 4157-4159 - Load 4000-2000 - smart
+The experiment ID's are described [here](results/IndexLookUp.txt)
 
 ### Controllers
 
@@ -131,6 +55,18 @@ $ python3 TripGenerator.py --trips 50 --time 50 --useProbFile --edgeFile ~/AAUP7
 * `--edgeFile` - The file containing the edges of the network to generate trips from
 * `-o` - The name of the generated tripfile 
 
+
+### Creating verifierpath.py
+In order to be able to run the simulation you must first create a file name verifierpath.py in the AAUP7 folder. This file should contain the following:
+
+```
+import sys
+import os
+from os.path import expanduser
+
+veri = '/path/to/uppaal64-4.1.20-stratego-6/bin-Linux/verifyta'
+veriStratego = '/path/to/uppaal-stratego-4-1-20-3/bin-Linux/verifyta'
+```
 
 ### Running the simulation
 
