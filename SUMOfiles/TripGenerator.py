@@ -29,8 +29,7 @@ import traci
 
 rootDir = os.path.abspath(os.getcwd())
 pathToFiles = rootDir
-routeFile = os.path.join(pathToFiles,"RouteFileTemplate.rou.xml")
-
+routeFile = "SUMOfiles/RouteFileTemplate.rou.xml"
 
 def generateTrips(options, edgeFileDir):
     fromNodes = []
@@ -72,7 +71,7 @@ def generateTrips(options, edgeFileDir):
         generateRerouter()
 
     if options.useProbFile:
-        df = pd.read_csv(os.path.join(pathToFiles,"inOutNodes.txt"))
+        df = pd.read_csv("SUMOfiles/inOutNodes.txt")
         
         isCorrect = verifyProbabilitys(df)
         fromNodes = [element.split("-")[0] for element in fromEdges]
